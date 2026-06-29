@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한의학개론 음양오행</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Pretendard:wght@300;400;500;600;700&display=swap');
+:root{--bg:#f8f8f6;--s:#fff;--s2:#f3f3f0;--bd:#e5e3df;--t:#1c1917;--t2:#57534e;--t3:#a8a29e;--g:#166534;--gl:#f0fdf4;--r:#991b1b;--rl:#fef2f2;--rd:12px;
+--yang:#dc2626;--yangl:#fef2f2;--yin:#2563eb;--yinl:#eff6ff;
+--wood:#15803d;--woodl:#f0fdf4;--fire:#dc2626;--firel:#fef2f2;--earth:#a16207;--earthl:#fefce8;--metal:#6b7280;--metall:#f3f4f6;--water:#1d4ed8;--waterl:#eff6ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--t);min-height:100vh}
+.hero{padding:36px 24px 24px;text-align:center;background:var(--s);border-bottom:1px solid var(--bd)}
+.hero h1{font-family:'Noto Serif KR',serif;font-size:24px;font-weight:900;letter-spacing:2px;margin-bottom:2px}
+.hero .sub{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:600;color:var(--t2);letter-spacing:3px}
+.nav{display:flex;gap:5px;padding:10px 16px;background:var(--s);border-bottom:1px solid var(--bd);overflow-x:auto;position:sticky;top:0;z-index:100}
+.tab{padding:6px 13px;border:1px solid var(--bd);background:var(--s);border-radius:100px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.15s;font-family:inherit;color:var(--t2)}
+.tab:hover{border-color:var(--t3)}.tab.on{background:var(--t);color:#fff;border-color:var(--t)}
+.tab.yy{border-color:var(--yang);color:var(--yang)}.tab.yy.on{background:var(--yang);color:#fff}
+.tab.oh{border-color:var(--wood);color:var(--wood)}.tab.oh.on{background:var(--wood);color:#fff}
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px 80px}
+.sec{display:none}.sec.on{display:block}
+.btn{padding:9px 20px;border:1px solid var(--bd);background:var(--s);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;transition:.15s;font-weight:500}.btn:hover{background:var(--t);color:#fff;border-color:var(--t)}
+
+/* ===== 음양 퀴즈 ===== */
+.yy-prog{text-align:center;font-size:11px;color:var(--t3);margin-bottom:6px}
+.yy-bar{height:4px;background:var(--bd);border-radius:2px;overflow:hidden;margin-bottom:20px}
+.yy-bar-fill{height:100%;background:var(--g);border-radius:2px;transition:width .3s}
+.yy-prompt{text-align:center;font-size:14px;color:var(--t2);margin-bottom:16px;font-weight:500}
+.yy-cat-wrap{text-align:center;margin-bottom:14px}
+.yy-cat{font-size:11px;color:var(--t3);padding:4px 12px;background:var(--s2);border-radius:100px;display:inline-block}
+.yy-pair{display:flex;gap:14px;justify-content:center;margin-bottom:20px}
+.yy-card{flex:1;max-width:220px;background:var(--s);border:2.5px solid var(--bd);border-radius:var(--rd);padding:22px 14px;text-align:center;cursor:pointer;transition:.2s;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.yy-card:hover{border-color:var(--t3);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.yy-card .yc-h{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:900;margin-bottom:6px}
+.yy-card .yc-r{font-size:12px;color:var(--t2)}.yy-card .yc-d{font-size:10px;color:var(--t3)}
+.yy-card.yang-ok{border-color:var(--yang);background:var(--yangl);pointer-events:none;border-width:4px;transform:scale(1.03)}
+.yy-card.yang-ok::after{content:'陽';display:block;margin-top:8px;font-family:'Noto Serif KR',serif;font-size:14px;font-weight:700;color:var(--yang)}
+.yy-card.yin-ok{border-color:var(--yin);background:var(--yinl);pointer-events:none;border-width:4px;transform:scale(1.03)}
+.yy-card.yin-ok::after{content:'陰';display:block;margin-top:8px;font-family:'Noto Serif KR',serif;font-size:14px;font-weight:700;color:var(--yin)}
+.yy-card.disabled{pointer-events:none}
+.yy-result{text-align:center;margin-bottom:14px;font-size:16px;font-weight:700;min-height:28px}
+.yy-result.ok{color:var(--g)}.yy-result.no{color:var(--r)}
+.yy-sc{display:flex;justify-content:center;gap:16px;font-size:13px;margin-bottom:14px}
+.yy-sc .ok{color:var(--g);font-weight:600}.yy-sc .no{color:var(--r);font-weight:600}
+.yy-ctrl{text-align:center}
+.yy-reviewing{text-align:center;font-size:12px;color:var(--r);font-weight:600;margin-bottom:6px}
+
+/* ===== 오행 퀴즈 ===== */
+.oh-setup{background:var(--s);border:1px solid var(--bd);border-radius:var(--rd);padding:24px;text-align:center}
+.oh-setup h2{font-size:16px;font-weight:700;margin-bottom:16px}
+.oh-modes{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+.oh-mb{padding:8px 18px;border:1px solid var(--bd);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--t2);background:var(--s);transition:.15s}
+.oh-mb:hover{border-color:var(--t3)}.oh-mb.on{background:var(--t);color:#fff;border-color:var(--t)}
+.oh-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.oh-row label{font-size:13px;font-weight:500;color:var(--t2);min-width:120px;text-align:right}
+.sel{padding:6px 12px;border:1px solid var(--bd);border-radius:8px;font-size:13px;font-family:inherit;background:var(--s);cursor:pointer}
+.oh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.oh-prog{font-size:11px;color:var(--t3)}
+.oh-reset-sm{font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline}.oh-reset-sm:hover{color:var(--r)}
+.oh-bar{height:4px;background:var(--bd);border-radius:2px;overflow:hidden;margin-bottom:16px}
+.oh-bar-fill{height:100%;background:var(--g);border-radius:2px;transition:width .3s}
+.oh-cat{text-align:center;margin-bottom:14px}
+.oh-cat span{font-size:15px;font-weight:700;padding:6px 20px;background:var(--s);border:1.5px solid var(--bd);border-radius:100px;display:inline-block}
+.oh-reviewing{text-align:center;font-size:12px;color:var(--r);font-weight:600;margin-bottom:6px}
+.oh-row-q{display:flex;justify-content:center;gap:10px;margin-bottom:28px;align-items:center;min-height:110px;flex-wrap:wrap}
+.oh-item{font-family:'Noto Serif KR',serif;font-weight:700;text-align:center;transition:.3s;padding:6px;border-radius:8px;min-width:44px}
+.oh-item.normal{font-size:20px;color:var(--t3);opacity:.35}
+.oh-item.highlight{font-size:52px;color:var(--t);opacity:1;background:var(--s);border:3px solid var(--t);border-radius:14px;padding:14px 24px;box-shadow:0 6px 24px rgba(0,0,0,.1)}
+.oh-item .oh-rd{font-family:'Pretendard',sans-serif;font-size:10px;font-weight:400;color:var(--t3);margin-top:2px}
+.oh-item.highlight .oh-rd{font-size:13px;color:var(--t2)}
+.oh-prompt{text-align:center;font-size:13px;color:var(--t2);margin-bottom:12px;font-weight:500}
+.oh-opts{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.oh-opt{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:900;padding:14px 22px;border:2px solid var(--bd);border-radius:var(--rd);cursor:pointer;background:var(--s);transition:.25s;text-align:center;min-width:64px}
+.oh-opt:hover{border-color:var(--t3);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.oh-opt .oh-oread{font-family:'Pretendard',sans-serif;font-size:10px;font-weight:400;color:var(--t3);margin-top:2px}
+.oh-opt.ok{border-width:4px;transform:scale(1.08);box-shadow:0 6px 20px rgba(0,0,0,.1);pointer-events:none}
+.oh-opt.ok.c-wood{border-color:var(--wood);background:var(--woodl);color:var(--wood)}
+.oh-opt.ok.c-fire{border-color:var(--fire);background:var(--firel);color:var(--fire)}
+.oh-opt.ok.c-earth{border-color:var(--earth);background:var(--earthl);color:var(--earth)}
+.oh-opt.ok.c-metal{border-color:var(--metal);background:var(--metall);color:var(--metal)}
+.oh-opt.ok.c-water{border-color:var(--water);background:var(--waterl);color:var(--water)}
+.oh-opt.no{border-color:var(--r);background:var(--rl);color:var(--r);pointer-events:none;border-width:3px}
+.oh-opt.dim{opacity:.3;pointer-events:none}
+.oh-result{text-align:center;margin:14px 0;font-size:16px;font-weight:700;min-height:28px}
+.oh-result.ok{color:var(--g)}.oh-result.no{color:var(--r)}
+.oh-sc{display:flex;justify-content:center;gap:16px;font-size:13px;margin-bottom:14px}
+.oh-sc .ok{color:var(--g);font-weight:600}.oh-sc .no{color:var(--r);font-weight:600}
+.oh-ctrl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.oh-revhint{text-align:center;font-size:11px;color:var(--t3);margin-top:8px}
+
+/* tables */
+.t-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;min-width:400px}
+.tbl caption{font-size:14px;font-weight:700;margin-bottom:8px;text-align:left}
+.tbl th{background:var(--s2);padding:8px 6px;border:1px solid var(--bd);font-weight:600;text-align:center;white-space:nowrap}
+.tbl td{padding:8px 6px;border:1px solid var(--bd);text-align:center}
+.tbl .hj{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;display:block}
+.tbl .rd{font-size:10px;color:var(--t3)}
+.tbl .yang-h{background:var(--yangl);color:var(--yang)}.tbl .yin-h{background:var(--yinl);color:var(--yin)}
+.tbl .el-wood{background:var(--woodl)}.tbl .el-fire{background:var(--firel)}.tbl .el-earth{background:var(--earthl)}.tbl .el-metal{background:var(--metall)}.tbl .el-water{background:var(--waterl)}
+.tbl .el-h{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:900}
+.tbl .desc{font-size:10px;color:var(--t3)}
+.tbl .cat-cell{cursor:pointer;position:relative;font-weight:700;font-size:13px}
+.tbl .cat-cell .cat-rd{display:block;font-size:9px;color:var(--t3);font-weight:400}
+.tbl .cat-cell .cat-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--t);color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;white-space:nowrap;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.15);font-weight:400}
+.tbl .cat-cell .cat-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--t)}
+.tbl .cat-cell:hover .cat-tip,.tbl .cat-cell.show-tip .cat-tip{display:block}
+@media(max-width:480px){.yy-card .yc-h{font-size:22px}.yy-pair{gap:10px}.oh-item.highlight{font-size:40px;padding:10px 16px}.oh-item.normal{font-size:16px}.oh-opt{font-size:16px;padding:10px 16px;min-width:52px}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>한의학개론</h1>
+  <div class="sub">陰陽五行</div>
+</div>
+<div class="nav">
+  <button class="tab yy on" onclick="go('yq',this)">음양 퀴즈</button>
+  <button class="tab oh" onclick="go('oq',this)">오행 퀴즈</button>
+  <button class="tab" onclick="go('yt',this)">음양 정리표</button>
+  <button class="tab" onclick="go('ot',this)">오행 정리표</button>
+</div>
+<div class="wrap">
+
+<!-- ===== 음양 퀴즈 ===== -->
+<div class="sec on" id="yq">
+<div id="yySetup" class="oh-setup">
+  <h2>음양 퀴즈 설정</h2>
+  <div class="oh-row" style="margin-bottom:14px">
+    <label>한글 표시</label>
+    <select class="sel" id="yyHangul">
+      <option value="1" selected>한자 + 한글</option>
+      <option value="0">한자만</option>
+    </select>
+  </div>
+  <div class="oh-row">
+    <label>문제 수</label>
+    <select class="sel" id="yyCount">
+      <option value="5">5문제</option>
+      <option value="10">10문제</option>
+      <option value="17" selected>전체 (17문제)</option>
+    </select>
+  </div>
+  <button class="btn" style="margin-top:16px" onclick="yyStart()">퀴즈 시작</button>
+</div>
+<div id="yyQuiz" style="display:none">
+<div class="oh-top"><div class="yy-prog" id="yyProg"></div><div class="oh-reset-sm" onclick="yyReset()">초기화 ↩</div></div>
+<div class="yy-bar"><div class="yy-bar-fill" id="yyBar"></div></div>
+<div class="yy-reviewing" id="yyReview" style="display:none"></div>
+<div class="yy-cat-wrap"><span class="yy-cat" id="yyCat"></span></div>
+<div class="yy-prompt" id="yyPrompt">양(陽)에 해당하는 것을 고르세요</div>
+<div class="yy-pair" id="yyPair"></div>
+<div class="yy-result" id="yyResult"></div>
+<div class="yy-sc" id="yySc"></div>
+<div class="yy-ctrl">
+  <button class="btn" id="yyPrev" onclick="yyGoPrev()" style="display:none">◀ 오답 복습</button>
+  <button class="btn" id="yyNext" onclick="yyNx()" style="display:none">다음 ▶</button>
+  <button class="btn" id="yyDone" onclick="yyReset()" style="display:none">다시 시작</button>
+</div>
+<div class="oh-revhint" id="yyRevHint" style="display:none"></div>
+</div>
+</div>
+
+<!-- ===== 오행 퀴즈 ===== -->
+<div class="sec" id="oq">
+<div id="ohSetup" class="oh-setup">
+  <h2>오행 퀴즈 설정</h2>
+  <div class="oh-modes">
+    <button class="oh-mb on" id="ohMA" onclick="ohMode='A';document.getElementById('ohMA').classList.add('on');document.getElementById('ohMB').classList.remove('on')">한자 → 五行</button>
+    <button class="oh-mb" id="ohMB" onclick="ohMode='B';document.getElementById('ohMB').classList.add('on');document.getElementById('ohMA').classList.remove('on')">五行 → 한자</button>
+  </div>
+  <div class="oh-row"><label>카테고리당 문제 수</label>
+    <select class="sel" id="ohPerCat">
+      <option value="1">1개</option><option value="2">2개</option><option value="3" selected>3개</option><option value="4">4개</option><option value="5">전부 (5개)</option>
+    </select>
+  </div>
+  <div style="font-size:11px;color:var(--t3);margin-top:6px" id="ohTotal">10개 카테고리 × 3개 = 총 30문제</div>
+  <button class="btn" style="margin-top:16px" onclick="ohStart()">퀴즈 시작</button>
+</div>
+<div id="ohQuiz" style="display:none">
+  <div class="oh-top"><div class="oh-prog" id="ohProg"></div><div class="oh-reset-sm" onclick="ohReset()">초기화 ↩</div></div>
+  <div class="oh-bar"><div class="oh-bar-fill" id="ohBar"></div></div>
+  <div class="oh-reviewing" id="ohReview" style="display:none"></div>
+  <div class="oh-cat" id="ohCat"></div>
+  <div class="oh-row-q" id="ohRow"></div>
+  <div class="oh-prompt" id="ohPrompt"></div>
+  <div class="oh-opts" id="ohOpts"></div>
+  <div class="oh-result" id="ohResult"></div>
+  <div class="oh-sc" id="ohSc"></div>
+  <div class="oh-ctrl">
+    <button class="btn" id="ohPrev" onclick="ohGoPrev()" style="display:none">◀ 오답 복습</button>
+    <button class="btn" id="ohNext" onclick="ohNx()" style="display:none">다음 ▶</button>
+    <button class="btn" id="ohDone" onclick="ohReset()" style="display:none">다시 시작</button>
+  </div>
+  <div class="oh-revhint" id="ohRevHint" style="display:none"></div>
+</div>
+</div>
+
+<!-- ===== 음양 정리표 ===== -->
+<div class="sec" id="yt">
+<table class="tbl">
+  <caption>음양 총론</caption>
+  <tr><th class="yin-h">陰</th><th class="yang-h">陽</th></tr>
+  <tr><td><span class="hj">地</span> 땅</td><td><span class="hj">天</span> 하늘</td></tr>
+  <tr><td><span class="hj">女</span> 여자</td><td><span class="hj">男</span> 남자</td></tr>
+  <tr><td><span class="hj">夜</span> 밤</td><td><span class="hj">晝</span> 낮</td></tr>
+  <tr><td><span class="hj">暗</span> 어둠</td><td><span class="hj">明</span> 밝음</td></tr>
+  <tr><td><span class="hj">下</span> 아래</td><td><span class="hj">上</span> 위</td></tr>
+  <tr><td><span class="hj">靜</span> 고요함</td><td><span class="hj">動</span> 움직임</td></tr>
+  <tr><td><span class="hj">重</span> 무거움</td><td><span class="hj">輕</span> 가벼움</td></tr>
+  <tr><td><span class="hj">濕</span> 습함</td><td><span class="hj">燥</span> 건조함</td></tr>
+  <tr><td><span class="hj">體</span> 구조</td><td><span class="hj">用</span> 기능</td></tr>
+</table>
+<table class="tbl">
+  <caption>[생리] 인체 구조/기능</caption>
+  <tr><th></th><th class="yin-h">陰</th><th class="yang-h">陽</th></tr>
+  <tr><td rowspan="4">구조</td><td><span class="hj">裏</span> (리)</td><td><span class="hj">表</span> (표)</td></tr>
+  <tr><td><span class="hj">腹</span> (복)</td><td><span class="hj">背</span> (배)</td></tr>
+  <tr><td><span class="hj">臟</span> =藏精氣</td><td><span class="hj">腑</span> =傳化物</td></tr>
+  <tr><td><span class="hj">營</span> (영)</td><td><span class="hj">衛</span> (위)</td></tr>
+  <tr><td>기능</td><td><span class="hj">養育</span> (양육)</td><td><span class="hj">發生</span>·<span class="hj">推進</span></td></tr>
+  <tr><td>체온</td><td><span class="hj">寒</span> (한)</td><td><span class="hj">熱</span> (열)</td></tr>
+  <tr><td rowspan="2">작용</td><td><span class="hj">收斂</span> (수렴)</td><td><span class="hj">發散</span> (발산)</td></tr>
+  <tr><td><span class="hj">衰退</span> (쇠퇴)</td><td><span class="hj">亢進</span> (항진)</td></tr>
+</table>
+</div>
+
+<!-- ===== 오행 정리표 ===== -->
+<div class="sec" id="ot">
+<div class="t-wrap">
+<table class="tbl">
+<tr><th></th><th class="el-wood"><span class="el-h">木</span></th><th class="el-fire"><span class="el-h">火</span></th><th class="el-earth"><span class="el-h">土</span></th><th class="el-metal"><span class="el-h">金</span></th><th class="el-water"><span class="el-h">水</span></th></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五味<span class="cat-rd">오미</span><span class="cat-tip">다섯 가지 맛</span></td><td><span class="hj">酸</span><span class="rd">신맛 산</span></td><td><span class="hj">苦</span><span class="rd">쓸 고</span></td><td><span class="hj">甘</span><span class="rd">달 감</span></td><td><span class="hj">辛</span><span class="rd">매울 신</span></td><td><span class="hj">鹹</span><span class="rd">짤 함</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五色<span class="cat-rd">오색</span><span class="cat-tip">다섯 가지 색</span></td><td><span class="hj">靑</span><span class="rd">푸를 청</span></td><td><span class="hj">赤</span><span class="rd">붉을 적</span></td><td><span class="hj">黃</span><span class="rd">누를 황</span></td><td><span class="hj">白</span><span class="rd">흰 백</span></td><td><span class="hj">黑</span><span class="rd">검을 흑</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五氣<span class="cat-rd">오기</span><span class="cat-tip">다섯 가지 기후</span></td><td><span class="hj">風</span><span class="rd">바람 풍</span></td><td><span class="hj">暑</span><span class="rd">더울 서</span></td><td><span class="hj">濕</span><span class="rd">축축할 습</span></td><td><span class="hj">燥</span><span class="rd">마를 조</span></td><td><span class="hj">寒</span><span class="rd">찰 한</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五化<span class="cat-rd">오화</span><span class="cat-tip">다섯 가지 변화</span></td><td><span class="hj">生</span><span class="rd">날 생</span></td><td><span class="hj">長</span><span class="rd">길 장</span></td><td><span class="hj">化</span><span class="rd">될 화</span></td><td><span class="hj">收</span><span class="rd">거둘 수</span></td><td><span class="hj">藏</span><span class="rd">감출 장</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">時令<span class="cat-rd">시령</span><span class="cat-tip">계절</span></td><td><span class="hj">春</span><span class="rd">봄 춘</span></td><td><span class="hj">夏</span><span class="rd">여름 하</span></td><td><span class="hj">長夏</span><span class="rd">장하</span></td><td><span class="hj">秋</span><span class="rd">가을 추</span></td><td><span class="hj">冬</span><span class="rd">겨울 동</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五臟<span class="cat-rd">오장</span><span class="cat-tip">다섯 가지 장기</span></td><td><span class="hj">肝</span><span class="rd">간 간</span></td><td><span class="hj">心</span><span class="rd">마음 심</span></td><td><span class="hj">脾</span><span class="rd">지라 비</span></td><td><span class="hj">肺</span><span class="rd">허파 폐</span></td><td><span class="hj">腎</span><span class="rd">콩팥 신</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">六腑<span class="cat-rd">육부</span><span class="cat-tip">여섯 가지 부</span></td><td><span class="hj">膽</span><span class="rd">쓸개 담</span></td><td><span class="hj">小腸</span><span class="rd">소장</span></td><td><span class="hj">胃</span><span class="rd">밥통 위</span></td><td><span class="hj">大腸</span><span class="rd">대장</span></td><td><span class="hj">膀胱</span><span class="rd">방광</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五官<span class="cat-rd">오관</span><span class="cat-tip">다섯 가지 감각기관</span></td><td><span class="hj">目</span><span class="rd">눈 목</span></td><td><span class="hj">舌</span><span class="rd">혀 설</span></td><td><span class="hj">口</span><span class="rd">입 구</span></td><td><span class="hj">鼻</span><span class="rd">코 비</span></td><td><span class="hj">耳</span><span class="rd">귀 이</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五體<span class="cat-rd">오체</span><span class="cat-tip">다섯 가지 신체조직</span></td><td><span class="hj">筋</span><span class="rd">힘줄 근</span></td><td><span class="hj">脈</span><span class="rd">혈맥 맥</span></td><td><span class="hj">肉</span><span class="rd">고기 육</span></td><td><span class="hj">皮毛</span><span class="rd">피모</span></td><td><span class="hj">骨</span><span class="rd">뼈 골</span></td></tr>
+<tr><td class="cat-cell" onclick="this.classList.toggle('show-tip')">五志<span class="cat-rd">오지</span><span class="cat-tip">다섯 가지 감정</span></td><td><span class="hj">怒</span><span class="rd">성낼 노</span></td><td><span class="hj">喜</span><span class="rd">기쁠 희</span></td><td><span class="hj">思</span><span class="rd">생각 사</span></td><td><span class="hj">悲</span><span class="rd">슬플 비</span></td><td><span class="hj">恐</span><span class="rd">두려울 공</span></td></tr>
+</table>
+</div>
+</div>
+
+</div>
+<script>
+function go(id,el){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById(id).classList.add('on');el.classList.add('on');}
+
+// ========== 음양 퀴즈 ==========
+const YY_PAIRS=[
+["天","地","하늘","땅","","","총론"],
+["男","女","남자","여자","","","총론"],
+["晝","夜","낮","밤","","","총론"],
+["明","暗","밝음","어둠","","","총론"],
+["上","下","위","아래","","","총론"],
+["動","靜","움직임","고요함","","","총론"],
+["輕","重","가벼움","무거움","","","총론"],
+["燥","濕","건조함","습함","","","총론"],
+["用","體","기능","구조","","","총론"],
+["表","裏","표","리","","","인체·구조"],
+["背","腹","등","배","","","인체·구조"],
+["腑","臟","전화물","장정기","","","인체·구조"],
+["衛","營","위","영","","","인체·구조"],
+["發生·推進","養育","발생·추진","양육","","","인체·기능"],
+["熱","寒","열","한","","","인체·체온"],
+["發散","收斂","발산","수렴","","","인체·작용"],
+["亢進","衰退","항진","쇠퇴","","","인체·작용"]
+];
+
+let yyQ=[],yyI=0,yyOk=0,yyNo=0,yyWrong=[],yyRevIdx=-1,yyIsRev=false,yyShowHangul=true;
+function yyReset(){document.getElementById('yySetup').style.display='';document.getElementById('yyQuiz').style.display='none';}
+function yyStart(){
+  yyShowHangul=document.getElementById('yyHangul').value==='1';
+  const cnt=parseInt(document.getElementById('yyCount').value);
+  yyI=0;yyOk=0;yyNo=0;yyQ=[...YY_PAIRS];yyWrong=[];yyRevIdx=-1;yyIsRev=false;
+  for(let i=yyQ.length-1;i>0;i--){const j=0|Math.random()*(i+1);[yyQ[i],yyQ[j]]=[yyQ[j],yyQ[i]];}
+  yyQ=yyQ.slice(0,cnt);
+  document.getElementById('yySetup').style.display='none';document.getElementById('yyQuiz').style.display='';
+  document.getElementById('yyDone').style.display='none';document.getElementById('yySc').innerHTML='';
+  document.getElementById('yyResult').textContent='';document.getElementById('yyRevHint').style.display='none';
+  document.getElementById('yyReview').style.display='none';
+  yyShow();
+}
+function yyRenderCard(q,rev){
+  document.getElementById('yyCat').textContent=q[6];
+  const yL=Math.random()>0.5;
+  const L=yL?[q[0],q[2],q[4],'yang']:[q[1],q[3],q[5],'yin'];
+  const R=yL?[q[1],q[3],q[5],'yin']:[q[0],q[2],q[4],'yang'];
+  const rL=yyShowHangul?L[1]:'';const rR=yyShowHangul?R[1]:'';
+  const dL=yyShowHangul&&L[2]?L[2]:'';const dR=yyShowHangul&&R[2]?R[2]:'';
+  if(rev){
+    const lcls=L[3]==='yang'?'yang-ok':'yin-ok';const rcls=R[3]==='yang'?'yang-ok':'yin-ok';
+    document.getElementById('yyPair').innerHTML=`
+      <div class="yy-card ${lcls} disabled"><div class="yc-h">${L[0]}</div>${rL?`<div class="yc-r">${rL}</div>`:''}${dL?`<div class="yc-d">${dL}</div>`:''}</div>
+      <div class="yy-card ${rcls} disabled"><div class="yc-h">${R[0]}</div>${rR?`<div class="yc-r">${rR}</div>`:''}${dR?`<div class="yc-d">${dR}</div>`:''}</div>`;
+  } else {
+    document.getElementById('yyPair').innerHTML=`
+      <div class="yy-card" id="yc0" onclick="yyPick(0)" data-is="${L[3]}"><div class="yc-h">${L[0]}</div>${rL?`<div class="yc-r">${rL}</div>`:''}${dL?`<div class="yc-d">${dL}</div>`:''}</div>
+      <div class="yy-card" id="yc1" onclick="yyPick(1)" data-is="${R[3]}"><div class="yc-h">${R[0]}</div>${rR?`<div class="yc-r">${rR}</div>`:''}${dR?`<div class="yc-d">${dR}</div>`:''}</div>`;
+  }
+}
+function yyShow(){
+  document.getElementById('yyNext').style.display='none';document.getElementById('yyPrev').style.display='none';
+  document.getElementById('yyResult').textContent='';document.getElementById('yyResult').className='yy-result';
+  document.getElementById('yyReview').style.display='none';yyIsRev=false;
+  if(yyI>=yyQ.length){
+    document.getElementById('yyPair').innerHTML='';
+    document.getElementById('yyPrompt').textContent='퀴즈 완료!';document.getElementById('yyCat').textContent='';
+    document.getElementById('yyProg').textContent='';document.getElementById('yyBar').style.width='100%';
+    document.getElementById('yySc').innerHTML=`<span class="ok">맞음 ${yyOk}개</span><span class="no">틀림 ${yyNo}개</span>`;
+    document.getElementById('yyDone').style.display='inline-block';
+    if(yyWrong.length>0){document.getElementById('yyPrev').style.display='inline-block';document.getElementById('yyRevHint').style.display='block';document.getElementById('yyRevHint').textContent=`틀린 문제 ${yyWrong.length}개 — ◀ 오답 복습`;}
+    return;
+  }
+  document.getElementById('yyProg').textContent=`${yyI+1} / ${yyQ.length}`;
+  document.getElementById('yyBar').style.width=((yyI)/yyQ.length*100)+'%';
+  document.getElementById('yyPrompt').textContent='양(陽)에 해당하는 것을 고르세요';
+  if(yyWrong.length>0){document.getElementById('yyPrev').style.display='inline-block';document.getElementById('yyRevHint').style.display='block';document.getElementById('yyRevHint').textContent='← 키로 오답 복습';}
+  yyRenderCard(yyQ[yyI],false);
+}
+function yyPick(idx){
+  const c0=document.getElementById('yc0'),c1=document.getElementById('yc1');
+  c0.classList.add('disabled');c1.classList.add('disabled');
+  if(c0.dataset.is==='yang'){c0.classList.add('yang-ok');c1.classList.add('yin-ok');}
+  else{c1.classList.add('yang-ok');c0.classList.add('yin-ok');}
+  const res=document.getElementById('yyResult');
+  const picked=document.getElementById('yc'+idx);
+  if(picked.dataset.is==='yang'){yyOk++;res.textContent='⭕ 정답!';res.className='yy-result ok';}
+  else{yyNo++;res.textContent='❌ 틀림!';res.className='yy-result no';yyWrong.push(yyQ[yyI]);}
+  yyI++;document.getElementById('yySc').innerHTML=`<span class="ok">맞음 ${yyOk}</span><span class="no">틀림 ${yyNo}</span>`;
+  document.getElementById('yyNext').style.display='inline-block';
+}
+function yyNx(){
+  if(yyIsRev){
+    if(yyRevIdx<yyWrong.length-1){
+      yyRevIdx++;
+      document.getElementById('yyReview').textContent=`📋 오답 복습 (${yyRevIdx+1}/${yyWrong.length})`;
+      yyRenderCard(yyWrong[yyRevIdx],true);
+      document.getElementById('yyNext').style.display='inline-block';document.getElementById('yyPrev').style.display='inline-block';
+    } else {
+      yyIsRev=false;document.getElementById('yyReview').style.display='none';yyRevIdx=-1;yyShow();
+    }
+    return;
+  }
+  yyIsRev=false;document.getElementById('yyReview').style.display='none';yyRevIdx=-1;yyShow();
+}
+function yyGoPrev(){
+  if(yyWrong.length===0)return;yyIsRev=true;
+  document.getElementById('yyReview').style.display='block';document.getElementById('yyNext').style.display='inline-block';document.getElementById('yyPrev').style.display='inline-block';
+  document.getElementById('yyResult').textContent='';document.getElementById('yyResult').className='yy-result';
+  document.getElementById('yyPrompt').textContent='';
+  if(yyRevIdx===-1)yyRevIdx=yyWrong.length-1;
+  else if(yyRevIdx>0)yyRevIdx--;
+  document.getElementById('yyReview').textContent=`📋 오답 복습 (${yyRevIdx+1}/${yyWrong.length})`;
+  yyRenderCard(yyWrong[yyRevIdx],true);
+}
+
+// ========== 오행 퀴즈 ==========
+const ELEMS=["木","火","土","金","水"];
+const ELEM_RD=["나무 목","불 화","흙 토","쇠 금","물 수"];
+const ELEM_CLS=["c-wood","c-fire","c-earth","c-metal","c-water"];
+const OH_DATA=[
+["五味",["酸","苦","甘","辛","鹹"],["신맛 산","쓸 고","달 감","매울 신","짤 함"]],
+["五色",["靑","赤","黃","白","黑"],["푸를 청","붉을 적","누를 황","흰 백","검을 흑"]],
+["五氣",["風","暑","濕","燥","寒"],["바람 풍","더울 서","축축할 습","마를 조","찰 한"]],
+["五化",["生","長","化","收","藏"],["날 생","길 장","될 화","거둘 수","감출 장"]],
+["時令",["春","夏","長夏","秋","冬"],["봄 춘","여름 하","장하","가을 추","겨울 동"]],
+["五臟",["肝","心","脾","肺","腎"],["간 간","마음 심","지라 비","허파 폐","콩팥 신"]],
+["六腑",["膽","小腸","胃","大腸","膀胱"],["쓸개 담","소장","밥통 위","대장","방광"]],
+["五官",["目","舌","口","鼻","耳"],["눈 목","혀 설","입 구","코 비","귀 이"]],
+["五體",["筋","脈","肉","皮毛","骨"],["힘줄 근","혈맥 맥","고기 육","피모","뼈 골"]],
+["五志",["怒","喜","思","悲","恐"],["성낼 노","기쁠 희","생각 사","슬플 비","두려울 공"]]
+];
+
+let ohMode='A',ohQ=[],ohI=0,ohOk=0,ohNo=0,ohWrong=[],ohRevIdx=-1,ohIsRev=false;
+document.getElementById('ohPerCat').addEventListener('change',function(){
+  const n=parseInt(this.value);document.getElementById('ohTotal').textContent=`10개 카테고리 × ${n}개 = 총 ${n*10}문제`;
+});
+function ohReset(){document.getElementById('ohSetup').style.display='';document.getElementById('ohQuiz').style.display='none';}
+function ohStart(){
+  const pc=parseInt(document.getElementById('ohPerCat').value);
+  ohI=0;ohOk=0;ohNo=0;ohQ=[];ohWrong=[];ohRevIdx=-1;ohIsRev=false;
+  for(const d of OH_DATA){const idx=[0,1,2,3,4];for(let i=4;i>0;i--){const j=0|Math.random()*(i+1);[idx[i],idx[j]]=[idx[j],idx[i]];}for(let k=0;k<pc;k++)ohQ.push({cat:d[0],items:d[1],reads:d[2],ans:idx[k],mode:ohMode});}
+  for(let i=ohQ.length-1;i>0;i--){const j=0|Math.random()*(i+1);[ohQ[i],ohQ[j]]=[ohQ[j],ohQ[i]];}
+  document.getElementById('ohSetup').style.display='none';document.getElementById('ohQuiz').style.display='';
+  document.getElementById('ohDone').style.display='none';document.getElementById('ohSc').innerHTML='';
+  document.getElementById('ohResult').textContent='';document.getElementById('ohRevHint').style.display='none';document.getElementById('ohReview').style.display='none';
+  ohShow();
+}
+function ohShow(){
+  document.getElementById('ohNext').style.display='none';document.getElementById('ohPrev').style.display='none';
+  document.getElementById('ohResult').textContent='';document.getElementById('ohResult').className='oh-result';
+  document.getElementById('ohReview').style.display='none';ohIsRev=false;
+  if(ohI>=ohQ.length){
+    document.getElementById('ohRow').innerHTML='';document.getElementById('ohOpts').innerHTML='';
+    document.getElementById('ohPrompt').textContent='퀴즈 완료!';document.getElementById('ohCat').innerHTML='';
+    document.getElementById('ohProg').textContent='';document.getElementById('ohBar').style.width='100%';
+    document.getElementById('ohSc').innerHTML=`<span class="ok">맞음 ${ohOk}개</span><span class="no">틀림 ${ohNo}개</span> (${ohQ.length}문제 중)`;
+    document.getElementById('ohDone').style.display='inline-block';
+    if(ohWrong.length>0){document.getElementById('ohPrev').style.display='inline-block';document.getElementById('ohRevHint').style.display='block';document.getElementById('ohRevHint').textContent=`틀린 문제 ${ohWrong.length}개 — ◀ 오답 복습`;}
+    return;
+  }
+  document.getElementById('ohProg').textContent=`${ohI+1} / ${ohQ.length}`;
+  document.getElementById('ohBar').style.width=((ohI)/ohQ.length*100)+'%';
+  if(ohWrong.length>0){document.getElementById('ohRevHint').style.display='block';document.getElementById('ohRevHint').textContent='← 키로 오답 복습';document.getElementById('ohPrev').style.display='inline-block';}
+  ohRenderQ(ohQ[ohI],false);
+}
+function shuf5(){const a=[0,1,2,3,4];for(let i=4;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function ohRenderQ(q,rev){
+  document.getElementById('ohCat').innerHTML=`<span>${q.cat}</span>`;
+  const rowOrder=shuf5();const optOrder=shuf5();
+  if(q.mode==='A'){
+    let rH='';for(const i of rowOrder){rH+=`<div class="oh-item ${i===q.ans?'highlight':'normal'}"><div>${q.items[i]}</div><div class="oh-rd">${q.reads[i]}</div></div>`;}
+    document.getElementById('ohRow').innerHTML=rH;document.getElementById('ohPrompt').textContent='이 한자는 五行 중 어디에 속할까요?';
+    let oH='';for(const i of optOrder){if(rev){oH+=`<div class="oh-opt ${i===q.ans?'ok '+ELEM_CLS[i]:'dim'}" data-idx="${i}"><div>${ELEMS[i]}</div><div class="oh-oread">${ELEM_RD[i]}</div></div>`;}
+    else{oH+=`<div class="oh-opt" data-idx="${i}" onclick="ohPick(${i},${q.ans})"><div>${ELEMS[i]}</div><div class="oh-oread">${ELEM_RD[i]}</div></div>`;}}
+    document.getElementById('ohOpts').innerHTML=oH;
+  } else {
+    let rH='';for(const i of rowOrder){rH+=`<div class="oh-item ${i===q.ans?'highlight':'normal'}"><div>${ELEMS[i]}</div><div class="oh-rd">${ELEM_RD[i]}</div></div>`;}
+    document.getElementById('ohRow').innerHTML=rH;document.getElementById('ohPrompt').textContent=`${q.cat}에서 이 속성에 해당하는 것은?`;
+    let oH='';for(const i of optOrder){if(rev){oH+=`<div class="oh-opt ${i===q.ans?'ok '+ELEM_CLS[q.ans]:'dim'}" data-idx="${i}"><div>${q.items[i]}</div><div class="oh-oread">${q.reads[i]}</div></div>`;}
+    else{oH+=`<div class="oh-opt" data-idx="${i}" onclick="ohPick(${i},${q.ans})"><div>${q.items[i]}</div><div class="oh-oread">${q.reads[i]}</div></div>`;}}
+    document.getElementById('ohOpts').innerHTML=oH;
+  }
+}
+function ohPick(p,c){
+  document.querySelectorAll('.oh-opt').forEach(o=>{const i=parseInt(o.dataset.idx);if(i===c)o.classList.add('ok',ELEM_CLS[c]);else if(i===p&&p!==c)o.classList.add('no');else o.classList.add('dim');});
+  const res=document.getElementById('ohResult');
+  if(p===c){ohOk++;res.textContent='⭕ 정답!';res.className='oh-result ok';}
+  else{ohNo++;res.textContent='❌ 틀림!';res.className='oh-result no';ohWrong.push(ohQ[ohI]);}
+  ohI++;document.getElementById('ohSc').innerHTML=`<span class="ok">맞음 ${ohOk}</span><span class="no">틀림 ${ohNo}</span>`;
+  document.getElementById('ohNext').style.display='inline-block';
+}
+function ohNx(){
+  if(ohIsRev){
+    if(ohRevIdx<ohWrong.length-1){
+      ohRevIdx++;
+      document.getElementById('ohReview').textContent=`📋 오답 복습 (${ohRevIdx+1}/${ohWrong.length})`;
+      ohRenderQ(ohWrong[ohRevIdx],true);
+      document.getElementById('ohNext').style.display='inline-block';
+      document.getElementById('ohPrev').style.display='inline-block';
+    } else {
+      ohIsRev=false;document.getElementById('ohReview').style.display='none';ohRevIdx=-1;ohShow();
+    }
+    return;
+  }
+  ohIsRev=false;document.getElementById('ohReview').style.display='none';ohRevIdx=-1;ohShow();
+}
+function ohGoPrev(){
+  if(ohWrong.length===0)return;ohIsRev=true;
+  document.getElementById('ohReview').style.display='block';document.getElementById('ohNext').style.display='inline-block';
+  document.getElementById('ohPrev').style.display='inline-block';
+  document.getElementById('ohResult').textContent='';document.getElementById('ohResult').className='oh-result';
+  if(ohRevIdx===-1)ohRevIdx=ohWrong.length-1;else if(ohRevIdx>0)ohRevIdx--;
+  document.getElementById('ohReview').textContent=`📋 오답 복습 (${ohRevIdx+1}/${ohWrong.length})`;
+  ohRenderQ(ohWrong[ohRevIdx],true);
+}
+
+// ========== 키보드 ==========
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  // 음양
+  if(document.getElementById('yq').classList.contains('on')&&document.getElementById('yyQuiz').style.display!=='none'){
+    if(e.key==='1'&&!yyIsRev){e.preventDefault();const c=document.getElementById('yc0');if(c&&!c.classList.contains('disabled'))yyPick(0);}
+    if(e.key==='2'&&!yyIsRev){e.preventDefault();const c=document.getElementById('yc1');if(c&&!c.classList.contains('disabled'))yyPick(1);}
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='Enter'){const nx=document.getElementById('yyNext');if(nx.style.display!=='none'){e.preventDefault();yyNx();}}
+    if(e.key==='ArrowLeft'){e.preventDefault();yyGoPrev();}
+  }
+  // 오행
+  if(document.getElementById('oq').classList.contains('on')&&document.getElementById('ohQuiz').style.display!=='none'){
+    const num=parseInt(e.key);
+    if(num>=1&&num<=5&&!ohIsRev){e.preventDefault();const opts=document.querySelectorAll('.oh-opt');if(opts.length>=num&&!opts[num-1].classList.contains('dim')&&!opts[num-1].classList.contains('ok')&&!opts[num-1].classList.contains('no'))opts[num-1].click();}
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='Enter'){const nx=document.getElementById('ohNext');if(nx.style.display!=='none'){e.preventDefault();ohNx();}}
+    if(e.key==='ArrowLeft'){e.preventDefault();ohGoPrev();}
+  }
+});
+</script>
+</body>
+</html>

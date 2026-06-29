@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>한의학한문 원문 2.0</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Pretendard:wght@400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#faf9f6;--card:#fff;--t:#1a1a1a;--t2:#525252;--t3:#a3a3a3;--bd:#e5e5e5;--s:#f5f4f0;--s2:#ebe9e3;--accent:#8b1a1a;--blue:#2563eb;--green:#16a34a;--r:#dc2626}
+body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--t);line-height:1.6;min-height:100vh}
+.wrap{max-width:860px;margin:0 auto;padding:20px}
+.hero{text-align:center;padding:24px 20px 20px;border-bottom:1px solid var(--bd);margin-bottom:20px}
+.hero h1{font-family:'Noto Serif KR',serif;font-size:32px;font-weight:900;margin-bottom:6px;letter-spacing:4px}
+.hero h1 .hj{font-size:24px;color:var(--t3);margin-left:10px;letter-spacing:3px;font-weight:700}
+.hero .author{font-size:11px;color:var(--t3)}
+.nav{display:flex;gap:6px;margin-bottom:20px;justify-content:center;flex-wrap:wrap}
+.tab{padding:7px 14px;border:1px solid var(--bd);background:var(--card);border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--t2);transition:.15s}
+.tab:hover{border-color:var(--t3)}.tab.on{background:var(--t);color:#fff;border-color:var(--t)}
+.sec{display:none}.sec.on{display:block}
+.st-global{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.st-gbtn{padding:7px 16px;border:1.5px solid var(--bd);background:var(--card);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--t2);transition:.15s}
+.st-gbtn:hover{border-color:var(--t3)}
+.st-gbtn.on{background:var(--t);color:#fff;border-color:var(--t)}
+
+/* 문장 해석 */
+.st-wrap{display:flex;flex-direction:column;gap:14px}
+.st{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.02)}
+.st-num{display:inline-block;font-size:10px;color:var(--t3);letter-spacing:1px;margin-bottom:10px;font-weight:700}
+.cl-row{margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed var(--bd)}
+.cl-row:last-of-type{border-bottom:none;margin-bottom:6px;padding-bottom:4px}
+.cl-orig{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:700;line-height:2;letter-spacing:2px;margin-bottom:4px}
+.cl-orig .h{display:inline-block;cursor:pointer;padding:0 1px;border-radius:2px;transition:.12s}
+.cl-orig .h:hover{background:#fef3c7}
+.cl-orig .h.note{color:var(--accent)}
+.cl-orig .h.note::after{content:'*';font-size:11px;vertical-align:top;color:var(--accent)}
+.cl-trans{font-size:13px;color:var(--t2);line-height:1.7}
+.cl-trans.prof{color:#1e4d7b;font-weight:600}
+.cl-legend{font-size:11px;color:var(--t3);text-align:center;margin-bottom:14px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.cl-legend span{display:inline-flex;align-items:center;gap:4px}
+.cl-legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px}
+.st-hun{font-size:12px;color:var(--t2);line-height:1.9;margin:6px 0;padding:10px 12px;background:var(--s);border-radius:8px;display:none}
+.st-hun.show{display:block}
+.st-hun .hun-line{margin-bottom:4px}
+.st-hun .hun-line:last-child{margin-bottom:0}
+.st-hun .hi{display:inline-block;margin-right:10px;white-space:nowrap}
+.st-hun .hi .hj{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:700;margin-right:3px}
+.st-hun .hi .rd{font-size:11px;color:var(--t3)}
+.st-hun .hi.kor{font-size:12px;color:var(--t2);margin-right:6px;vertical-align:middle}
+.st-hun .sp{display:inline-block;width:10px}
+.st-ctrl{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.st-btn{padding:5px 12px;border:1px solid var(--bd);background:var(--bg);border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--t2);transition:.12s}
+.st-btn:hover{background:var(--s2)}.st-btn.on{background:var(--t);color:#fff;border-color:var(--t)}
+.st-eum{display:none;font-size:14px;color:var(--accent);font-weight:600;padding:8px 12px;background:#fef2f2;border-radius:8px;margin-top:8px;letter-spacing:3px}
+.st-eum.show{display:block}
+.st-eum .eum-line{margin-bottom:2px}
+.st-eum .eum-line:last-child{margin-bottom:0}
+
+/* 주석 팝업 */
+.note-pop{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);border:2px solid var(--t);border-radius:16px;padding:24px;max-width:480px;width:calc(100% - 40px);max-height:80vh;overflow-y:auto;z-index:100;box-shadow:0 20px 60px rgba(0,0,0,.3);display:none}
+.note-pop.on{display:block}
+.note-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:99;display:none}
+.note-backdrop.on{display:block}
+.note-pop .np-title{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:900;margin-bottom:10px;color:var(--accent)}
+.note-pop .np-body{font-size:14px;line-height:1.8;color:var(--t)}
+.note-pop .np-body .hj{font-family:'Noto Serif KR',serif;font-weight:700;color:var(--accent);cursor:help;border-bottom:1px dotted var(--accent)}
+.note-pop .np-close{position:absolute;top:12px;right:14px;font-size:20px;color:var(--t3);cursor:pointer;background:none;border:none}
+
+/* 플래시카드 */
+.fc-wrap{max-width:420px;margin:0 auto}
+.fc{position:relative;width:100%;height:280px;perspective:1000px;margin-bottom:14px;cursor:pointer}
+.fc-inner{position:relative;width:100%;height:100%;text-align:center;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .fc-inner{transform:rotateY(180deg)}
+.fc-f,.fc-b{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.fc-f{background:var(--card);border:1.5px solid var(--bd)}
+.fc-b{background:var(--t);color:var(--bg);transform:rotateY(180deg);border:1.5px solid var(--t)}
+.fc-char{font-family:'Noto Serif KR',serif;font-size:72px;font-weight:900;margin-bottom:8px}
+.fc-hint{font-size:11px;color:var(--t3);margin-top:12px}
+.fc-hun{font-size:22px;margin-bottom:4px;font-weight:600}
+.fc-new{position:absolute;top:10px;left:10px;background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px}
+.fc-ctrl{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.btn{padding:8px 18px;border:1px solid var(--bd);background:var(--card);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:.15s;font-weight:500;color:var(--t)}
+.btn:hover{background:var(--t);color:#fff;border-color:var(--t)}
+.btn.dark{background:var(--t);color:#fff;border-color:var(--t)}
+.btn.dark:hover{background:#000}
+.btn.reset{color:var(--r);border-color:#fecaca}
+.btn.reset:hover{background:var(--r);color:#fff;border-color:var(--r)}
+.fc-cnt{text-align:center;font-size:11px;color:var(--t3);margin-top:10px}
+
+/* 퀴즈 */
+.qz-set{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:20px;text-align:center;margin-bottom:14px;max-width:460px;margin-left:auto;margin-right:auto}
+.qz-set-t{font-size:15px;font-weight:700;margin-bottom:6px}
+.qz-set-d{font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.6}
+.qz-tabs{display:flex;gap:6px;margin-bottom:16px;justify-content:center}
+.qz-tab{padding:8px 16px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--t2);background:var(--bg)}
+.qz-tab:hover{border-color:var(--t3)}
+.qz-tab.on{background:var(--t);color:#fff;border-color:var(--t)}
+.qz-card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:24px 20px;text-align:center;margin-bottom:14px}
+.qz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.qz-prog{font-size:11px;color:var(--t3)}
+.qz-q{font-family:'Noto Serif KR',serif;font-size:24px;font-weight:700;margin-bottom:10px;line-height:1.8;letter-spacing:2px}
+.qz-sub{font-size:12px;color:var(--t2);margin-bottom:14px}
+.qz-in{width:100%;max-width:360px;padding:10px 14px;border:2px solid var(--bd);border-radius:10px;font-size:15px;font-family:inherit;text-align:center;outline:none}
+.qz-in:disabled{background:var(--s);color:var(--t2)}
+.tq-cmp{text-align:left}
+.tq-cmp-orig{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:700;text-align:center;color:var(--t);margin-bottom:6px;letter-spacing:1px}
+.tq-cmp-row{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;margin-bottom:4px;display:flex;gap:8px;align-items:flex-start}
+.tq-cmp-row:last-child{margin-bottom:0}
+.tq-cmp-row .lbl{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--t3);flex-shrink:0;padding-top:2px;min-width:48px}
+.tq-cmp-row .txt{font-size:12px;line-height:1.5;flex:1}
+.tq-cmp-row.mine{border-left:3px solid #64748b}
+.tq-cmp-row.mine .lbl{color:#64748b}
+.tq-cmp-row.ref{border-left:3px solid #1e4d7b;background:#f6faff}
+.tq-cmp-row.ref .lbl{color:#1e4d7b}
+.tq-cmp-row.blog{border-left:3px solid var(--t3)}
+.tq-cmp-row.ref .lbl{color:#1e4d7b}
+.tq-cmp-row.blog{border-left:3px solid var(--t2);background:var(--s)}
+.tq-cmp-row.blog .lbl{color:var(--t2)}
+.tq-cmp-row .txt{font-size:14px;line-height:1.7;color:var(--t)}
+.tq-cmp-row.ref .txt{color:#1e4d7b;font-weight:600}
+.tq-cmp-orig{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:700;line-height:1.8;letter-spacing:2px;color:var(--t);background:#fff;border:1px dashed var(--bd);padding:10px 14px;border-radius:8px;margin-bottom:10px;text-align:center}
+.qz-in:focus{border-color:var(--t)}
+.qz-in.ok{border-color:var(--green);background:#f0fdf4}
+.qz-in.no{border-color:var(--r);background:#fef2f2}
+.qz-fb{font-size:13px;margin:10px 0;min-height:20px;font-weight:600}
+.qz-fb.ok{color:var(--green)}.qz-fb.no{color:var(--r)}
+.qz-mc{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:420px;margin:0 auto}
+.qz-ch{padding:10px;border:1.5px solid var(--bd);border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;background:var(--bg);transition:.12s}
+.qz-ch:hover{border-color:var(--t3)}
+.qz-ch.ok{border-color:var(--green);background:#f0fdf4;color:var(--green)}
+.qz-ch.no{border-color:var(--r);background:#fef2f2}
+.qz-sc{text-align:center;font-size:12px;color:var(--t2);margin-top:10px}
+.qz-sc .ok{color:var(--green);margin-right:8px}.qz-sc .no{color:var(--r)}
+.qz-ctrl{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+
+/* 오답 리뷰 */
+.rv-wrap{margin-top:16px}
+.rv-title{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rv-title .cnt{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:600;color:var(--r);background:#fef2f2}
+.rv-title .cnt.all{color:var(--t2);background:var(--s)}
+.rv-title .cnt.ok{color:var(--green);background:#f0fdf4}
+.rv-filter{display:flex;gap:6px;margin-bottom:10px}
+.rv-fb{padding:5px 12px;border:1px solid var(--bd);background:var(--card);border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--t2);font-weight:600}
+.rv-fb:hover{border-color:var(--t3)}
+.rv-fb.on{background:var(--t);color:#fff;border-color:var(--t)}
+.rv-item{background:var(--card);border:1px solid var(--bd);border-left:3px solid var(--r);border-radius:10px;padding:12px 14px;margin-bottom:10px;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .25s}
+.rv-item.ok{border-left-color:var(--green);background:#fafffb}
+.rv-item.rv-enter{transform:translateX(-28px);opacity:0}
+.rv-q{font-family:'Noto Serif KR',serif;font-size:17px;font-weight:700;margin-bottom:4px;line-height:1.6}
+.rv-trans{font-size:12px;color:var(--t2);margin-bottom:6px}
+.rv-ans{font-size:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rv-ans .picked{color:var(--r);text-decoration:line-through;padding:2px 6px;background:#fef2f2;border-radius:4px}
+.rv-ans .truth{color:var(--green);font-weight:700;padding:2px 6px;background:#f0fdf4;border-radius:4px}
+
+/* 전체 목록 */
+.lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.li{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 6px;text-align:center;position:relative;transition:.12s}
+.li:hover{border-color:var(--t3)}
+.li.new{border-left:3px solid var(--blue)}
+.li .c{font-family:'Noto Serif KR',serif;font-size:24px;font-weight:900;margin-bottom:4px}
+.li .hun{font-size:11px;color:var(--t3)}
+.li .eum{font-size:13px;font-weight:700;color:var(--r);margin-top:2px}
+.ls-legend{font-size:11px;color:var(--t3);text-align:center;margin-bottom:12px}
+.ls-legend span{color:var(--blue);font-weight:700}
+
+@media(max-width:640px){.hero h1{font-size:26px}.hero h1 .hj{font-size:18px}.fc-char{font-size:56px}.cl-orig{font-size:16px}.qz-q{font-size:20px}.qz-mc{grid-template-columns:1fr}.lg{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}}
+
+/* 카테고리 체크박스 */
+.cat-select{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px;padding:10px;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+.cat-select .cat-label{font-size:11px;font-weight:700;color:var(--t2);margin-right:4px;align-self:center}
+.cat-cb{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border:1.5px solid var(--bd);border-radius:100px;font-size:12px;cursor:pointer;transition:.15s;background:var(--card);color:var(--t2);user-select:none}
+.cat-cb:hover{border-color:var(--t3)}
+.cat-cb.on{background:var(--t);color:#fff;border-color:var(--t)}
+.cat-cb .cat-mark{display:inline-block;width:14px;height:14px;border:1.5px solid var(--t3);border-radius:3px;font-size:10px;line-height:11px;text-align:center;font-weight:700;background:var(--card);color:var(--t)}
+.cat-cb.on .cat-mark{background:#fff;border-color:#fff;color:var(--t)}
+.cat-cb .hj{font-family:'Noto Serif KR',serif;font-size:11px;opacity:.7;margin-left:3px}
+
+/* 문장 해석 탭 - 원문 카드 */
+.st-cats{display:flex;flex-direction:column;gap:10px}
+.st-cat-card{background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.02)}
+.st-cat-header{padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:.15s}
+.st-cat-header:hover{background:var(--s)}
+.st-cat-title{display:flex;align-items:center;gap:10px}
+.st-cat-title .n{font-size:15px;font-weight:700;color:var(--t)}
+.st-cat-title .hj{font-family:'Noto Serif KR',serif;font-size:14px;color:var(--t3);letter-spacing:2px;font-weight:700}
+.st-cat-title .au{font-size:10px;color:var(--t3);margin-left:6px}
+.st-cat-arrow{font-size:12px;color:var(--t3);transition:transform .2s}
+.st-cat-card.open .st-cat-arrow{transform:rotate(180deg)}
+.st-cat-body{display:none;padding:0 14px 14px 14px;border-top:1px solid var(--bd)}
+.st-cat-card.open .st-cat-body{display:block}
+.st-cat-body .st-global{margin-top:12px;margin-bottom:14px}
+
+/* 전체 목록 - 원문별 섹션 */
+.ls-search{display:flex;gap:8px;margin-bottom:14px;padding:10px 14px;background:var(--card);border:1px solid var(--bd);border-radius:10px;align-items:center}
+.ls-search label{font-size:11px;font-weight:700;color:var(--t2)}
+.ls-search input{flex:1;padding:7px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.ls-search input:focus{border-color:var(--t)}
+.ls-search .hit{font-size:11px;color:var(--t3);white-space:nowrap}
+.ls-sec{margin-bottom:20px}
+.ls-sec-head{font-size:13px;font-weight:700;color:var(--t);padding:10px 0 8px;border-bottom:2px solid var(--t);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.ls-sec-head .hj{font-family:'Noto Serif KR',serif;color:var(--t3);font-size:13px;font-weight:700;letter-spacing:2px}
+.ls-sec-head .cnt{font-size:10px;color:var(--t3);margin-left:auto;font-weight:500}
+.ls-sec-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.lsc{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px 6px;text-align:center;transition:.15s}
+.lsc .ch{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:700;color:var(--t);margin-bottom:4px;line-height:1}
+.lsc .hu{font-size:10px;color:var(--t3);line-height:1.4}
+.lsc.hit{border-color:var(--t);background:var(--s)}
+.lsc.dim{opacity:.25}
+.lsc.out1000 .ch{color:#1e4d7b}
+.lsc.out1000{background:#e8f0f7;border-color:#c4d5e5}
+.lsc.out1000 .hu{color:#4a6d8a}
+/* 파란색 표시 off */
+#lsSections.no-blue .lsc.out1000 .ch{color:var(--t)}
+#lsSections.no-blue .lsc.out1000{background:var(--card);border-color:var(--bd)}
+#lsSections.no-blue .lsc.out1000 .hu{color:var(--t3)}
+
+/* 참고사항 탭 */
+.note-content{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:22px 20px;line-height:1.8;font-size:13px;color:var(--t)}
+.note-content h2{font-size:16px;font-weight:700;text-align:center;margin-bottom:18px;color:var(--t)}
+.note-content ul{list-style:none;padding:0}
+.note-content li{padding-left:16px;text-indent:-16px;margin-bottom:10px}
+.note-content .emph{color:var(--accent);font-weight:700}
+
+/* 해석 TIP */
+.tp-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;padding:12px;background:var(--card);border:1px solid var(--bd);border-radius:10px;position:sticky;top:0;z-index:10}
+.tp-nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--bd);background:var(--card);border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--t2);transition:.15s;white-space:nowrap}
+.tp-nav-btn:hover{border-color:var(--t3)}
+.tp-nav-btn.on{background:var(--t);color:#fff;border-color:var(--t)}
+.tp-nav-btn .ic{font-family:'Noto Serif KR',serif;font-weight:700;font-size:13px}
+.tp-head{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--t)}
+.tp-desc{font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.6;padding:10px 14px;background:var(--s);border-radius:8px;border-left:3px solid var(--t3)}
+.tp-cards{display:flex;flex-direction:column;gap:12px}
+.tp-card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.02)}
+.tp-card-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.tp-term{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:var(--t);letter-spacing:1px}
+.tp-hun{font-size:11px;color:var(--accent);font-weight:600;padding:2px 8px;background:#fef2f2;border-radius:100px}
+.tp-prof{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#1e4d7b;font-weight:700;padding:3px 8px;background:#e8f0f7;border:1px solid #c4d5e5;border-radius:100px}
+.tp-body{font-size:13px;line-height:1.75;color:var(--t2);margin-bottom:10px}
+.tp-body b{color:var(--t);font-weight:700}
+.tp-examples{margin-top:10px;padding-top:10px;border-top:1px dashed var(--bd)}
+.tp-examples-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t3);margin-bottom:8px}
+.tp-ex{padding:8px 10px;background:var(--s);border-radius:6px;margin-bottom:6px;font-size:12px;line-height:1.6}
+.tp-ex:last-child{margin-bottom:0}
+.tp-ex-src{display:inline-block;font-size:9px;font-weight:700;color:var(--t3);background:var(--card);padding:2px 6px;border-radius:100px;margin-right:6px;vertical-align:middle}
+.tp-ex-orig{font-family:'Noto Serif KR',serif;font-weight:700;color:var(--t);margin-right:8px}
+.tp-ex-trans{color:var(--t2);font-size:11px;display:block;margin-top:2px;margin-left:4px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <h1>한의학한문 원문 <span class="hj">2.0</span></h1>
+  <div class="author">論語 十條 / 오행통론 part.1·2·3·4 / 老子三章 / 以道療病</div>
+</div>
+
+<div class="nav">
+  <button class="tab on" onclick="go('st',this)">문장 해석</button>
+  <button class="tab" onclick="go('fc',this)">플래시카드</button>
+  <button class="tab" onclick="go('wq',this)">훈 퀴즈</button>
+  <button class="tab" onclick="go('eq',this)">음 퀴즈</button>
+  <button class="tab" onclick="go('tq',this)">해석 연습</button>
+  <button class="tab" onclick="go('ls',this)">전체 목록</button>
+  <button class="tab" onclick="go('tp',this)">해석 TIP</button>
+  <button class="tab" onclick="go('nt',this)">참고사항</button>
+</div>
+
+<!-- 문장 해석 - 원문별 카드 토글 -->
+<div class="sec on" id="st">
+  <div class="cl-legend">
+    <span><span style="color:#1e4d7b;font-weight:700">●</span> 교수님 해석</span>
+    <span><span style="color:var(--t2)">●</span> AI 해석 (블로그 기반)</span>
+  </div>
+  <div class="st-cats" id="stCats"></div>
+</div>
+
+<!-- 플래시카드 -->
+<div class="sec" id="fc">
+  <div class="cat-select" id="fcCat"></div>
+  <div class="fc-wrap">
+    <div class="fc" id="fcard" onclick="flip()">
+      <div class="fc-inner">
+        <div class="fc-f">
+          <div class="fc-src" id="fcSrc" style="position:absolute;top:14px;right:16px;font-size:10px;color:var(--t3);font-weight:700;letter-spacing:.5px"></div>
+          <div class="fc-char" id="fch"></div>
+          <div class="fc-hint">클릭해서 뒤집기</div>
+        </div>
+        <div class="fc-b"><div class="fc-hun" id="fhu"></div></div>
+      </div>
+    </div>
+    <div class="fc-ctrl">
+      <button class="btn" onclick="fP()">◀ 이전</button>
+      <button class="btn" onclick="fSh()">섞기</button>
+      <button class="btn" onclick="fN()">다음 ▶</button>
+    </div>
+    <div class="fc-cnt" id="fct"></div>
+    <div style="text-align:center;font-size:11px;color:var(--t3);margin-top:6px">* 카드에 표시되는 원문 출처 참고 (원문별 훈음 사용)</div>
+  </div>
+</div>
+
+<!-- 훈 퀴즈 -->
+<div class="sec" id="wq">
+  <div class="qz-set" id="wqSet">
+    <div class="qz-set-t">훈 퀴즈</div>
+    <div class="qz-set-d">한자의 훈음을 객관식으로 맞춰보세요</div>
+    <div class="cat-select" id="wqCat" style="margin-bottom:14px"></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px">
+      <label style="font-size:12px;color:var(--t2)">문제 수:</label>
+      <input type="number" id="wqNum" value="20" min="1" max="500" style="width:70px;padding:6px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;font-family:inherit;text-align:center;outline:none">
+      <span style="font-size:11px;color:var(--t3)" id="wqTotalHint"></span>
+    </div>
+    <button class="btn dark" onclick="wqStart()">시작</button>
+  </div>
+  <div id="wqArea" style="display:none">
+    <div class="qz-card">
+      <div class="qz-head"><div class="qz-prog" id="wqPg"></div><button class="btn reset" onclick="wqReset()">↻ 초기화</button></div>
+      <div class="qz-q" id="wqQ"></div>
+      <div class="qz-ch" id="wqCh"></div>
+      <div class="qz-fb" id="wqFb"></div>
+      <div class="qz-sc" id="wqSc"></div>
+      <div class="qz-ctrl">
+        <button class="btn dark" id="wqNx" onclick="wqNext()" style="display:none">다음 ▶</button>
+        <button class="btn" id="wqMidReview" onclick="wqShowReview('all')" style="display:none">📝 풀이 기록 (0)</button>
+        <button class="btn" id="wqReviewBtn" onclick="wqShowReview('all')" style="display:none">📝 풀이 기록 보기</button>
+        <button class="btn" id="wqAgainBtn" onclick="wqReset()" style="display:none">다시 시작</button>
+      </div>
+    </div>
+    <div id="wqReview"></div>
+  </div>
+</div>
+
+<!-- 음 퀴즈 -->
+<div class="sec" id="eq">
+  <div class="qz-set" id="eqSet">
+    <div class="qz-set-t">음 퀴즈</div>
+    <div class="qz-set-d">문장을 보고 한글 음을 입력하세요<br>예: 無極而太極 → 무극이태극</div>
+    <div class="cat-select" id="eqCat" style="margin-bottom:14px"></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px">
+      <label style="font-size:12px;color:var(--t2)">문제 수:</label>
+      <input type="number" id="eqNum" value="10" min="1" max="300" style="width:70px;padding:6px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;font-family:inherit;text-align:center;outline:none">
+      <span style="font-size:11px;color:var(--t3)" id="eqTotalHint"></span>
+    </div>
+    <button class="btn dark" onclick="eqStart()">시작</button>
+  </div>
+  <div id="eqArea" style="display:none">
+    <div class="qz-card">
+      <div class="qz-head"><div class="qz-prog" id="eqPg"></div><button class="btn reset" onclick="eqReset()">↻ 초기화</button></div>
+      <div class="qz-q" id="eqQ"></div>
+      <input class="qz-in" id="eqIn" placeholder="음 입력 (예: 무극이태극)" autocomplete="off" onkeydown="if(event.key==='Enter')eqCheck()">
+      <div class="qz-fb" id="eqFb"></div>
+      <div class="qz-sc" id="eqSc"></div>
+      <div class="qz-ctrl">
+        <button class="btn dark" id="eqNx" onclick="eqNext()" style="display:none">다음 ▶</button>
+        <button class="btn" id="eqMidReview" onclick="eqShowReview()" style="display:none">📝 풀이 기록 (0)</button>
+        <button class="btn" id="eqReviewBtn" onclick="eqShowReview()" style="display:none">📝 풀이 기록 보기</button>
+        <button class="btn" id="eqAgainBtn" onclick="eqReset()" style="display:none">다시 시작</button>
+      </div>
+    </div>
+    <div id="eqReview"></div>
+  </div>
+</div>
+
+<!-- 해석 연습 -->
+<div class="sec" id="tq">
+  <div class="qz-set" id="tqSet">
+    <div class="qz-set-t">해석 연습</div>
+    <div class="qz-set-d">문장을 보고 해석을 직접 써보세요<br>확인 시 바로 아래에 대조표가 뜹니다 (정답/오답 판정 없음)</div>
+    <div class="cat-select" id="tqCat" style="margin-bottom:14px"></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px">
+      <label style="font-size:12px;color:var(--t2)">문제 수:</label>
+      <input type="number" id="tqNum" value="5" min="1" max="300" style="width:70px;padding:6px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:13px;font-family:inherit;text-align:center;outline:none">
+      <span style="font-size:11px;color:var(--t3)" id="tqTotalHint"></span>
+    </div>
+    <button class="btn dark" onclick="tqStart()">시작</button>
+  </div>
+  <div id="tqArea" style="display:none">
+    <div class="qz-card">
+      <div class="qz-head"><div class="qz-prog" id="tqPg"></div><button class="btn reset" onclick="tqReset()">↻ 초기화</button></div>
+      <div class="qz-q" id="tqQ"></div>
+      <textarea class="qz-in" id="tqIn" placeholder="해석을 작성해주세요..." rows="2" style="resize:vertical;min-height:56px;text-align:left;line-height:1.5"></textarea>
+      <div id="tqCompare" style="margin-top:10px"></div>
+      <div class="qz-sc" id="tqSc"></div>
+      <div class="qz-ctrl">
+        <button class="btn dark" id="tqCheckBtn" onclick="tqCheck()">확인</button>
+        <button class="btn dark" id="tqNx" onclick="tqNext()" style="display:none">다음 ▶</button>
+        <button class="btn" id="tqMidReview" onclick="tqShowReview()" style="display:none">📝 풀이 기록 (0)</button>
+        <button class="btn" id="tqReviewBtn" onclick="tqShowReview()" style="display:none">📝 풀이 기록 보기</button>
+        <button class="btn" id="tqAgainBtn" onclick="tqReset()" style="display:none">다시 시작</button>
+      </div>
+    </div>
+    <div id="tqReview"></div>
+  </div>
+</div>
+
+<!-- 전체 목록 -->
+<div class="sec" id="ls">
+  <div class="ls-search">
+    <label>🔍 검색</label>
+    <input type="text" id="lsSearch" placeholder="한자(예: 水) 또는 한글(예: 물, 수) 입력" oninput="lsFilter()" autocomplete="off">
+    <span class="hit" id="lsHit"></span>
+  </div>
+  <div style="font-size:11px;color:var(--t2);padding:10px 14px;margin-bottom:14px;background:#e8f0f7;border:1px solid #c4d5e5;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="display:inline-flex;align-items:center;gap:4px"><span style="font-family:'Noto Serif KR',serif;color:#1e4d7b;font-weight:700;font-size:16px">漢</span>파란색 = <b>한의학 한자 1~1000번에 없는 한자</b></span>
+    <span style="color:var(--t3);font-size:10px">(원문 공부로 추가 학습 필요)</span>
+    <label style="display:inline-flex;align-items:center;gap:5px;margin-left:auto;cursor:pointer;font-weight:600;color:var(--t)">
+      <input type="checkbox" id="lsBlueToggle" checked onchange="toggleBlue()" style="cursor:pointer">
+      <span>파란색 표시</span>
+    </label>
+  </div>
+  <div id="lsSections"></div>
+</div>
+
+<!-- 해석 TIP -->
+<div class="sec" id="tp">
+  <div class="tp-nav" id="tpNav"></div>
+  <div class="tp-content" id="tpContent"></div>
+</div>
+
+<!-- 참고사항 -->
+<div class="sec" id="nt">
+  <div class="note-content">
+    <h2>⚠️ 참고사항 ⚠️</h2>
+    <ul>
+      <li>• 이 html은 한의학한문 원문공부를 위해 AI를 이용해 만든 플래시카드입니다.</li>
+      <li>• 교수님 해석과 AI해석이 혼재되어있으니 참고바랍니다.</li>
+      <li>• 교수님이 말씀하셨던 훈 대로 안되어 있는 경우가 잦습니다.</li>
+      <li>• 여러번 블로그나 여러 글, 찍었던 사진으로 대조하였으나 음, 해석 면에서 오류가 있을 수 있습니다. 심각한 오류일때 제보해주시면 감사하겠습니다.</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<!-- 주석 팝업 -->
+<div class="note-backdrop" id="nBd" onclick="closeNote()"></div>
+<div class="note-pop" id="nPop">
+  <button class="np-close" onclick="closeNote()">✕</button>
+  <div class="np-title" id="nTitle"></div>
+  <div class="np-body" id="nBody"></div>
+</div>
+
+<script>
+const CATEGORIES=[{"id": "noneo", "name": "논어 십조", "hanja": "論語 十條", "author": "論語", "chars": ["子", "曰", "學", "而", "時", "習", "之", "不", "亦", "說", "乎", "有", "朋", "自", "遠", "方", "來", "樂", "人", "知", "慍", "君", "曾", "吾", "日", "三", "省", "身", "爲", "謀", "忠", "與", "友", "交", "信", "傳", "食", "無", "求", "飽", "居", "安", "敏", "於", "事", "愼", "言", "就", "道", "正", "焉", "可", "謂", "好", "也", "已", "溫", "故", "新", "以", "師", "矣", "思", "則", "罔", "殆", "由", "誨", "女", "是", "士", "志", "耻", "惡", "衣", "者", "未", "足", "議", "見", "賢", "齊", "內", "黙", "識", "厭", "倦", "何", "我", "哉", "軍", "奪", "帥", "匹", "夫"], "dict": {"子": "아들 자", "曰": "가로 왈", "學": "배울 학", "而": "말 이을 이, 말이을 이", "時": "때 시", "習": "익힐 습", "之": "갈 지", "不": "아닐 불", "亦": "또 역", "說": "기쁠 열", "乎": "어조사 호", "有": "있을 유", "朋": "벗 붕", "自": "스스로 자", "遠": "멀 원", "方": "모 방", "來": "올 래", "樂": "즐길 락", "人": "사람 인", "知": "알 지", "慍": "성낼 온", "君": "임금 군", "曾": "일찍 증", "吾": "나 오", "日": "날 일", "三": "석 삼", "省": "살필 성", "身": "몸 신", "爲": "할 위", "謀": "꾀할 모", "忠": "충성 충", "與": "더불 여", "友": "벗 우", "交": "사귈 교", "信": "믿을 신", "傳": "전할 전", "食": "먹을 식", "無": "없을 무", "求": "구할 구", "飽": "배부를 포", "居": "살 거", "安": "편안 안", "敏": "민첩할 민", "於": "어조사 어", "事": "일 사", "愼": "삼갈 신", "言": "말씀 언", "就": "나아갈 취", "道": "길 도", "正": "바를 정", "焉": "어조사 언, 어찌 언", "可": "옳을 가", "謂": "이를 위", "好": "좋을 호", "也": "어조사 야", "已": "이미 이", "溫": "따뜻할 온", "故": "연고 고", "新": "새 신", "以": "써 이", "師": "스승 사", "矣": "어조사 의", "思": "생각 사", "則": "곧 즉", "罔": "없을 망", "殆": "위태할 태", "由": "말미암을 유", "誨": "가르칠 회", "女": "너 여", "是": "이 시", "士": "선비 사", "志": "뜻 지", "耻": "부끄러울 치", "惡": "악할 악, 미워할 오", "衣": "옷 의", "者": "놈 자", "未": "아닐 미", "足": "발 족", "議": "의논할 의", "見": "볼 견", "賢": "어질 현", "齊": "가지런할 제", "內": "안 내", "黙": "잠잠할 묵", "識": "기록할 지", "厭": "싫어할 염", "倦": "게으를 권", "何": "어찌 하", "我": "나 아", "哉": "어조사 재", "軍": "군사 군", "奪": "빼앗을 탈", "帥": "장수 수", "匹": "짝 필", "夫": "지아비 부"}}, {"id": "ohaeng1", "name": "오행통론 part.1", "hanja": "五行統論 · part.1", "author": "類經圖翼 · 明 · 張介賓", "chars": ["五", "行", "者", "水", "火", "木", "金", "土", "也", "卽", "陰", "陽", "之", "質", "氣", "非", "不", "立", "所", "以", "朱", "子", "曰", "具", "於", "地", "而", "天", "其", "實", "元", "初", "只", "一", "太", "極", "分", "爲", "二", "四", "得", "箇", "又", "各", "有", "乎", "中", "便", "是", "兩", "已", "故", "河", "洛", "圖", "書", "象", "左", "右", "前", "後", "列", "生", "成", "數", "焉", "先", "儒", "對", "待", "定", "體", "三", "六", "七", "八", "九", "十", "流", "次", "序", "能", "變", "化", "自", "此", "用", "大", "撓", "察", "干", "支", "著", "日", "月", "應", "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸", "亥", "午", "巳", "寅", "卯", "申", "酉", "辰", "戌", "丑", "未", "出", "運", "時", "謂", "相", "臨", "合", "道", "存", "無", "在", "精", "浮", "則", "星", "熒", "惑", "歲", "白", "鎭", "形", "方", "位", "北", "南", "東", "西", "王", "春", "夏", "秋", "冬", "季", "風", "暑", "與", "熱", "濕", "燥", "寒", "名", "目", "潤", "下", "炎", "上", "曲", "直", "從", "革", "爰", "稼", "穡", "功", "主", "熯", "敷", "斂", "溽", "平", "銳", "長", "圜", "賦", "性", "溫", "淸", "蒸", "帝", "皥", "黃", "少", "顓", "頊", "神", "勾", "芒", "祝", "融", "后", "蓐", "收", "玄", "冥", "衡", "權", "規", "矩", "繩", "至", "若", "穀", "果", "畜", "音", "色", "臭", "味", "藏", "類", "屬", "平"], "dict": {"五": "다섯 오", "行": "다닐 행", "者": "놈 자", "水": "물 수", "火": "불 화", "木": "나무 목", "金": "쇠 금", "土": "흙 토", "也": "어조사 야", "卽": "곧 즉", "陰": "그늘 음", "陽": "볕 양", "之": "갈 지", "質": "바탕 질", "氣": "기운 기", "非": "아닐 비", "不": "아닐 불", "立": "설 립", "所": "바 소", "以": "써 이", "朱": "붉을 주", "子": "아들 자", "曰": "가로 왈", "具": "갖출 구", "於": "어조사 어", "地": "땅 지", "而": "말이을 이", "天": "하늘 천", "其": "그 기", "實": "열매 실", "元": "으뜸 원", "初": "처음 초", "只": "다만 지", "一": "한 일", "太": "클 태", "極": "다할 극", "分": "나눌 분", "爲": "할 위", "二": "두 이", "四": "넉 사", "得": "얻을 득", "箇": "낱 개", "又": "또 우", "各": "각각 각", "有": "있을 유", "乎": "어조사 호", "中": "가운데 중", "便": "문득 변", "是": "이 시", "兩": "두 양", "已": "이미 이", "故": "연고 고", "河": "물 하", "洛": "물이름 락", "圖": "그림 도", "書": "책 서", "象": "코끼리 상", "左": "왼 좌", "右": "오른 우", "前": "앞 전", "後": "뒤 후", "列": "벌릴 렬", "生": "날 생", "成": "이룰 성", "數": "셀 수", "焉": "어찌 언", "先": "먼저 선", "儒": "선비 유", "對": "대할 대", "待": "기다릴 대", "定": "정할 정", "體": "몸 체", "三": "석 삼", "六": "여섯 륙", "七": "일곱 칠", "八": "여덟 팔", "九": "아홉 구", "十": "열 십", "流": "흐를 류", "次": "다음 차", "序": "차례 서", "能": "능할 능", "變": "변할 변", "化": "될 화", "自": "스스로 자", "此": "이 차", "用": "쓸 용", "大": "큰 대", "撓": "어지러울 요", "察": "살필 찰", "干": "방패 간", "支": "지탱할 지", "著": "드러낼 저", "日": "날 일", "月": "달 월", "應": "응할 응", "甲": "갑옷 갑", "乙": "새 을", "丙": "남녘 병", "丁": "장정 정", "戊": "천간 무", "己": "몸 기", "庚": "천간 경", "辛": "매울 신", "壬": "천간 임", "癸": "천간 계", "亥": "돼지 해", "午": "낮 오", "巳": "뱀 사", "寅": "범 인", "卯": "토끼 묘", "申": "납 신", "酉": "닭 유", "辰": "별 진", "戌": "개 술", "丑": "소 축", "未": "아닐 미", "出": "날 출", "運": "운전할 운", "時": "때 시", "謂": "이를 위", "相": "서로 상", "臨": "임할 림", "合": "합할 합", "道": "길 도", "存": "있을 존", "無": "없을 무", "在": "있을 재", "精": "정할 정", "浮": "뜰 부", "則": "곧 즉", "星": "별 성", "熒": "등불 형", "惑": "미혹할 혹", "歲": "해 세", "白": "흰 백", "鎭": "진압할 진", "形": "모양 형", "方": "모 방", "位": "자리 위", "北": "북녘 북", "南": "남녘 남", "東": "동녘 동", "西": "서녘 서", "王": "왕성할 왕", "春": "봄 춘", "夏": "여름 하", "秋": "가을 추", "冬": "겨울 동", "季": "계절 계", "風": "바람 풍", "暑": "더울 서", "與": "더불 여", "熱": "더울 열", "濕": "젖을 습", "燥": "마를 조", "寒": "찰 한", "名": "이름 명", "目": "눈 목", "潤": "젖을 윤", "下": "아래 하", "炎": "불꽃 염", "上": "위 상", "曲": "굽을 곡", "直": "곧을 직", "從": "좇을 종", "革": "가죽 혁", "爰": "이에 원", "稼": "심을 가", "穡": "거둘 색", "功": "공 공", "主": "주인 주", "熯": "마를 한", "敷": "펼 부", "斂": "거둘 렴", "溽": "무더울 욕", "銳": "날카로울 예", "長": "긴 장", "圜": "둥글 원", "賦": "줄 부", "性": "성품 성", "溫": "따뜻할 온", "淸": "맑을 청", "蒸": "찔 증", "帝": "임금 제", "皥": "밝을 호", "黃": "누를 황", "少": "적을 소", "顓": "오로지 전", "頊": "삼갈 욱", "神": "귀신 신", "勾": "굽을 구", "芒": "까끄라기 망", "祝": "빌 축", "融": "녹을 융", "后": "임금 후", "蓐": "자리 욕", "收": "거둘 수", "玄": "검을 현", "冥": "어두울 명", "衡": "저울대 형", "權": "저울 권", "規": "법 규", "矩": "법 구", "繩": "줄 승", "至": "이를 지", "若": "같을 약", "穀": "곡식 곡", "果": "실과 과", "畜": "짐승 축", "音": "소리 음", "色": "빛 색", "臭": "냄새 취", "味": "맛 미", "藏": "감출 장", "類": "무리 류", "屬": "붙을 속", "平": "평평할 평"}}, {"id": "ohaeng2", "name": "오행통론 part.2", "hanja": "五行統論 · part.2", "author": "類經圖翼 · 明 · 張介賓", "chars": ["又", "如", "五", "行", "氣", "數", "之", "異", "陰", "陽", "辨", "亦", "有", "所", "不", "同", "者", "若", "以", "言", "時", "序", "則", "曰", "木", "火", "土", "金", "水", "當", "春", "令", "爲", "穉", "夏", "盛", "秋", "冬", "是", "也", "生", "天", "一", "三", "地", "二", "四", "而", "此", "外", "洛", "書", "樂", "律", "劉", "向", "班", "固", "等", "義", "各", "無", "非", "變", "化", "道", "運", "用", "機", "過", "克", "理", "耳", "故", "自", "其", "相", "能", "勝", "復", "凡", "必", "敗", "母", "子", "救", "太", "受", "傷", "矣", "出", "制", "焉"], "dict": {"又": "또 우", "如": "같을 여", "五": "다섯 오", "行": "다닐 행", "氣": "기운 기", "數": "셀 수", "之": "갈 지", "異": "다를 이", "陰": "그늘 음", "陽": "볕 양", "辨": "분별할 변", "亦": "또 역", "有": "있을 유", "所": "바 소", "不": "아닐 불", "同": "같을 동", "者": "놈 자", "若": "같을 약", "以": "써 이", "言": "말씀 언", "時": "때 시", "序": "차례 서", "則": "곧 즉", "曰": "가로 왈", "木": "나무 목", "火": "불 화", "土": "흙 토", "金": "쇠 금", "水": "물 수", "當": "마땅할 당", "春": "봄 춘", "令": "하여금 령", "爲": "할 위", "穉": "어릴 치", "夏": "여름 하", "盛": "성할 성", "秋": "가을 추", "冬": "겨울 동", "是": "이 시", "也": "어조사 야", "生": "날 생", "天": "하늘 천", "一": "한 일", "三": "석 삼", "地": "땅 지", "二": "두 이", "四": "넉 사", "而": "말이을 이", "此": "이 차", "外": "바깥 외", "洛": "물이름 락", "書": "책 서", "樂": "음악 악", "律": "법 률", "劉": "성씨 류", "向": "향할 향", "班": "나눌 반", "固": "굳을 고", "等": "무리 등", "義": "옳을 의", "各": "각각 각", "無": "없을 무", "非": "아닐 비", "變": "변할 변", "化": "될 화", "道": "길 도", "運": "운전할 운", "用": "쓸 용", "機": "틀 기", "過": "지날 과", "克": "이길 극", "理": "다스릴 리", "耳": "귀 이", "故": "연고 고", "自": "스스로 자", "其": "그 기", "相": "서로 상", "能": "능할 능", "勝": "이길 승", "復": "돌아올 복", "凡": "무릇 범", "必": "반드시 필", "敗": "패할 패", "母": "어미 모", "子": "아들 자", "救": "건질 구", "太": "클 태", "受": "받을 수", "傷": "상할 상", "矣": "어조사 의", "出": "날 출", "制": "억제할 제", "焉": "어찌 언"}}, {"id": "ohaeng3", "name": "오행통론 part.3", "hanja": "五行統論 · part.3", "author": "類經圖翼 · 明 · 張介賓", "chars": ["蓋", "造", "化", "之", "機", "不", "可", "無", "生", "亦", "制", "則", "發", "育", "由", "亢", "而", "爲", "害", "克", "循", "環", "運", "行", "息", "天", "地", "道", "斯", "窮", "已", "第", "人", "知", "夫", "中", "有", "用", "五", "者", "二", "十", "復", "互", "藏", "妙", "焉", "所", "謂", "如", "木", "以", "火", "勝", "乃", "灰", "燼", "土", "撲", "滅", "金", "水", "沈", "溺", "壅", "滯", "此", "其", "相", "實", "殘", "也", "炎", "熾", "得", "成", "旣", "濟", "功", "頑", "鈍", "煆", "煉", "器", "曲", "直", "芟", "削", "材", "曠", "墁", "見", "泛", "濫", "堤", "障", "又", "常", "德", "然", "仁", "義", "禮", "智", "信", "或", "失", "於", "柔", "故", "斷", "剛", "節", "拘", "通", "詐", "正", "是", "皆", "反"], "dict": {"蓋": "덮을 개", "造": "지을 조", "化": "될 화", "之": "갈 지", "機": "틀 기", "不": "아닐 불", "可": "옳을 가", "無": "없을 무", "生": "날 생", "亦": "또 역", "制": "절제할 제", "則": "곧 즉", "發": "필 발", "育": "기를 육", "由": "말미암을 유", "亢": "오를 항", "而": "말이을 이", "爲": "할 위", "害": "해할 해", "克": "이길 극", "循": "돌 순", "環": "고리 환", "運": "운전할 운", "行": "다닐 행", "息": "숨쉴 식", "天": "하늘 천", "地": "땅 지", "道": "길 도", "斯": "이 사", "窮": "다할 궁", "已": "이미 이", "第": "차례 제", "人": "사람 인", "知": "알 지", "夫": "지아비 부", "中": "가운데 중", "有": "있을 유", "用": "쓸 용", "五": "다섯 오", "者": "놈 자", "二": "두 이", "十": "열 십", "復": "다시 부", "互": "서로 호", "藏": "감출 장", "妙": "묘할 묘", "焉": "어찌 언", "所": "바 소", "謂": "이를 위", "如": "같을 여", "木": "나무 목", "以": "써 이", "火": "불 화", "勝": "이길 승", "乃": "이에 내", "灰": "재 회", "燼": "깜부기불 신", "土": "흙 토", "撲": "칠 박", "滅": "멸할 멸", "金": "쇠 금", "水": "물 수", "沈": "잠길 침", "溺": "빠질 닉", "壅": "막을 옹", "滯": "막힐 체", "此": "이 차", "其": "그 기", "相": "서로 상", "實": "열매 실", "殘": "남을 잔", "也": "어조사 야", "炎": "불꽃 염", "熾": "성할 치", "得": "얻을 득", "成": "이룰 성", "旣": "이미 기", "濟": "건널 제", "功": "공 공", "頑": "완고할 완", "鈍": "무딜 둔", "煆": "불사를 하", "煉": "불릴 련", "器": "그릇 기", "曲": "굽을 곡", "直": "곧을 직", "芟": "벨 삼", "削": "깎을 삭", "材": "재목 재", "曠": "빌 광", "墁": "흙손 만", "見": "볼 견", "泛": "뜰 범", "濫": "넘칠 람", "堤": "둑 제", "障": "막을 장", "又": "또 우", "常": "항상 상", "德": "덕 덕", "然": "그러할 연", "仁": "어질 인", "義": "옳을 의", "禮": "예도 례", "智": "지혜 지", "信": "믿을 신", "或": "혹 혹", "失": "잃을 실", "於": "어조사 어", "柔": "부드러울 유", "故": "연고 고", "斷": "끊을 단", "剛": "굳셀 강", "節": "마디 절", "拘": "잡을 구", "通": "통할 통", "詐": "속일 사", "正": "바를 정", "是": "이 시", "皆": "모두 개", "反": "돌이킬 반"}}, {"id": "ohaeng4", "name": "오행통론 part.4", "hanja": "五行統論 · part.4", "author": "類經圖翼 · 明 · 張介賓", "chars": ["所", "謂", "五", "者", "之", "中", "有", "互", "藏", "如", "木", "津", "水", "也", "土", "泉", "金", "液", "火", "鎔", "物", "夫", "爲", "造", "化", "原", "萬", "生", "其", "初", "皆", "而", "行", "一", "無", "不", "可", "鑽", "見", "擊", "石", "鑿", "惟", "是", "人", "多", "知", "油", "能", "酒", "雨", "大", "雷", "濕", "成", "熱", "且", "陽", "本", "雖", "若", "形", "實", "往", "在", "凡", "屬", "氣", "非", "足", "以", "故", "長", "榮", "畜", "賴", "於", "植", "發", "卽", "言", "衣", "食", "得", "則", "失", "死", "曰", "寅", "位", "由", "推", "動", "類", "何", "又", "此", "産", "山", "諸", "淘", "河", "沙", "隱", "草", "汞", "鑞", "散", "結", "柔", "剛", "然", "用", "堅", "毁", "易", "乾", "象", "正", "圓", "瓜", "卵", "居", "包", "乎", "外", "天", "愈", "高", "地", "下", "始", "皇", "起", "墳", "驪", "深", "入", "黃", "三", "百", "丈", "燒", "使", "至", "眞", "體", "乃", "健", "運", "息", "强", "皮", "殼", "捍", "衛", "固", "觀", "理", "交", "窮", "甲", "丙", "戊", "庚", "壬", "干", "子", "辰", "午", "申", "戌", "乙", "丁", "巳", "辛", "癸", "陰", "丑", "亥", "酉", "未", "卯", "挨", "相", "配", "十", "二", "各", "具", "六", "花", "變", "勝", "哉", "總", "出", "離", "間", "欲", "蔽", "坤", "付", "性", "坎", "耳"], "dict": {"所": "바 소", "謂": "이를 위", "五": "다섯 오", "者": "놈 자", "之": "갈 지", "中": "가운데 중", "有": "있을 유", "互": "서로 호", "藏": "감출 장", "如": "같을 여", "木": "나무 목", "津": "진액 진", "水": "물 수", "也": "어조사 야", "土": "흙 토", "泉": "샘 천", "金": "쇠 금", "液": "진 액", "火": "불 화", "鎔": "녹일 용", "物": "만물 물", "夫": "지아비 부", "爲": "할 위", "造": "지을 조", "化": "될 화", "原": "근원 원", "萬": "일만 만", "生": "날 생", "其": "그 기", "初": "처음 초", "皆": "모두 개", "而": "말이을 이", "行": "다닐 행", "一": "한 일", "無": "없을 무", "不": "아닐 불", "可": "옳을 가", "鑽": "뚫을 찬", "見": "볼 견", "擊": "칠 격", "石": "돌 석", "鑿": "뚫을 착", "惟": "오직 유", "是": "이 시", "人": "사람 인", "多": "많을 다", "知": "알 지", "油": "기름 유", "能": "능할 능", "酒": "술 주", "雨": "비 우", "大": "큰 대", "雷": "우레 뢰", "濕": "젖을 습", "成": "이룰 성", "熱": "더울 열", "且": "또 차", "陽": "볕 양", "本": "근본 본", "雖": "비록 수", "若": "같을 약", "形": "모양 형", "實": "열매 실", "往": "갈 왕", "在": "있을 재", "凡": "무릇 범", "屬": "붙을 속", "氣": "기운 기", "非": "아닐 비", "足": "발 족", "以": "써 이", "故": "연고 고", "長": "긴 장", "榮": "영화 영", "畜": "짐승 축", "賴": "의지할 뢰", "於": "어조사 어", "植": "심을 식", "發": "필 발", "卽": "곧 즉", "言": "말씀 언", "衣": "옷 의", "食": "밥 식", "得": "얻을 득", "則": "곧 즉", "失": "잃을 실", "死": "죽을 사", "曰": "가로 왈", "寅": "범 인", "位": "자리 위", "由": "말미암을 유", "推": "밀 추", "動": "움직일 동", "類": "무리 류", "何": "어찌 하", "又": "또 우", "此": "이 차", "産": "낳을 산", "山": "메 산", "諸": "모두 제", "淘": "일 도", "河": "물 하", "沙": "모래 사", "隱": "숨을 은", "草": "풀 초", "汞": "수은 홍", "鑞": "땜납 랍", "散": "흩을 산", "結": "맺을 결", "柔": "부드러울 유", "剛": "굳셀 강", "然": "그러할 연", "用": "쓸 용", "堅": "굳을 견", "毁": "헐 훼", "易": "바꿀 역", "乾": "하늘 건", "象": "코끼리 상", "正": "바를 정", "圓": "둥글 원", "瓜": "오이 과", "卵": "알 란", "居": "살 거", "包": "쌀 포", "乎": "어조사 호", "外": "바깥 외", "天": "하늘 천", "愈": "더욱 유", "高": "높을 고", "地": "땅 지", "下": "아래 하", "始": "비로소 시", "皇": "임금 황", "起": "일어날 기", "墳": "무덤 분", "驪": "검은말 려", "深": "깊을 심", "入": "들 입", "黃": "누를 황", "三": "석 삼", "百": "일백 백", "丈": "어른 장", "燒": "불사를 소", "使": "하여금 사", "至": "이를 지", "眞": "참 진", "體": "몸 체", "乃": "이에 내", "健": "굳셀 건", "運": "운전할 운", "息": "쉴 식", "强": "강할 강", "皮": "가죽 피", "殼": "껍질 각", "捍": "막을 한", "衛": "지킬 위", "固": "굳을 고", "觀": "볼 관", "理": "다스릴 리", "交": "사귈 교", "窮": "다할 궁", "甲": "갑옷 갑", "丙": "남녘 병", "戊": "천간 무", "庚": "천간 경", "壬": "천간 임", "干": "방패 간", "子": "아들 자", "辰": "별 진", "午": "낮 오", "申": "납 신", "戌": "개 술", "乙": "새 을", "丁": "장정 정", "巳": "뱀 사", "辛": "매울 신", "癸": "천간 계", "陰": "그늘 음", "丑": "소 축", "亥": "돼지 해", "酉": "닭 유", "未": "아닐 미", "卯": "토끼 묘", "挨": "밀칠 애", "相": "서로 상", "配": "짝 배", "十": "열 십", "二": "두 이", "各": "각각 각", "具": "갖출 구", "六": "여섯 륙", "花": "꽃 화", "變": "변할 변", "勝": "이길 승", "哉": "어조사 재", "總": "모두 총", "出": "날 출", "離": "떠날 리", "間": "사이 간", "欲": "하고자할 욕", "蔽": "가릴 폐", "坤": "땅 곤", "付": "줄 부", "性": "성품 성", "坎": "구덩이 감", "耳": "귀 이"}}, {"id": "noja", "name": "노자삼장", "hanja": "老子 三章", "author": "道德經 · 老子", "chars": ["天", "下", "皆", "知", "美", "之", "爲", "斯", "惡", "已", "善", "不", "故", "有", "無", "相", "生", "難", "易", "成", "長", "短", "形", "高", "傾", "音", "聲", "和", "前", "後", "隨", "是", "以", "聖", "人", "處", "事", "行", "言", "敎", "萬", "物", "作", "焉", "而", "辭", "恃", "功", "弗", "居", "夫", "唯", "去", "道", "其", "猶", "張", "弓", "乎", "者", "抑", "擧", "餘", "損", "足", "補", "則", "然", "奉", "孰", "能", "欲", "見", "賢", "邪", "小", "國", "寡", "民", "使", "什", "伯", "器", "用", "重", "死", "遠", "徙", "雖", "舟", "輿", "所", "乘", "甲", "兵", "陳", "復", "結", "繩", "甘", "食", "服", "安", "樂", "俗", "鄰", "望", "鷄", "犬", "聞", "至", "老", "往", "來"], "dict": {"天": "하늘 천", "下": "아래 하", "皆": "다 개", "知": "알 지", "美": "아름다울 미", "之": "갈 지", "爲": "할 위", "斯": "이 사", "惡": "악할 악, 미워할 오", "已": "이미 이", "善": "착할 선", "不": "아닐 불", "故": "연고 고", "有": "있을 유", "無": "없을 무", "相": "서로 상", "生": "날 생", "難": "어려울 난", "易": "바꿀 역, 쉬울 이", "成": "이룰 성", "長": "길 장", "短": "짧을 단", "形": "모양 형", "高": "높을 고", "傾": "기울 경", "音": "소리 음", "聲": "소리 성", "和": "화할 화", "前": "앞 전", "後": "뒤 후", "隨": "따를 수", "是": "이 시", "以": "써 이", "聖": "성인 성", "人": "사람 인", "處": "곳 처", "事": "일 사", "行": "다닐 행", "言": "말씀 언", "敎": "가르칠 교", "萬": "일만 만", "物": "만물 물", "作": "지을 작", "焉": "어조사 언, 어찌 언", "而": "말 이을 이, 말이을 이", "辭": "말씀 사", "恃": "믿을 시", "功": "공 공", "弗": "아닐 불", "居": "살 거", "夫": "지아비 부", "唯": "오직 유", "去": "갈 거", "道": "길 도", "其": "그 기", "猶": "오히려 유", "張": "베풀 장", "弓": "활 궁", "乎": "어조사 호", "者": "놈 자", "抑": "누를 억", "擧": "들 거", "餘": "남을 여", "損": "덜 손", "足": "발 족", "補": "기울 보", "則": "곧 즉", "然": "그럴 연", "奉": "받들 봉", "孰": "누구 숙", "能": "능할 능", "欲": "하고자 할 욕", "見": "볼 견", "賢": "어질 현", "邪": "사악할 사", "小": "작을 소", "國": "나라 국", "寡": "적을 과", "民": "백성 민", "使": "하여금 사", "什": "열사람 십", "伯": "맏 백", "器": "그릇 기", "用": "쓸 용", "重": "무거울 중", "死": "죽을 사", "遠": "멀 원", "徙": "옮길 사", "雖": "비록 수", "舟": "배 주", "輿": "수레 여", "所": "바 소", "乘": "탈 승", "甲": "갑옷 갑", "兵": "군사 병", "陳": "베풀 진", "復": "다시 부, 돌아올 복", "結": "맺을 결", "繩": "줄 승", "甘": "달 감", "食": "먹을 식", "服": "옷 복", "安": "편안 안", "樂": "즐길 락", "俗": "풍속 속", "鄰": "?", "望": "바랄 망", "鷄": "닭 계", "犬": "개 견", "聞": "들을 문", "至": "이를 지", "老": "늙을 로", "往": "갈 왕", "來": "올 래"}}, {"id": "ido", "name": "이도료병", "hanja": "以道療病", "author": "東醫寶鑑 · 許浚", "chars": ["臞", "仙", "曰", "古", "之", "神", "聖", "醫", "能", "療", "人", "心", "預", "使", "不", "致", "於", "有", "疾", "今", "者", "惟", "知", "而", "是", "猶", "捨", "本", "逐", "末", "窮", "其", "源", "攻", "流", "欲", "求", "愈", "亦", "愚", "乎", "雖", "一", "時", "僥", "倖", "安", "此", "則", "世", "俗", "庸", "足", "取", "也", "太", "白", "眞", "治", "先", "必", "正", "乃", "資", "道", "病", "盡", "去", "中", "疑", "慮", "思", "想", "切", "妄", "念", "平", "我", "悔", "悟", "生", "所", "爲", "過", "惡", "便", "當", "放", "下", "身", "以", "天", "合", "事", "久", "遂", "凝", "自", "然", "君", "泰", "寧", "性", "地", "和", "間", "萬", "皆", "空", "虛", "終", "日", "榮", "幻", "禍", "福", "無", "死", "夢", "慨", "領", "頓", "解", "釋", "淸", "淨", "痊", "如", "藥", "未", "到", "口", "已", "忘", "矣", "大", "法", "又", "至", "家", "後", "修", "養", "餌", "砭", "焫", "二", "由", "因"], "dict": {"臞": "여윌 구", "仙": "신선 선", "曰": "가로 왈", "古": "옛 고", "之": "갈 지", "神": "귀신 신", "聖": "성인 성", "醫": "의원 의", "能": "능할 능", "療": "병고칠 료", "人": "사람 인", "心": "마음 심", "預": "미리 예", "使": "하여금 사", "不": "아닐 불", "致": "이를 치", "於": "어조사 어", "有": "있을 유", "疾": "병 질", "今": "이제 금", "者": "놈 자", "惟": "오직 유", "知": "알 지", "而": "말 이을 이, 말이을 이", "是": "이 시", "猶": "오히려 유", "捨": "버릴 사", "本": "근본 본", "逐": "쫓을 축", "末": "끝 말", "窮": "다할 궁", "其": "그 기", "源": "근원 원", "攻": "칠 공", "流": "흐를 류", "欲": "하고자 할 욕", "求": "구할 구", "愈": "더할 유", "亦": "또 역", "愚": "?", "乎": "어조사 호", "雖": "비록 수", "一": "한 일", "時": "때 시", "僥": "바랄 요", "倖": "요행 행", "安": "편안 안", "此": "이 차", "則": "곧 즉", "世": "세상 세", "俗": "풍속 속", "庸": "떳떳할 용", "足": "발 족", "取": "가질 취", "也": "어조사 야", "太": "클 태", "白": "흰 백", "眞": "참 진", "治": "다스릴 치", "先": "먼저 선", "必": "반드시 필", "正": "바를 정", "乃": "이에 내", "資": "재물 자", "道": "길 도", "病": "병 병", "盡": "다할 진", "去": "갈 거", "中": "가운데 중", "疑": "의심할 의", "慮": "생각 려", "思": "생각 사", "想": "?", "切": "끊을 절", "妄": "망령될 망", "念": "생각 념", "平": "평평할 평", "我": "나 아", "悔": "뉘우칠 회", "悟": "깨달을 오", "生": "날 생", "所": "바 소", "爲": "할 위", "過": "지날 과", "惡": "악할 악, 미워할 오", "便": "문득 변, 편할 편", "當": "마땅할 당", "放": "놓을 방", "下": "아래 하", "身": "몸 신", "以": "써 이", "天": "하늘 천", "合": "합할 합", "事": "일 사", "久": "오랠 구", "遂": "드디어 수", "凝": "엉길 응", "自": "스스로 자", "然": "그럴 연", "君": "임금 군", "泰": "클 태", "寧": "편안할 녕", "性": "성품 성", "地": "땅 지", "和": "화할 화", "間": "사이 간", "萬": "일만 만", "皆": "다 개", "空": "빌 공", "虛": "빌 허", "終": "마칠 종", "日": "날 일", "榮": "영화 영", "幻": "변할 환", "禍": "재앙 화", "福": "복 복", "無": "없을 무", "死": "죽을 사", "夢": "꿈 몽", "慨": "슬퍼할 개", "領": "거느릴 령", "頓": "조아릴 돈", "解": "풀 해", "釋": "풀 석", "淸": "맑을 청", "淨": "깨끗할 정", "痊": "병나을 전", "如": "같을 여", "藥": "약 약", "未": "아닐 미", "到": "이를 도", "口": "입 구", "已": "이미 이", "忘": "잊을 망", "矣": "어조사 의", "大": "큰 대", "法": "법 법", "又": "또 우", "至": "이를 지", "家": "집 가", "後": "뒤 후", "修": "닦을 수", "養": "기를 양", "餌": "미끼 이", "砭": "돌침 폄", "焫": "불사를 설", "二": "두 이", "由": "말미암을 유", "因": "인할 인"}}];
+
+// ============ 원문별 SENTENCES ============
+const SENT_noneo=[
+{clauses:[
+  {orig:"子曰 學而時習之, 不亦說乎.",trans:"공자께서 말씀하시기를, 배우고 때때로 익히니, 또한 기쁘지 아니한가.",notes:[{at:9,key:"n1"}]},
+  {orig:"有朋自遠方來, 不亦樂乎.",trans:"벗이 있어 먼 곳으로부터 찾아오니, 또한 즐겁지 아니한가."},
+  {orig:"人不知而不慍, 不亦君子乎.",trans:"남이 알아주지 않더라도 노여워하지 않으니, 또한 군자답지 아니한가."}
+]},
+{clauses:[
+  {orig:"曾子曰 吾日三省吾身,",trans:"증자께서 말씀하시기를, 나는 날마다 세 가지로 나 자신을 반성하니,",notes:[{at:6,key:"n2"}]},
+  {orig:"爲人謀而不忠乎.",trans:"남을 위하여 일을 도모함에 충성스럽지 못하였는가."},
+  {orig:"與朋友交而不信乎.",trans:"벗과 사귐에 신의가 없지 않았는가."},
+  {orig:"傳不習乎.",trans:"전수받은 것을 익히지 않았는가.",notes:[{at:1,key:"n3"}]}
+]},
+{clauses:[
+  {orig:"子曰 君子食無求飽, 居無求安,",trans:"공자께서 말씀하시기를, 군자는 먹음에 배부름을 구하지 않으며, 거처함에 편안함을 구하지 않으며,"},
+  {orig:"敏於事而愼於言,",trans:"일에는 민첩하고 말에는 신중하며,"},
+  {orig:"就有道而正焉, 可謂好學也已.",trans:"도가 있는 이에게 나아가 (잘못을) 바로잡으니, 가히 학문을 좋아한다 할 만하다.",notes:[{at:3,key:"n4"}]}
+]},
+{clauses:[
+  {orig:"子曰 溫故而知新, 可以爲師矣.",trans:"공자께서 말씀하시기를, 옛것을 익혀 새것을 알면, 가히 스승이 될 만하다."}
+]},
+{clauses:[
+  {orig:"子曰 學而不思則罔,",trans:"공자께서 말씀하시기를, 배우기만 하고 생각하지 않으면 어두워 얻음이 없고,",notes:[{at:9,key:"n5"}]},
+  {orig:"思而不學則殆.",trans:"생각만 하고 배우지 않으면 위태롭다."}
+]},
+{clauses:[
+  {orig:"子曰 由, 誨女知之乎.",trans:"공자께서 말씀하시기를, 유(由)야, 너에게 안다는 것이 무엇인지 가르쳐 주랴.",notes:[{at:3,key:"n6"},{at:6,key:"n7"}]},
+  {orig:"知之爲知之, 不知爲不知,",trans:"아는 것을 안다 하고, 모르는 것을 모른다 하는 것,"},
+  {orig:"是知也.",trans:"이것이 곧 앎이다."}
+]},
+{clauses:[
+  {orig:"子曰 士志於道而耻惡衣惡食者, 未足與議也.",trans:"공자께서 말씀하시기를, 선비로서 도에 뜻을 두고도 나쁜 옷과 나쁜 음식을 부끄럽게 여기는 자는, 더불어 의논할 만하지 못하다."}
+]},
+{clauses:[
+  {orig:"子曰 見賢思齊焉,",trans:"공자께서 말씀하시기를, 어진 이를 보면 그와 같아지기를 생각하고,"},
+  {orig:"見不賢而內自省也.",trans:"어질지 못한 이를 보면 안으로 스스로 반성한다."}
+]},
+{clauses:[
+  {orig:"子曰 黙而識之,",trans:"공자께서 말씀하시기를, 묵묵히 마음에 기억하고,",notes:[{at:3,key:"n8"}]},
+  {orig:"學而不厭,",trans:"배우되 싫증내지 않으며,"},
+  {orig:"誨人不倦,",trans:"남을 가르치되 게을리하지 않는 것,"},
+  {orig:"何有於我哉.",trans:"이 중에 무엇이 나에게 있겠는가."}
+]},
+{clauses:[
+  {orig:"子曰 三軍可奪帥也,",trans:"공자께서 말씀하시기를, 삼군(三軍)에서 그 장수를 빼앗을 수는 있으나,"},
+  {orig:"匹夫不可奪志也.",trans:"필부에게서 그 뜻을 빼앗을 수는 없다."}
+]}
+];
+const SENT_ohaeng1=[
+
+{clauses:[
+  {orig:"五行者는 水火木金土也라",src:"prof",trans:"오행은 수화목금토이다."},
+  {orig:"五行은 卽陰陽之質이요 陰陽은 卽五行之氣라",src:"prof",trans:"오행은 곧 음양의 바탕이며 음양은 곧 오행의 기이다."}
+]},
+{clauses:[
+  {orig:"氣非質이면 不立하고 質非氣면 不行이니",src:"prof",trans:"기는 질이 아니면 서지 못하고 질은 기가 아니면 행하지 못하니"},
+  {orig:"行也者는 所以行陰陽之氣也라",src:"prof",trans:"행이라고 하는 것은 음양의 기를 운행하기 때문이다."}
+]},
+{clauses:[
+  {orig:"朱子曰 五行은 質具於地而氣行於天이라하니",src:"prof",trans:"주자왈 오행의 질은 땅에서 갖추어지고 오행의 기는 하늘에서 행한다고 했는데"},
+  {orig:"其實元初는 只一太極이니 一分爲二요 二分爲四라",src:"prof",trans:"그것의 실제 근본 시작은 단지 한 태극이니 1이 나뉘어 2가 되고 2가 나뉘어 4가 된다."}
+]},
+{clauses:[
+  {orig:"天得一箇四하고 地得一箇四로되",src:"prof",trans:"천이 하나의 4를 얻고 지도 하나의 4를 얻게 되고"},
+  {orig:"又各有一箇太極하야 行乎其中하니",src:"prof",trans:"또 각각 하나의 태극이 있어 그 가운데에서 행하고 있으니"},
+  {orig:"便是兩其五行而已라",src:"prof",trans:"곧 천지의 오행을 짝을 이루고 있을 따름이다. (※ 兩은 '두 량이 짝을 하다'라는 뜻으로 쓰임)"}
+]},
+{clauses:[
+  {orig:"故로 河洛圖書에 具陰陽之象하고",src:"prof",trans:"따라서 하도 낙서에 음양의 상을 갖추고"},
+  {orig:"分左右中前後하야 以列五行生成之數焉이라",src:"prof",trans:"좌우중전후으로 나뉘어져 오행의 생수(12345) 성수(678910)를 배열하였다."}
+]},
+{clauses:[
+  {orig:"先儒曰 天地者는 陰陽對待之定體요",src:"prof",trans:"옛선비가 천지는 음양대대(서로 짝으로 갖춤)의 정해진 모양이라고 했고"},
+  {orig:"一二三四五六七八九十者는 陰陽流行之次序니",src:"prof",trans:"12345678910은 음양유행의 차례이며,"}
+]},
+{clauses:[
+  {orig:"對待가 非流行이면 不能變化하고",src:"prof",trans:"대대하고 유행하지 않으면 변화하지 못하고"},
+  {orig:"流行이 非對待면 不能自行하니",src:"prof",trans:"유행하고 대대하지 않으면 자연히 행하지 [못하니]"},
+  {orig:"此五行所以流行於天地中而爲用也라",trans:"이것이 오행이 천지 가운데서 유행하면서 작용이 되는 까닭이다."}
+]},
+{clauses:[
+  {orig:"故로 大撓가 察天地之陰陽하야",src:"prof",trans:"고로 대요가 천지의 음양을 살펴서",notes:[{at:3,key:"n1"}]},
+  {orig:"立十干十二支하야 以著日月之象이라",src:"prof",trans:"십간과 십이지를 세움으로써 일월의 삼라만상을 나타내었다."}
+]},
+{clauses:[
+  {orig:"十干은 以應日하니 天之五行也라",src:"prof",trans:"십간으로써 일(양)에 응하니 천의 오행이다."}
+]},
+{clauses:[
+  {orig:"甲陽乙陰爲木이요 丙陽丁陰爲火요",src:"prof",trans:"갑양, 을음은 목이 되고 병양, 정음은 화가 되며"},
+  {orig:"戊陽己陰爲土요",src:"prof",trans:"무양, 기음은 토가 되고"},
+  {orig:"庚陽辛陰爲金이요 壬陽癸陰爲水라",src:"prof",trans:"경양, 신음은 금이 되고 임양, 계음은 수가 된다."}
+]},
+{clauses:[
+  {orig:"十二支는 以應月하니 地之五行也라",src:"prof",trans:"십이지로써 월에 응하니 지의 오행이다."}
+]},
+{clauses:[
+  {orig:"子陽亥陰曰水요 午陽巳陰曰火요",src:"prof",trans:"자양, 해음은 수요 오양, 사음은 화요"},
+  {orig:"寅陽卯陰曰木이요 申陽酉陰曰金이요",src:"prof",trans:"인양, 묘음은 목이요 신양, 유음은 금이요"},
+  {orig:"辰戌陽丑未陰曰土라",src:"prof",trans:"진술양, 축미음은 토라."}
+]},
+{clauses:[
+  {orig:"干支出而六甲成하야 運氣分而時序定하니",src:"prof",trans:"간지가 나와서 육십화갑을 이루고 운기가 나뉘어 계절의 차례가 정해진다."}
+]},
+{clauses:[
+  {orig:"所謂天地相臨에 陰陽相合하야",src:"prof",trans:"소위 천지상임이라는 것은 음양이 상합하고"},
+  {orig:"而生成之道存乎其中이라",src:"prof",trans:"생성의 도가 그중에 있다는 것이다."}
+]},
+{clauses:[
+  {orig:"故로 五行之化無乎不在라",src:"prof",trans:"그러므로 오행의 변화가 없는데가 없다."}
+]},
+{clauses:[
+  {orig:"精浮於天이면 則爲五星이니",src:"prof",trans:"정미로운 것이 하늘에 올라 오성이 되니"},
+  {orig:"水曰辰星이요 火曰熒惑이요",src:"prof",trans:"수는 진성이라 하고 화는 형혹이라 하며",notes:[{at:9,key:"n2"}]},
+  {orig:"木曰歲星이요 金曰太白이요 土曰鎭星이라",src:"prof",trans:"목은 세성이라 하고 금은 태백이라 하고 토는 진성이라 한다."}
+]},
+{clauses:[
+  {orig:"形成於地면 則爲五方이니",src:"prof",trans:"형이 땅에서 이루어지면 곧 다섯 방위가 되니"},
+  {orig:"水位於北하며 火位於南하며",src:"prof",trans:"수는 북에 위치하고 화는 남에 위치하며"},
+  {orig:"木位於東하며 金位於西하며 土位於中이라",src:"prof",trans:"목은 동에 위치하고 금은 서에 위치하며 토는 중앙에 위치한다."}
+]},
+{clauses:[
+  {orig:"其爲四時면 則木王於春하며 火王於夏하며",src:"prof",trans:"그것이 사계절이 되면 목은 봄에 왕성하고, 화는 여름에 왕성하고,"},
+  {orig:"金王於秋하며 水王於冬하며 土王於四季라",src:"prof",trans:"금은 가을에 왕성하고, 수는 겨울에 왕성하며 토는 사계절에 왕성하다."}
+]},
+{clauses:[
+  {orig:"其爲六氣면 則木之化風하며",trans:"그것이 육기(六氣)가 되면, 목은 풍(風)으로 화(化)하고,"},
+  {orig:"火之化暑與熱하며 土之化濕하며",trans:"화는 서(暑)와 열(熱)로 화하고, 토는 습(濕)으로 화하며,"},
+  {orig:"金之化燥하며 水之化寒이라",trans:"금은 조(燥)로 화하고, 수는 한(寒)으로 화한다."}
+]},
+{clauses:[
+  {orig:"其爲名目이면 則水曰潤下요 火曰炎上이요",src:"prof",trans:"그것을 명목으로 보면 수는 윤하라고 하고, 화는 염상이라 하고,"},
+  {orig:"木曰曲直이요 金曰從革이요 土爰稼穡이라",src:"prof",trans:"목은 곡직이라 하고, 금은 종혁이라 하며 토는 가색이라 한다."}
+]},
+{clauses:[
+  {orig:"其爲功用이면 則水主潤하며 火主熯하며",src:"prof",trans:"그것을 작용으로 보면 수는 물에 젖는 것을 주하고, 화는 불사르는 것을 주하고,",notes:[{at:15,key:"n3"}]},
+  {orig:"木主敷하며 金主斂하며 土主溽이라",src:"prof",trans:"목은 펴는 것을 주하고, 금은 수렴하는 것을 주하며 토는 습한 것을 주한다.",notes:[{at:13,key:"n4"}]}
+]},
+{clauses:[
+  {orig:"其爲形體면 則水質平하며 火質銳하며",src:"prof",trans:"그것을 형체로 보면 수의 바탕은 평평한 것이고, 화의 바탕은 날카로운 것이 되고,"},
+  {orig:"木質長하며 金質方하며 土質圜이라",src:"prof",trans:"목의 바탕은 긴 것이 되고, 금의 바탕은 모난 것이 되며 토의 바탕은 둥근 것이 된다.",notes:[{at:13,key:"n5"}]}
+]},
+{clauses:[
+  {orig:"其爲賦性이면 則水性寒하며 火性熱하며",src:"prof",trans:"그것을 타고난 품성으로 보면 수의 성은 차고, 화의 성은 열하고,"},
+  {orig:"木性溫하며 金性淸하며 土性蒸이라",src:"prof",trans:"목의 성은 온하고, 금의 성은 청량하며 토의 성은 찐다."}
+]},
+{clauses:[
+  {orig:"其爲五帝면 則木曰太皥요 火曰炎帝요",src:"prof",trans:"그것을 오제로 보면 목은 태호라 하고, 화는 염제라 하고,",notes:[{at:9,key:"n6"},{at:14,key:"n7"}]},
+  {orig:"土曰黃帝요 金曰少皥요 水曰顓頊이라",src:"prof",trans:"토는 황제라 하고, 금은 소호라 하며 수는 전욱이라 한다.",notes:[{at:8,key:"n8"},{at:13,key:"n9"}]}
+]},
+{clauses:[
+  {orig:"其爲五神이면 則木曰勾芒이요 火曰祝融이요",src:"prof",trans:"그것을 오신으로 보면 목은 구망이라 하고, 화는 축융이라 하고,",notes:[{at:10,key:"n10"}]},
+  {orig:"土曰后土요 金曰蓐收요 水曰玄冥이라",src:"prof",trans:"토는 후토라 하고, 금은 욕수라 하고, 수는 현명이라 한다."}
+]},
+{clauses:[
+  {orig:"其爲五則이면 則火以應衡하며 水以應權하며",src:"prof",trans:"그것이 오칙(측정기기)이 되면 화는 저울에 응하고, 수는 저울추에 응하고,"},
+  {orig:"木以應規하며 金以應矩하며 土以應繩이라",src:"prof",trans:"목은 규(원을 그리는 기구)에 응하고, 금은 곱자(직각을 그리는 자)에 응하며 토는 먹줄에 응한다."}
+]},
+{clauses:[
+  {orig:"至若五穀 五果 五畜 五音 五色 五臭 五味 五藏之類하여도",src:"prof",trans:"오곡, 오과, 오축, 오음, 오색, 오취, 오미, 오장 같은 류에 이르러도"},
+  {orig:"無非屬於五行也라",src:"prof",trans:"오행에 속하지 않은 것이 없다."}
+]}
+];
+const SENT_ohaeng2=[
+
+{clauses:[
+  {orig:"又如五行氣數之異와 陰陽之辨이 亦有所不同者는",src:"prof",trans:"또 가령 오행의 기와 수가 서로 다름과 음양의 구분이 또한 같지 않은 바가 있으니,"}
+]},
+{clauses:[
+  {orig:"若以氣로 言時之序면 則曰木火土金水라",src:"prof",trans:"만일 오행의 기로써 계절의 순서를 말하자면 목화토금수라고 말한다."}
+]},
+{clauses:[
+  {orig:"如木當春令하니 爲陽穉요 火當夏令하니 爲陽盛이며",src:"prof",trans:"가령 목은 춘령을 담당하니 어린 양이 되고, 화는 하령을 담당하니 양이 성함이 되고,",notes:[{at:10,key:"n1"}]},
+  {orig:"金當秋令하니 爲陰穉요 水當冬令하니 爲陰盛이니",src:"prof",trans:"금은 추령을 담당하니 어린 음이 되며 [수는 동령을 담당하니 음이 성함이 되니],"},
+  {orig:"是는 木火爲陽이요 金水爲陰也일새라",trans:"이는 목·화가 양이 되고 금·수가 음이 되기 때문이다."}
+]},
+{clauses:[
+  {orig:"若以數로 言生之序면 則曰水火木金土라",src:"prof",trans:"대저 오행의 수로써 생하는 순서를 말한 즉 수화목금토라 한다."}
+]},
+{clauses:[
+  {orig:"如天一生水하니 爲陽穉요 天三生木하니 爲陽盛이며",src:"prof",trans:"가령 천일이 수를 생하니 어린 양이 되고, 천삼은 목을 생하니 성한 양이 되며,"},
+  {orig:"地二生火하니 爲陰穉요 地四生金하니 爲陰盛이니",src:"prof",trans:"지이는 화를 생하니 어린 음이 되고 지사는 금을 생하니 성한 음이 되는 것이니,"},
+  {orig:"是는 水木爲陽이요 而火金爲陰也일새라",src:"prof",trans:"이것은 수와 목은 양이 되고 화와 금은 음이 된다."}
+]},
+{clauses:[
+  {orig:"此外에 如洛書 樂律 劉向 班固 等義는 序各不同이나",src:"prof",trans:"이외에도 낙서·악률·유향·반고 등 여러 의론에서도 차례가 서로 같지 않으나",notes:[{at:7,key:"n2"},{at:9,key:"n3"},{at:11,key:"n4"}]},
+  {orig:"無非變化之道요 而運用之機도 亦無過生克之理耳라",src:"prof",trans:"변화의 도에서 벗어난 것이 없고 운용의 기전 또한 상생상극의 이치를 벗어남이 없을 따름이다."}
+]},
+{clauses:[
+  {orig:"故로 自其相生者로 言則水以生木하며 木以生火하며",trans:"그러므로 그 상생(相生)하는 것으로부터 말하면, 수는 목을 낳고, 목은 화를 낳고,"},
+  {orig:"火以生土하며 土以生金하며 金以生水하고",trans:"화는 토를 낳고, 토는 금을 낳고, 금은 수를 낳는다."}
+]},
+{clauses:[
+  {orig:"自其相克者로 言則水能克火하며 火能克金하며",trans:"그 상극(相克)하는 것으로부터 말하면, 수는 능히 화를 이기고, 화는 능히 금을 이기며,"},
+  {orig:"金能克木하며 木能克土하며 土能克水하고",trans:"금은 능히 목을 이기고, 목은 능히 토를 이기며, 토는 능히 수를 이긴다."}
+]},
+{clauses:[
+  {orig:"自其勝復者로 言則凡有所勝하면 必有所敗하고",trans:"그 승복(勝復·이김과 회복)하는 것으로부터 말하면, 무릇 이기는 바가 있으면 반드시 패하는 바가 있고,"},
+  {orig:"有所敗하면 必有所復하니 母之敗也에 子必救之라",trans:"패하는 바가 있으면 반드시 회복하는 바가 있으니, 어미가 패함에 자식이 반드시 구한다."}
+]},
+{clauses:[
+  {orig:"如水之太過에 火受傷矣로되 火之子土가 出而制焉하고",src:"prof",trans:"예를 들면 수의 태과에 화가 상함을 받되 화의 자인 토가 나와서 억제하고,"},
+  {orig:"火之太過에 金受傷矣로되 金之子水가 出而制焉하고",src:"prof",trans:"화의 태과에 금이 상함을 받되 금의 자인 수가 나와서 억제하고,"},
+  {orig:"金之太過에 木受傷矣로되 木之子火가 出而制焉하고",src:"prof",trans:"금의 태과에 목이 상함을 받되 목의 자인 화가 나와서 억제하고,"},
+  {orig:"木之太過에 土受傷矣로되 土之子金이 出而制焉하고",src:"prof",trans:"목의 태과에 토가 상함을 받되 토의 자인 금이 나와서 억제하고,"},
+  {orig:"土之太過에 水受傷矣로되 水之子木이 出而制焉이라",src:"prof",trans:"토의 태과에 수가 상함을 받되, 수의 자인 목이 나와서 억제한다."}
+]}
+
+];
+const SENT_ohaeng3=[
+
+{clauses:[
+  {orig:"蓋造化之機는 不可無生이요 亦不可無制니",src:"prof",trans:"대개 조화의 기전은 생함이 없을 수 없고 또한 제약이 없을 수 없으니,"},
+  {orig:"無生則發育無由하고 無制則亢而爲害라",src:"prof",trans:"생함이 없으면 발육이 따르지 않고 제약이 없으면 항진되어서 해로움이 된다."}
+]},
+{clauses:[
+  {orig:"生克循環이 運行不息하야 而天地之道가 斯無窮已라",src:"prof",trans:"상생상극의 순환이 운행함에 쉼이 없어서 천지의 도가 이에 다함이 없을 따름이다."}
+]},
+{clauses:[
+  {orig:"第人知夫生之爲生하고 而不知生中有克하며",src:"prof",trans:"다만 사람들은 그 생이 생을 행하는 것은 알지만 생하는 가운데 극함이 있음을 알지 못하며,",notes:[{at:1,key:"n1"}]},
+  {orig:"知克中有克하고 而不知克中有用하며",src:"prof",trans:"극이 극을 행하는 것은 알지만 극하는 가운데 다스림이 있음을 알지 못하고,"},
+  {orig:"知五之爲五하고 而不知五者之中에",src:"prof",trans:"5행이 5행을 행하는 것은 알지만 5행 가운데서"},
+  {orig:"五五二十五而復有互藏之妙焉이라",src:"prof",trans:"5×5=25가 되어 다시 서로 감추어 저장되어 있는 오묘한 이치는 알지 못한다."}
+]},
+{clauses:[
+  {orig:"所謂生中有克者는 如木以生火나 火勝則木乃灰燼하고",src:"prof",trans:"소위 생하는 중에 극함이 있다는 것은 가령 목생화 하나 화가 승하면 목이 이에 잿더미가 되고,",notes:[{at:21,key:"n2"}]},
+  {orig:"火以生土나 土勝則火爲撲滅하고",src:"prof",trans:"화생토 하나 토가 승하면 화가 박멸되어 꺼지고,"},
+  {orig:"土以生金이나 金勝則土無發生하고",src:"prof",trans:"토생금 하나 금이 승하면 토는 발생할 수가 없게 되고,"},
+  {orig:"金以生水나 水勝則金爲沈溺하고",src:"prof",trans:"금생수 하나 수가 승하면 금이 물에 잠겨서 녹슬게 되고,"},
+  {orig:"水以生木이나 木勝則水爲壅滯하니",src:"prof",trans:"수생목 하나 목이 승하면 수가 막혀 흐르지 못하게 되니,"},
+  {orig:"此其所以相生者가 實亦有所相殘也라",src:"prof",trans:"이것이 그 상생한다는 것이 실제로는 또한 서로 극하는 바도 있다고 하는 까닭이다."}
+]},
+{clauses:[
+  {orig:"所謂克中之用者는 如火之炎熾가 得水克이면 而成旣濟之功하고",src:"prof",trans:"소위 극하는 중에 쓰임이 있다는 것은 가령 화가 치성하는 것이 수의 극함을 얻으면 수화기제의 공을 이루고,"},
+  {orig:"金之頑鈍이 得火克이면 而成煆煉之器하고",src:"prof",trans:"금의 단단함이 화의 극함을 받으면 불로 제련된 그릇이나 도구를 이루고,"},
+  {orig:"木之曲直이 得金克이면 而成芟削之材하고",src:"prof",trans:"목의 곡직이 쇠의 극함을 받으면 베고 깎아 만든 재목 재료를 이루고,",notes:[{at:13,key:"n3"}]},
+  {orig:"土之曠墁이 得木克이면 而見發生之化하고",src:"prof",trans:"토의 광활한 토양이 목의 극함을 받으면 발생의 변화를 나타내고,",notes:[{at:3,key:"n4"}]},
+  {orig:"水之泛濫이 得土克이면 而成堤障之用하니",src:"prof",trans:"수의 범람하는 기세가 토의 극함을 받으면 둑으로 막힌다."}
+]},
+{clauses:[
+  {orig:"此其所以相克者가 實又所以相成也라",trans:"이는 그 상극(相克)하는 것이 실은 또한 서로 이루어 주는 까닭이다."}
+]},
+{clauses:[
+  {orig:"而五常之德亦然하니 如木德爲仁이요 金德爲義요",src:"prof",trans:"그리고 오상의 덕 또한 그러하니 가령 목의 덕목은 인이 되고 금의 덕목은 의가 되고"},
+  {orig:"火德爲禮요 水德爲智요 土德爲信이로되",src:"prof",trans:"화의 덕목은 예가 되고 수의 덕목은 지가 되고 토의 덕목은 신이 되는데,"}
+]},
+{clauses:[
+  {orig:"仁은 或失於柔라 故로 以義斷之하고",src:"prof",trans:"인은 때때로 우유부단함이 지나친 고로 의로써 그것을 끊어내고,"},
+  {orig:"義는 或失於剛이라 故로 以禮節之하고",src:"prof",trans:"의는 때로 지나친 강함에 빠지는 고로 예로써 절제하고,"},
+  {orig:"禮는 或失於拘라 故로 以智通之하고",src:"prof",trans:"예는 때로 지나친 구속에 빠지는 고로 지로써 통하게 하고,"},
+  {orig:"智는 或失於詐라 故로 以信正之하니",src:"prof",trans:"지는 혹 거짓에 빠지는 고로 신으로써 그것을 바로 잡는 것이니,"}
+]},
+{clauses:[
+  {orig:"是皆生克反用之道也라",src:"prof",trans:"이것이 모두 생과 극이 반대로 뒤집어 쓰이는 이치이다."}
+]}
+
+];
+const SENT_ohaeng4=[
+
+{clauses:[
+  {orig:"所謂五者之中에 有互藏者는",src:"prof",trans:"소위 오행 중에 서로 호장하는 것은"},
+  {orig:"如木之有津은 木中水也요",src:"prof",trans:"가령 목에 진이 있는 것이 목중의 수요,"},
+  {orig:"土之有泉은 土中水也요",src:"prof",trans:"토에 샘이 있는 것이 토 중의 수요,"},
+  {orig:"金之有液은 金中水也요",src:"prof",trans:"금에 액이 있으니 금중의 수요,"},
+  {orig:"火之鎔物은 火中水也라",src:"prof",trans:"화에 녹은 물질은 화 중의 수라."},
+  {orig:"夫水爲造化之原이라 萬物之生에 其初皆水니",src:"prof",trans:"무릇 수는 조화의 근원이며, 만물이 생함에 그 시작은 모두 수가 되니,"},
+  {orig:"而五行之中에 一無水之不可也라",src:"prof",trans:"오행 중에 하나라도 수가 없이는 불가하다."}
+]},
+{clauses:[
+  {orig:"火之互藏은 木鑽之而見하며 金擊之而見하며 石鑿之而見하고",src:"prof",trans:"화의 호장은 나무를 뚫을 때 보이고 금속을 두드릴 때 보이며 돌을 뚫을 때 보이고,",notes:[{at:7,key:"n1"},{at:21,key:"n2"}]},
+  {orig:"惟是水中之火는 人多不知나",src:"prof",trans:"오직 이 수 중의 화는 사람들이 대부분 알지 못하나"},
+  {orig:"而油能生火하며 酒能生火하며 雨大生雷하며 濕多成熱이 皆是也라",src:"prof",trans:"기름이 능히 화를 생하고 술이 능히 화를 생하며 큰 비가 우뢰를 생하고 습이 많으면 열이 생성하는 것이 모두 이것이다."},
+  {orig:"且火爲陽生之本이니 雖若無形이나 而實無往不在라",src:"prof",trans:"또 화는 양생의 근본이니 [비록 형체가 없는 듯하나 실제로는 가는 곳마다] 있지 않은 곳이 없다."},
+  {orig:"凡屬氣化之物은 非火면 不足以生이라",src:"prof",trans:"무릇 기화작용에 의지하는 모든 물질은 화가 아니면 생할 수 없다."},
+  {orig:"故로 五行之中에 一無火之不可也라",src:"prof",trans:"고로 오행 중에 하나라도 화가 없이는 불가하다."}
+]},
+{clauses:[
+  {orig:"土之互藏은 木非土면 不長하며 火非土면 不榮하며",src:"prof",trans:"토의 호장은 목은 토가 아니면 성장하지 못하고, 화는 토가 아니면 영화롭지 못하고,"},
+  {orig:"金非土면 不生하며 水非土면 不畜이라",src:"prof",trans:"금은 토가 아니면 생하지 못하며, 수는 토가 아니면 쌓이지 못하니,"},
+  {orig:"萬物生成이 無不賴土하니 而五行之中에 一無土之不可也라",src:"prof",trans:"만물의 생성이 토에 의지하지 않는 것이 없으니 오행 중에 하나라도 토가 없이는 불가하다."}
+]},
+{clauses:[
+  {orig:"木之互藏은 生於水하며 植於土하며 榮於火하며 成於金하니",src:"prof",trans:"목의 호장은 물에서 생하고, 토에 심어지고, 화에서 영화로우며, 금에서 정하여지나니,"},
+  {orig:"凡發生之氣는 其化在木이라",src:"prof",trans:"무릇 발생하는 기는 그 되는 것(변화)이 목에 있음이라."},
+  {orig:"卽以人生而言이면 所衣所食이 皆木也니",src:"prof",trans:"곧 인생으로써 말하자면 입고 먹[는 것이 모두 목이니],"},
+  {orig:"得木則生하고 失木則死라",trans:"목을 얻으면 살고 목을 잃으면 죽는다."},
+  {orig:"故로 曰人生於寅이라하니 寅者는 陽木之位也라",trans:"그러므로 '사람은 인(寅)에서 생한다'고 하니, 인은 양목(陽木)의 자리이다."},
+  {orig:"由人而推면 則凡動植之類가 何非陽氣며 而又何非木化리오",trans:"사람으로부터 미루어 보면, 무릇 동물·식물의 무리가 어찌 양기(陽氣)가 아니며 또 어찌 목의 변화가 아니겠는가."},
+  {orig:"此五行萬物之中에 一無木之不可也라",trans:"이는 오행 만물 가운데 하나라도 목이 없을 수 없는 것이다."}
+]},
+{clauses:[
+  {orig:"金之互藏은 産於山石하니 生諸土也요",trans:"금의 호장은, 산석(山石)에서 산출되니 토에서 생하는 것이요,"},
+  {orig:"淘於河沙하니 隱諸水也요",trans:"하천의 모래에서 일어 가려내니[淘] 수에 숨어 있는 것이요,",notes:[{at:1,key:"n3"}]},
+  {orig:"草有汞하며 木有鑞하니 藏於木也요",trans:"풀에 수은(汞)이 있고 나무에 땜납(鑞)이 있으니 목에 갈무리된 것이요,",notes:[{at:3,key:"n4"},{at:8,key:"n5"}]},
+  {orig:"散可結하며 柔可剛하니 化於火也라",trans:"흩어진 것이 맺어지고 부드러운 것이 굳세지니 화에서 변화한 것이다."}
+]},
+{clauses:[
+  {orig:"然이나 金之爲用은 堅而不毁라",trans:"그러나 금의 작용은 견고하여 헐어지지 않는다."},
+  {orig:"故로 易曰 乾爲金이라하니 夫乾象正圓하야 形如瓜卵하야",trans:"그러므로 《주역》에 '건(乾)은 금이 된다'고 하니, 무릇 건의 상(象)은 정원(正圓)이라 모양이 오이나 알과 같아,"},
+  {orig:"柔居於中하고 剛包乎外라",trans:"부드러운 것이 가운데에 거하고 굳센 것이 바깥을 감싼다."},
+  {orig:"是以로 天은 愈高而愈剛하고 地는 愈下而愈剛이라",trans:"이로써 하늘은 더 높을수록 더 굳세고, 땅은 더 깊을수록 더 굳세다."}
+]},
+{clauses:[
+  {orig:"故로 始皇이 起墳驪山할새",trans:"그러므로 진시황(始皇)이 여산(驪山)에 무덤을 만들 적에,",notes:[{at:8,key:"n6"}]},
+  {orig:"深入黃泉三百丈이어늘",trans:"깊이 황천(黃泉)으로 300장(丈)이나 들어갔거늘,"},
+  {orig:"鑿之不入하며 燒之不毁라하니",trans:"뚫어도 들어가지 않고 태워도 헐어지지 않았다 하니,"},
+  {orig:"使非至剛之氣眞金之體면 乃能若是其健而運行不息乎아",trans:"가령 지극히 굳센 기[至剛之氣]와 참된 금의 체[眞金之體]가 아니라면, 어찌 이렇게 건실히 운행하여 그치지 않을 수 있겠는가."}
+]},
+{clauses:[
+  {orig:"故로 凡氣化之物이 不得金氣면 無以堅强하니",trans:"그러므로 무릇 기화의 물건이 금기(金氣)를 얻지 못하면 견고하고 강할 수 없으니,"},
+  {orig:"所以皮殼在外而爲捍衛者는 皆得乾金之氣하야 以固其形이라",trans:"바깥에 가죽이나 껍질(皮殼)이 있어 호위(捍衛)하는 것은 모두 건금(乾金)의 기를 얻어 그 형체를 굳히는 것이다.",notes:[{at:9,key:"n7"}]},
+  {orig:"此五行萬物之中에 一無金之不可也라",trans:"이는 오행 만물 가운데 하나라도 금이 없을 수 없는 것이다."}
+]},
+{clauses:[
+  {orig:"由此而觀이면 則五行之理는 交互無窮이라",src:"prof",trans:"이로부터 자세히 살펴보면 오행의 이치는 상호 주고받음이 무궁무진하다."},
+  {orig:"故로 甲丙戊庚壬은 天之陽干也로되 而交於地之子寅辰午申戌하고",src:"prof",trans:"고로 갑·병·무·경·임은 천의 양간이로되 지의 자·인·진·오·신·술과 서로 교류하고,"},
+  {orig:"乙丁巳辛癸는 天之陰干也로되 而交於地之丑亥酉未巳卯라",src:"prof",trans:"을·정·기·신·계는 천의 음간이로되 지의 축·해·유·미·사·묘와 서로 교류한다."}
+]},
+{clauses:[
+  {orig:"天地五行은 挨相交配하야 以天之十而交於地之十二하니",src:"prof",trans:"천지 오행은 서로 밀면서 짝을 이루어서 천의 십간으로써 지의 십이지에 서로 교배하니,"},
+  {orig:"是는 於五行之中에 各具五行하야 乃成六十花甲이라",src:"prof",trans:"이것은 오행 중에 각각 오행 [을 갖추어 60화갑(六十花甲)을 이룬다]."},
+  {orig:"由六十花甲而推於天地萬物이면 其變을 可勝言哉리오",trans:"60갑자로부터 천지 만물을 미루어 보면 그 변화를 어찌 다 말로 할 수 있겠는가."}
+]},
+{clauses:[
+  {orig:"然而變雖無窮이나 總不出乎陰陽이요",trans:"그러나 변화가 비록 다함이 없으나 모두 음양에서 벗어나지 않고,"},
+  {orig:"陰陽之用은 總不離乎水火라",trans:"음양의 작용은 모두 수와 화에서 떠나지 않는다."},
+  {orig:"所以天地之間에 無往而非水火之用이라",trans:"그러므로 천지의 사이에 가는 곳마다 수화(水火)의 작용 아닌 곳이 없다."}
+]},
+{clauses:[
+  {orig:"欲以一言而蔽인댄 五行之理者는",trans:"한마디 말로 포괄(蔽)하고자 한다면, 오행의 이치란,",notes:[{at:6,key:"n8"}]},
+  {orig:"曰乾坤이 付正性於坎離니 坎離爲乾坤之用耳라",trans:"이르되 '건곤(乾坤)이 정성(正性)을 감리(坎離)에 부여하니, 감리(坎離)가 건곤의 작용이 될 따름이다'라 한다."}
+]}
+
+];
+const SENT_noja=[
+{clauses:[
+  {orig:"天下皆知美之爲美면 斯惡已요",trans:"천하가 모두 아름다움이 아름다움이 되는 줄을 아니 곧 추함이 되고,",notes:[{at:1,key:"n1"}]},
+  {orig:"皆知善之爲善이면 斯不善已라.",trans:"모두 선이 선이 되는 줄을 알면 곧 불선이 된다."}
+]},
+{clauses:[
+  {orig:"故로 有無相生하나니 難易相成하며",trans:"그러므로 유와 무가 서로를 낳고, 어려움과 쉬움이 서로를 이루며,"},
+  {orig:"長短相形하고 高下相傾하며",trans:"긺과 짧음이 서로를 드러내고, 높음과 낮음이 서로 기울이며,",notes:[{at:3,key:"n2"}]},
+  {orig:"音聲相和하고 前後相隨하나니",trans:"음과 성이 서로 화하고, 앞과 뒤가 서로 따르니,"}
+]},
+{clauses:[
+  {orig:"是以로 聖人이 處無爲之事하고 行不言之敎하며",trans:"이러한 까닭에 성인은 무위(無爲)의 일에 처하고, 말하지 않는 가르침을 행하며,"},
+  {orig:"萬物作焉而不辭하고 生而不有하며",trans:"만물이 일어나도 주재하지 않고, 낳더라도 소유하지 않으며,",notes:[{at:7,key:"n3"}]},
+  {orig:"爲而不恃하고 功成而弗居라.",trans:"하더라도 자랑하지 않고, 공을 이루어도 거기에 머물지 않는다."},
+  {orig:"夫唯弗居라 是以不去니라.",trans:"오직 머물지 않으므로 떠나지 않는다."}
+]},
+{clauses:[
+  {orig:"天之道는 其猶張弓乎인저.",trans:"하늘의 도는 그것이 활을 당기는 것과 같구나."}
+]},
+{clauses:[
+  {orig:"高者抑之하며 下者擧之하고",trans:"높은 것은 누르고 낮은 것은 들어 올리며,"},
+  {orig:"有餘者損之하며 不足者補之라.",trans:"남는 것은 덜어내고 부족한 것은 보태준다."}
+]},
+{clauses:[
+  {orig:"天之道는 損有餘而補不足이어니와",trans:"하늘의 도는 남는 것을 덜어 부족한 것에 보태주거니와,"},
+  {orig:"人之道則不然하니 損不足而奉有餘라.",trans:"사람의 도는 그러하지 않으니, 부족한 데서 덜어내어 남는 데에 바친다."}
+]},
+{clauses:[
+  {orig:"孰能有餘하야 以奉天下리오. 唯有道者라.",trans:"누가 능히 남는 것을 가지고서 천하에 바칠 수 있겠는가. 오직 도를 지닌 자라."}
+]},
+{clauses:[
+  {orig:"是以로 聖人이 爲而不恃하고 功成而不處하니",trans:"이러한 까닭에 성인은 행하고도 자랑하지 않고, 공을 이루고도 그 자리에 머물지 않으니,"},
+  {orig:"其不欲見賢邪인저.",trans:"그 재간을 드러내고자 하지 않는 것이로다.",notes:[{at:3,key:"n4"},{at:5,key:"n5"}]}
+]},
+{clauses:[
+  {orig:"小國寡民하나니",trans:"나라를 작게 하고 백성을 적게 하니,"},
+  {orig:"使有什伯之器而不用하며",trans:"많은 종류의 기구가 있어도 쓰지 않게 하며,",notes:[{at:3,key:"n6"}]},
+  {orig:"使民重死而不遠徙하고",trans:"백성이 죽음을 무겁게 여겨 멀리 옮겨가지 않게 하고,"}
+]},
+{clauses:[
+  {orig:"雖有舟輿라도 無所乘之하며",trans:"비록 배와 수레가 있어도 그것을 탈 일이 없으며,"},
+  {orig:"雖有甲兵이라도 無所陳之하고",trans:"비록 갑옷과 무기가 있어도 그것을 늘어놓을 일이 없으며,"},
+  {orig:"使人復結繩而用之라.",trans:"사람들로 하여금 다시 노끈을 묶어 (그것으로 기록하여) 쓰게 한다."}
+]},
+{clauses:[
+  {orig:"甘其食하며 美其服하고",trans:"그 음식을 달게 여기고 그 옷을 아름답게 여기며,"},
+  {orig:"安其居하며 樂其俗이라.",trans:"그 거처를 편안히 여기고 그 풍속을 즐긴다."}
+]},
+{clauses:[
+  {orig:"鄰國相望하고 鷄犬之聲이 相聞이라도",trans:"이웃 나라가 서로 바라보이고 닭과 개의 소리가 서로 들릴지라도,"},
+  {orig:"民至老死히 不相往來라.",trans:"백성은 늙어 죽도록 서로 오가지 않는다."}
+]}
+];
+const SENT_ido=[
+{clauses:[
+  {orig:"臞仙曰 古之神聖之醫는 能療人之心하야 預使不致於有疾이어늘",trans:"구선(臞仙)이 말하기를, 옛 신성(神聖)의 의원은 능히 사람의 마음을 치료하여 미리 병이 생기지 않도록 하였거늘,",notes:[{at:1,key:"n1"}]},
+  {orig:"今之醫者는 惟知療人之疾이나 而不知療人之心하니",trans:"지금의 의원은 오직 사람의 병을 치료할 줄만 알고 사람의 마음을 치료할 줄은 알지 못하니,"},
+  {orig:"是猶捨本逐末이라.",trans:"이는 마치 근본을 버리고 말단을 좇는 것과 같다."},
+  {orig:"不窮其源 而攻其流니 欲求疾愈나 不亦愚乎아.",trans:"그 근원을 다하지 않고 그 흐름만을 치니, 병이 낫기를 구한들 또한 어리석지 아니한가."}
+]},
+{clauses:[
+  {orig:"雖一時僥倖而安之나",trans:"비록 한때 요행으로 치료된다 하더라도,",notes:[{at:8,key:"n2"}]},
+  {orig:"此則世俗之庸醫니 不足取也라.",trans:"이는 곧 세속의 용렬한 의원이니 취할 만하지 못하다."}
+]},
+{clauses:[
+  {orig:"太白眞人曰 欲治其疾인댄 先治其心이니",trans:"태백진인(太白眞人)이 말하기를, 그 병을 다스리고자 한다면 먼저 그 마음을 다스려야 하니,"},
+  {orig:"必正其心에 乃資於道라.",trans:"반드시 그 마음을 바르게 함에 이에 도(道)에 의지한다."}
+]},
+{clauses:[
+  {orig:"使病者로 盡去心中疑慮思想과",trans:"병자로 하여금 마음속의 의심·근심·잡된 생각과,"},
+  {orig:"一切妄念과 一切不平과 一切人我하고",trans:"일체의 망념(妄念), 일체의 불평, 일체의 인아(人我·자타 구분)를 모두 없애고,"}
+]},
+{clauses:[
+  {orig:"悔悟平生所爲過惡하야",trans:"평생 저지른 잘못과 악을 뉘우치고 깨달아,"},
+  {orig:"便當放下身心하야",trans:"문득 마땅히 몸과 마음을 내려놓아,"},
+  {orig:"以我之天而合所事之天이니",trans:"나의 하늘(천성)로써 섬기는 하늘(天)에 합하니,"}
+]},
+{clauses:[
+  {orig:"久之에 遂凝於神 則自然心君泰寧하며",trans:"오래되면 마침내 신(神)에 응결되어 자연히 마음의 임금(心君)이 크게 편안해지고,"},
+  {orig:"性地和平하야",trans:"성품의 바탕[性地]이 화평해져,"}
+]},
+{clauses:[
+  {orig:"知世間萬事가 皆是空虛요",trans:"세간의 만사가 모두 공허(空虛)임을 알고,"},
+  {orig:"終日榮爲가 皆是妄想이며",trans:"종일토록 영화롭게 행하는 것이 모두 망상임을 알며,"},
+  {orig:"知我身이 皆是虛幻이요",trans:"내 몸이 모두 허환(虛幻)임을 알고,"},
+  {orig:"禍福이 皆是無有요",trans:"화와 복이 모두 본래 없는 것이며,"},
+  {orig:"生死가 皆是一夢이라.",trans:"생과 사가 모두 한 꿈임을 안다."}
+]},
+{clauses:[
+  {orig:"慨然領悟하야 頓然解釋 則心地自然淸淨하야",trans:"개연(慨然)히 깨닫고 단번에 풀려나면, 마음 바탕이 자연히 청정해져,"},
+  {orig:"疾病自然安痊이라.",trans:"질병이 자연히 평안히 낫는다."}
+]},
+{clauses:[
+  {orig:"能如是 則藥未到口에 病已忘矣리라.",trans:"능히 이와 같이 하면 약이 입에 닿기 전에 병이 이미 잊혀질 것이다.",notes:[{at:7,key:"n3"}]},
+  {orig:"此眞人이 以道로 治心療病之大法也라.",trans:"이는 진인(眞人)이 도(道)로써 마음을 다스리고 병을 치료하는 큰 법이다."}
+]},
+{clauses:[
+  {orig:"又曰 至人은 治於未病之先하고",trans:"또 말하기를, 지인(至人)은 병이 생기기 전에 다스리고,"},
+  {orig:"醫家는 治於已病之後라.",trans:"의가(醫家)는 이미 병이 생긴 뒤에 다스린다."}
+]},
+{clauses:[
+  {orig:"治於未病之先者를 曰治心 曰修養이요",trans:"병 생기기 전에 다스리는 것을 일러 치심(治心)·수양(修養)이라 하고,"},
+  {orig:"治於已病之後者를 曰藥餌 曰砭焫이라.",trans:"이미 병이 생긴 뒤에 다스리는 것을 일러 약이(藥餌)·폄설(砭焫·돌침과 뜸)이라 한다."}
+]},
+{clauses:[
+  {orig:"雖治之法有二나 而病之源則一이니",trans:"비록 치료하는 방법은 둘이나, 병의 근원은 곧 하나이니,"},
+  {orig:"未必不由因心而生也라.",trans:"반드시 마음으로 말미암아 생기지 않는 바가 없다.",notes:[{at:8,key:"n4"}]}
+]}
+];
+
+// ============ 원문별 NOTES ============
+const NOTES_noneo={
+"n1":{title:"(1) 說 (열)",body:`<b>悅(열)과 통한다.</b> 본문에서는 '기쁠 열'로 읽음.`},
+"n2":{title:"(2) 三省 (삼성)",body:`<b>3가지 면에서 반성한다</b>는 뜻. 3번 반성한다는 뜻이 아니다.`},
+"n3":{title:"(3) 傳 (전)",body:`<b>傳授(전수)의 의미.</b> 스승이 전수한 것.`},
+"n4":{title:"(4) 有道 (유도)",body:`<b>도(道)가 있는 사람.</b>`},
+"n5":{title:"(5) 罔 (망)",body:`<b>없을 망.</b> 사용자 원문에는 '岡'으로 적혀 있으나 본디 '罔'이다. '얻음이 없다·어둡다'의 뜻.`},
+"n6":{title:"(6) 由 (유)",body:`<b>공자(孔子)의 제자, 仲由(중유).</b> 字는 子路(자로).`},
+"n7":{title:"(7) 女 (여)",body:`<b>너 여(汝)와 통한다.</b>`},
+"n8":{title:"(8) 黙而識之 (묵이지지)",body:`<b>본 것과 들은 것을 묵묵히 마음속에 기억한다</b>는 의미. 여기서 識는 <b>기록할 지</b>로 읽음.`}
+};
+const NOTES_ohaeng1={
+
+"n1":{title:"(1) 大撓 (대요)",body:`<b>황제(黃帝) 때 사람</b>으로 처음 <span class="hj">干支</span>(간지)를 만들었다고 함.`},
+"n2":{title:"(2) 熒 (형)",body:`<b>등불 형.</b> 熒惑(형혹)은 화성(火星)을 가리킴.`},
+"n3":{title:"(3) 熯 (한)",body:`<b>마를 한, 구울 한.</b> 불의 작용으로 말리는 것.`},
+"n4":{title:"(4) 溽 (욕)",body:`<b>적실(濕), 무르녹을(濃厚) 욕.</b> 토의 작용으로 축축하고 짙어지는 것.`},
+"n5":{title:"(5) 圜 (원/환)",body:`<b>둥글 원, 둘릴 환.</b> 여기서는 둥글다는 뜻으로 쓰임.`},
+"n6":{title:"(6) 太皥 (태호)",body:`<b>복희씨(伏羲氏)</b>를 지칭함. 동방 목(木)을 주관하는 오제(五帝)의 하나.`},
+"n7":{title:"(7) 炎帝 (염제)",body:`<b>신농씨(神農氏)</b>를 지칭함. 남방 화(火)를 주관함.`},
+"n8":{title:"(8) 少皥 (소호)",body:`<b>황제(黃帝)의 아들.</b> 이름은 효(孝). 호(號)는 금천씨(金天氏)라고 함. 서방 금(金)을 주관함.`},
+"n9":{title:"(9) 顓頊 (전욱)",body:`<span class="hj">史記</span>(사기)에는 <b>황제의 손자이며 창의(昌意)의 아들</b>로서, 아들은 곤(鯀), 손자는 우왕(禹王)이라고 한다. 고양씨(高陽氏)라 했는데 천하를 잘 다스려 명군(明君)으로 이름이 높았다. <span class="hj">淮南子</span>(회남자) 「天文訓」(천문훈)에 보면 그가 공공(共工)이라는 자와 제위(帝位)를 다투었다는 설이 있는데, 그때 공공의 힘이 넘쳐 부주산(不周山)에 서 있던 천주(天柱)를 부러뜨렸다고 한다. 이 때문에 하늘은 북서로 기울고 일월성신은 북서를 향해 운행하게 되었다고 한다.`},
+"n10":{title:"(10) 勾芒·祝融·后土·蓐收·玄冥 (구망·축융·후토·욕수·현명)",body:`<b>사계절을 각각 맡은 신(神).</b><br>봄을 <span class="hj">勾芒</span>(구망), 여름을 <span class="hj">祝融</span>(축융), 장하(長夏)를 <span class="hj">后土</span>(후토), 가을을 <span class="hj">蓐收</span>(욕수), 겨울을 <span class="hj">玄冥</span>(현명)이라 한다.`}
+};
+const NOTES_ohaeng2={
+
+"n1":{title:"(1) 穉 (치)",body:`<b>어릴 치.</b> 양치(陽穉)는 어린 양, 음치(陰穉)는 어린 음을 뜻함.`},
+"n2":{title:"(2) 樂律 (악률)",body:`음(音)을 음률의 높낮이에 따라 이론적으로 정돈한 체계.`},
+"n3":{title:"(3) 劉向 (유향)",body:`중국 <b>전한(前漢) 시대의 학자.</b> 자(字)는 자정(子政). 궁중 도서 교정(校訂)에 힘쓰고, 그 해제서(解題書) 《별록(別錄)》을 편집하였다. 저서에 《설원(說苑)》, 《신서(新序)》, 《열녀전(列女傳)》 따위가 있다.`},
+"n4":{title:"(4) 班固 (반고)",body:`중국 <b>후한 초기의 역사가·문학가.</b> 자(字)는 맹견(孟堅). 아버지 표(彪)의 유지를 받아 기전체 역사서인 《한서(漢書)》를 편집하였다. 작품에 「백호통의(白虎通義)」, 「양도부(兩都賦)」 따위가 있다.`}
+};
+const NOTES_ohaeng3={
+
+"n1":{title:"(1) 第 (제)",body:`<b>다만 제.</b> 여기서는 '다만(但)'의 뜻으로 쓰여, "다만 사람들은…"의 어조로 시작함.`},
+"n2":{title:"(2) 燼 (신)",body:`<b>깜부기불 신.</b> 灰燼(회신) = 잿더미. 다 타고 남은 재.`},
+"n3":{title:"(3) 芟 (삼)",body:`<b>벨 삼.</b> 芟削(삼삭) = 베고 깎음. 도끼·낫 등으로 베어내고 깎아 다듬는 것.`},
+"n4":{title:"(4) 曠墁 (광만)",body:`<b>허허벌판.</b> 曠 <b>밝을 광</b>, 墁 <b>흙손 만</b>. 비어 있는 너른 들판을 가리킴.`}
+};
+const NOTES_ohaeng4={
+
+"n1":{title:"(1) 鑽 (찬)",body:`<b>뚫을 찬.</b> 木鑽(목찬) = 나무를 비벼 불을 일으키는 방법.`},
+"n2":{title:"(2) 鑿 (착)",body:`<b>뚫을 착.</b> 돌이나 단단한 것을 뚫어 깎음.`},
+"n3":{title:"(3) 淘 (도)",body:`<b>일 도.</b> 금(金)을 물에서 골라 가려냄. 사금(沙金)을 일는 것이 그 예.`},
+"n4":{title:"(4) 汞 (홍)",body:`<b>수은 홍.</b> 풀이나 광물에서 추출되는 액체 금속.`},
+"n5":{title:"(5) 鑞 (랍)",body:`<b>땜납 랍.</b> 주석과 납의 합금. 옛 사람은 나무 안에도 미량의 금속 성분이 있다고 봄.`},
+"n6":{title:"(6) 驪 (려)",body:`<b>검은 말 려.</b> 驪山(여산)은 진시황의 무덤이 있는 산 이름.`},
+"n7":{title:"(7) 捍 (한)",body:`<b>막을 한.</b> 捍衛(한위) = 막아 지킴. 외부의 위협을 차단함.`},
+"n8":{title:"(8) 蔽 (폐)",body:`<b>가릴 폐.</b> 여기서는 '포괄하다·총괄하다'의 뜻으로 쓰임.`}
+};
+const NOTES_noja={
+"n1":{title:"(1) 老子 (노자)",body:`《老子》 또는 《道德經》이라고도 한다. 약 5,000자, 상하 2편. 성립연대는 異說이 분분하나 BC 4세기부터 漢初에 이르기까지의 道家 사상의 集積으로 본다. 후에 南北朝時代에 上篇 37장, 下篇 44장, 합계 <b>81장</b>으로 정착되어 오늘에 이른다.`},
+"n2":{title:"(2) 相形 (상형)",body:`<b>서로 비교한다</b>는 뜻. 즉 長短相形이란 장점이 없으면 단점을 밝히는 데 부족하고, 단점이 없으면 장점을 보는 데 부족하다는 의미이다.`},
+"n3":{title:"(3) 辭 (사)",body:`<b>주재할 사, 말할 사.</b> 여기서는 '주재하다·간섭하다'의 뜻으로 쓰임.`},
+"n4":{title:"(4) 見賢 (현현)",body:`<b>재간(才幹)을 드러낸다</b>는 뜻. 見은 '나타날 현'으로 읽음.`},
+"n5":{title:"(5) 邪 (야)",body:`<b>어조사 야(邪).</b> 耶(야)와 통한다. 일본(一本)에는 없다.`},
+"n6":{title:"(6) 什伯之器 (십백지기)",body:`<b>많은 종류의 기구.</b> 什(십)은 十과 통하고, 伯(백)은 佰(백)·百과 통한다.`}
+};
+const NOTES_ido={
+"n1":{title:"(1) 臞仙 (구선)",body:`<b>朱權</b>(주권, 1378–1448)의 號. 별호는 涵虛子(함허자) 등. 明 太祖 朱元璋(주원장)의 열일곱째 아들로, 洪武 36년(1393) 지금의 承德 일대 寧王(영왕)이 되었다. 詩文·經史에 두루 능했고, 醫藥·氣功·丹學에 관한 秘本 모으기를 좋아하였으며 著述도 많다.`},
+"n2":{title:"(2) 安之 (안지)",body:`<b>치료되었다</b>는 의미로 쓰임.`},
+"n3":{title:"(3) 藥未到口 (약미도구)",body:`<b>약물(藥物)을 복용하지도 않았다</b>는 의미로 사용됨. 마음을 다스림으로써 약을 쓰기 전에 이미 병이 낫는다는 비유.`},
+"n4":{title:"(4) 心 (심)",body:`여기서 말하는 心은 <b>마음</b>을 가리키는 것으로, 요즘의 <b>火病(화병)</b> 또는 <b>스트레스</b>로 인하여 疾病이 발생하게 되는 것을 말함.`}
+};
+
+// 매핑
+const SENT_BY_CAT={noneo:SENT_noneo, ohaeng1:SENT_ohaeng1, ohaeng2:SENT_ohaeng2, ohaeng3:SENT_ohaeng3, ohaeng4:SENT_ohaeng4, noja:SENT_noja, ido:SENT_ido};
+const NOTES_BY_CAT={noneo:NOTES_noneo, ohaeng1:NOTES_ohaeng1, ohaeng2:NOTES_ohaeng2, ohaeng3:NOTES_ohaeng3, ohaeng4:NOTES_ohaeng4, noja:NOTES_noja, ido:NOTES_ido};
+const CAT_BY_ID={};CATEGORIES.forEach(c=>CAT_BY_ID[c.id]=c);
+
+// 통합 DICT
+
+// ============ 한의학 1~1000번 한자 (대조용) ============
+const CHARS_1000 = new Set(["一", "丁", "三", "上", "下", "不", "丑", "世", "丘", "丙", "中", "丹", "主", "乃", "久", "之", "乎", "乘", "九", "也", "亂", "事", "二", "互", "五", "亡", "亢", "交", "亥", "亦", "京", "人", "仁", "今", "介", "他", "仙", "令", "以", "仰", "仲", "伍", "伏", "伯", "伸", "似", "但", "位", "低", "何", "使", "來", "例", "侵", "便", "促", "保", "俠", "信", "修", "俱", "倉", "倦", "停", "側", "備", "傷", "元", "充", "光", "克", "兌", "兎", "入", "內", "兩", "兪", "公", "六", "其", "典", "兼", "再", "冒", "冬", "冷", "凉", "凝", "凡", "凹", "出", "分", "切", "列", "初", "別", "利", "制", "刺", "則", "前", "副", "劉", "劑", "功", "加", "助", "動", "勝", "勞", "募", "化", "北", "匱", "區", "十", "千", "升", "午", "卒", "卯", "印", "却", "卽", "厚", "原", "厥", "厭", "參", "又", "及", "反", "取", "受", "口", "古", "史", "司", "合", "名", "向", "君", "含", "吳", "吸", "周", "味", "呼", "命", "和", "咳", "哀", "品", "哮", "唐", "唾", "商", "善", "喘", "喜", "單", "嗜", "嘉", "噤", "器", "囊", "四", "回", "困", "固", "圓", "圖", "在", "地", "坐", "垂", "型", "垣", "培", "基", "堂", "堅", "塊", "塞", "增", "墟", "壅", "壓", "士", "壯", "壽", "夏", "外", "多", "夜", "夢", "大", "天", "太", "夫", "央", "女", "好", "妄", "妙", "始", "委", "姙", "婦", "子", "孔", "孕", "字", "存", "季", "孫", "學", "守", "宋", "完", "官", "宜", "客", "宣", "室", "家", "容", "寅", "密", "寒", "察", "實", "寧", "寬", "寶", "寸", "封", "射", "將", "導", "小", "少", "尖", "尸", "尾", "局", "居", "屈", "岐", "岳", "崑", "崙", "崩", "川", "州", "巨", "差", "己", "已", "巴", "市", "布", "師", "干", "年", "幷", "幹", "幽", "床", "序", "庚", "度", "庭", "廉", "廣", "建", "弘", "弦", "張", "往", "後", "徐", "御", "復", "徵", "德", "心", "必", "忌", "忘", "忡", "怒", "怔", "思", "急", "性", "恐", "悲", "悶", "悸", "情", "惠", "惡", "愈", "意", "感", "愼", "慢", "慾", "憂", "懸", "戌", "成", "戟", "戶", "房", "所", "扁", "手", "扶", "技", "折", "抵", "抽", "拇", "拔", "拘", "持", "指", "按", "振", "挾", "捻", "掌", "排", "接", "推", "提", "揚", "揷", "損", "搏", "搐", "搖", "擧", "攝", "攢", "攣", "收", "攻", "放", "政", "救", "散", "敦", "整", "敷", "數", "斂", "文", "斑", "斷", "方", "於", "施", "旁", "旋", "早", "旺", "明", "昏", "易", "星", "春", "時", "晋", "晒", "普", "景", "暈", "暑", "暗", "暢", "暴", "曲", "更", "最", "會", "月", "有", "服", "朝", "期", "木", "未", "末", "本", "朮", "朱", "朴", "李", "杏", "材", "束", "枕", "林", "果", "枝", "枯", "枳", "柄", "柏", "柱", "柴", "校", "核", "格", "桂", "桃", "桑", "梁", "梅", "梗", "條", "棗", "棘", "植", "楊", "極", "榮", "槪", "樂", "標", "樞", "橈", "機", "次", "欬", "欲", "歌", "止", "正", "步", "武", "歲", "歷", "死", "殖", "殺", "母", "毛", "毫", "氏", "民", "氣", "水", "汁", "求", "汗", "江", "決", "沈", "沙", "沫", "河", "油", "治", "沿", "泄", "泉", "泌", "法", "泣", "洗", "洪", "流", "浙", "海", "消", "涎", "涕", "淋", "淡", "淫", "深", "淵", "淸", "淺", "渚", "減", "渠", "渴", "湖", "湧", "湯", "溏", "源", "溜", "溝", "溢", "溪", "溫", "滋", "滎", "滑", "滿", "漏", "漢", "漿", "潛", "潤", "潮", "潰", "澀", "澁", "濁", "濕", "濟", "濡", "瀉", "灌", "火", "灰", "灸", "灼", "炒", "炙", "炮", "炷", "烏", "焉", "無", "焦", "煎", "照", "熄", "熟", "熱", "燒", "燥", "爪", "爲", "片", "版", "牙", "牛", "特", "犢", "犯", "狂", "獨", "玄", "玉", "王", "珠", "現", "球", "理", "環", "瓜", "甚", "生", "用", "田", "由", "申", "男", "畏", "留", "略", "異", "疝", "疥", "疫", "疸", "疹", "疽", "疾", "病", "症", "痒", "痔", "痙", "痛", "痞", "痠", "痢", "痰", "痲", "痹", "痺", "痿", "瘈", "瘍", "瘕", "瘙", "瘦", "瘧", "瘰", "瘲", "療", "癃", "癎", "癧", "癭", "癰", "癱", "癸", "發", "白", "皆", "皮", "盆", "盜", "盡", "目", "盲", "直", "相", "省", "眉", "眞", "眠", "眥", "着", "睛", "睾", "瞳", "矣", "知", "短", "砂", "破", "硏", "硬", "碍", "磁", "社", "神", "秋", "秦", "程", "種", "穀", "穴", "究", "空", "窓", "窩", "立", "章", "竭", "竹", "等", "筋", "節", "篇", "粉", "粘", "精", "系", "紀", "約", "紋", "納", "紫", "細", "終", "組", "結", "絡", "統", "絲", "絶", "經", "綱", "緊", "線", "緣", "緩", "縫", "縮", "縱", "總", "繫", "續", "罐", "羊", "義", "翳", "翼", "老", "考", "者", "而", "耗", "耳", "聖", "聚", "聞", "聰", "聲", "聽", "聾", "肅", "肉", "肋", "肌", "肓", "肘", "肛", "肝", "股", "肢", "肥", "肩", "育", "肺", "胃", "背", "胎", "胛", "胞", "胡", "胸", "能", "脂", "脈", "脉", "脚", "脛", "脣", "脫", "脹", "脾", "腋", "腎", "腑", "腔", "腠", "腧", "腫", "腰", "腸", "腹", "腺", "腿", "膈", "膏", "膜", "膝", "膠", "膩", "膺", "膻", "膽", "膿", "臀", "臆", "臑", "臟", "臥", "臨", "臭", "致", "臺", "舌", "舍", "舒", "良", "芍", "芎", "芩", "芪", "花", "苓", "苔", "若", "英", "茯", "草", "莖", "華", "萎", "萬", "葉", "著", "葛", "蒙", "蒸", "蒼", "蓋", "蔘", "薄", "薑", "藥", "蘇", "虎", "處", "虛", "號", "虧", "蛇", "蟲", "血", "衄", "行", "術", "街", "衝", "衣", "表", "衰", "補", "製", "褐", "西", "要", "見", "視", "覺", "觀", "解", "記", "訣", "診", "註", "誌", "語", "說", "調", "論", "謂", "證", "識", "譫", "谷", "豆", "豊", "貞", "貫", "資", "賦", "越", "足", "趾", "跗", "路", "跳", "踝", "蹻", "躁", "身", "車", "軟", "輔", "輕", "輪", "輸", "辨", "辰", "農", "迎", "近", "迷", "退", "逆", "透", "逐", "通", "連", "進", "遂", "達", "遠", "適", "遲", "選", "還", "邊", "邪", "郄", "部", "都", "酉", "配", "酒", "醉", "醒", "醫", "里", "量", "金", "銀", "銅", "銳", "錄", "錢", "鍼", "鍾", "鎭", "鑑", "門", "開", "間", "闔", "闕", "關", "防", "阻", "阿", "附", "除", "陰", "陳", "陶", "陽", "隆", "隔", "障", "隨", "隱", "集", "雙", "雲", "電", "霍", "露", "靈", "靑", "非", "面", "韓", "音", "響", "頂", "順", "須", "頭", "頰", "頷", "頻", "額", "顔", "類", "顧", "風", "飛", "食", "餘", "首", "馬", "驗", "骨", "髀", "髃", "髓", "體", "髮", "鬼", "魂", "魄", "魚", "鳩", "鵲", "鷄", "鹹", "鹽", "麥", "麻", "黃", "黑", "鼓", "鼻", "齊", "齦", "龍"]);
+
+const UNIFIED_DICT={"原": "근원 원", "大": "큰 대", "動": "움직일 동", "成": "이룰 성", "故": "연고 고", "之": "갈 지", "無": "없을 무", "妙": "묘할 묘", "死": "죽을 사", "四": "넉 사", "土": "흙 토", "二": "두 이", "小": "작을 소", "儀": "거동 의", "生": "날 생", "悖": "거스를 패", "精": "정할 정", "靜": "고요할 정", "人": "사람 인", "眞": "참 진", "正": "바를 정", "水": "물 수", "靈": "신령 령", "道": "길 도", "君": "임금 군", "德": "덕 덕", "木": "나무 목", "順": "순할 순", "天": "하늘 천", "根": "뿌리 근", "爲": "할 위", "神": "귀신 신", "說": "말씀 설", "序": "차례 서", "男": "사내 남", "兩": "두 량, 두 양", "事": "일 사", "知": "알 지", "柔": "부드러울 유", "形": "모양 형", "焉": "어조사 언, 어찌 언", "變": "변할 변", "定": "정할 정", "主": "주인 주", "立": "설 립", "易": "바꿀 역, 쉬울 이", "終": "마칠 종", "乾": "하늘 건", "窮": "다할 궁", "惡": "악할 악, 미워할 오", "極": "극진할 극, 다할 극", "凝": "엉길 응", "與": "더불 여", "子": "아들 자", "性": "성품 성", "化": "될 화", "旣": "이미 기", "坤": "땅 곤", "火": "불 화", "女": "계집 녀", "秀": "빼어날 수", "凶": "흉할 흉", "聖": "성인 성", "合": "합할 합", "吉": "길할 길", "交": "사귈 교", "月": "달 월", "陽": "볕 양", "明": "밝을 명", "時": "때 시", "其": "그 기", "剛": "굳셀 강", "氣": "기운 기", "出": "날 출", "又": "또 우", "布": "베풀 포", "鬼": "귀신 귀", "修": "닦을 수", "萬": "일만 만", "始": "비로소 시", "分": "나눌 분", "物": "만물 물", "一": "한 일", "也": "어조사 야", "金": "쇠 금", "行": "다닐 행", "斯": "이 사", "得": "얻을 득", "義": "옳을 의", "中": "가운데 중", "復": "다시 부", "陰": "응달 음, 그늘 음", "五": "다섯 오", "仁": "어질 인", "地": "땅 지", "太": "클 태", "反": "돌이킬 반", "矣": "어조사 의", "發": "필 발", "惟": "오직 유", "本": "근본 본", "各": "각각 각", "感": "느낄 감", "日": "날 일", "以": "써 이", "曰": "가로 왈", "最": "가장 최", "哉": "어조사 재", "互": "서로 호", "而": "말 이을 이, 말이을 이", "至": "이를 지", "善": "착할 선", "亡": "잃을 망", "藥": "약 약", "離": "떠날 리", "設": "베풀 설", "疑": "의심할 의", "果": "실과 과", "沈": "가라앉을 침", "身": "몸 신", "熱": "더울 열", "寒": "찰 한", "走": "달아날 주", "的": "과녁 적", "微": "작을 미", "不": "아닐 불", "當": "마땅할 당", "血": "피 혈", "足": "발 족", "何": "어찌 하", "測": "헤아릴 측", "用": "쓸 용", "施": "베풀 시", "卽": "곧 즉", "滑": "미끄러울 활", "下": "아래 하", "者": "놈 자", "炭": "숯 탄", "乃": "이에 내", "謂": "이를 위", "宜": "마땅 의", "俯": "구부릴 부", "領": "거느릴 령", "散": "흩을 산", "細": "가늘 세", "聲": "소리 성", "竅": "구멍 규", "言": "말씀 언", "顯": "나타날 현", "熾": "성할 치", "源": "근원 원", "澁": "떫을 삽", "治": "다스릴 치", "病": "병 병", "見": "볼 견", "有": "있을 유", "則": "곧 즉", "於": "어조사 어", "是": "이 시", "裏": "속 리", "呼": "부를 호", "斂": "거둘 렴", "浮": "뜰 부", "彼": "저 피", "在": "있을 재", "法": "법 법", "舍": "집 사", "繁": "번거로울 번", "海": "바다 해", "先": "먼저 선", "學": "배울 학", "但": "다만 단", "多": "많을 다", "所": "바 소", "已": "이미 이", "少": "적을 소", "辨": "분별할 변", "識": "알 식", "産": "낳을 산", "暗": "어두울 암", "須": "모름지기 수", "自": "스스로 자", "兼": "겸할 겸", "他": "다를 타", "前": "앞 전", "雖": "비록 수", "若": "같을 약", "枯": "마를 고", "涉": "건널 섭", "皆": "다 개", "氷": "얼음 빙", "便": "문득 변, 편할 편", "如": "같을 여", "問": "물을 문", "吸": "숨 들이쉴 흡", "過": "지날 과", "證": "증거 증", "象": "코끼리 상", "元": "으뜸 원", "家": "집 가", "更": "다시 갱", "欲": "하고자 할 욕", "要": "요긴할 요", "可": "옳을 가", "蓋": "덮을 개", "門": "문 문", "總": "거느릴 총", "消": "사라질 소", "表": "겉 표", "降": "내릴 강", "北": "북녘 북", "審": "살필 심", "寂": "고요할 적", "相": "서로 상", "然": "그럴 연", "餘": "남을 여", "差": "어긋날 차", "乎": "어조사 호", "蔽": "덮을 폐", "闕": "대궐 궐", "脈": "맥 맥", "上": "위 상", "半": "반 반", "命": "목숨 명", "間": "사이 간", "類": "무리 류", "必": "반드시 필", "愈": "더할 유", "醫": "의원 의", "升": "오를 승", "確": "굳을 확", "緊": "긴할 긴", "柢": "뿌리 저", "仰": "우러를 앙", "辛": "매울 신", "盛": "성할 성", "數": "자주 삭", "津": "나루 진", "求": "구할 구", "焦": "그을릴 초", "此": "이 차", "同": "같을 동", "使": "하여금 사", "謬": "그릇될 류", "徹": "통할 철", "苦": "쓸 고", "方": "모 방", "理": "다스릴 리", "似": "닮을 사", "玄": "검을 현", "思": "생각 사", "滅": "멸할 멸", "診": "진찰할 진", "守": "지킬 수", "訛": "그릇될 와", "凡": "무릇 범", "綱": "벼리 강", "能": "능할 능", "喜": "기쁠 희", "受": "받을 수", "愛": "사랑 애", "非": "아닐 비", "尺": "자 척", "邪": "사악할 사", "直": "곧을 직", "厄": "액 액", "黃": "누를 황", "猶": "오히려 유", "保": "지킬 보", "河": "물 하", "余": "나 여", "曩": "접때 낭", "著": "드러낼 저", "安": "편안 안", "認": "알 인", "甚": "심할 심", "高": "높을 고", "胃": "밥통 위", "係": "맬 계", "俱": "함께 구", "幻": "변할 환", "失": "잃을 실", "和": "화할 화", "論": "논할 론", "劉": "성씨 류", "弊": "폐단 폐", "華": "빛날 화", "賴": "힘입을 뢰", "未": "아닐 미", "東": "동녘 동", "丹": "붉을 단", "通": "통할 통", "嗟": "탄식할 차", "誠": "정성 성", "貴": "귀할 귀", "忽": "갑자기 홀, 홀연할 홀", "後": "뒤 후", "調": "고를 조", "誹": "헐뜯을 비", "垣": "담 원", "溪": "시내 계", "脾": "지라 비", "偏": "치우칠 편", "丈": "어른 장", "軒": "집 헌", "弱": "약할 약", "令": "하여금 령", "害": "해로울 해", "臟": "오장 장", "造": "지을 조", "經": "경서 경", "惜": "아낄 석", "迷": "미혹할 미", "勞": "일할 로", "昭": "밝을 소", "等": "무리 등", "戕": "죽일 장", "基": "터 기", "共": "함께 공", "諒": "살펴알 량", "今": "이제 금", "昌": "창성할 창", "洗": "씻을 세", "特": "특별할 특", "悟": "깨달을 오", "耑": "오로지 전", "返": "돌아올 반", "尤": "더욱 우", "癸": "천간 계", "陋": "더러울 루", "平": "평평할 평", "機": "틀 기", "重": "무거울 중", "粗": "거칠 조", "腑": "육부 부", "倏": "갑자기 숙", "仙": "신선 선", "母": "어미 모", "削": "깎을 삭", "耳": "귀 이", "積": "쌓을 적", "察": "살필 찰", "謗": "헐뜯을 방", "伐": "칠 벌", "及": "미칠 급", "悼": "슬퍼할 도", "斥": "물리칠 척", "夫": "지아비 부", "實": "열매 실", "責": "꾸짖을 책", "談": "말씀 담", "冀": "바랄 기", "觀": "볼 관", "習": "익힐 습", "只": "다만 지", "養": "기를 양", "尙": "오히려 상", "虛": "빌 허", "蘗": "황벽나무 벽", "勿": "말 물", "强": "강할 강", "岐": "갈림 기", "暑": "더울 서", "去": "갈 거", "挽": "당길 만", "製": "지을 제", "深": "깊을 심", "蘇": "되살아날 소", "長": "길 장", "慾": "욕심 욕", "丸": "알 환", "魔": "마귀 마", "回": "돌아올 회", "溫": "따뜻할 온", "迹": "자취 적", "輩": "무리 배", "幸": "다행 행", "體": "몸 체", "衰": "쇠할 쇠", "難": "어려울 난", "補": "기울 보", "亦": "또 역", "凉": "서늘할 량", "盡": "다할 진", "于": "어조사 우", "王": "임금 왕", "緩": "느릴 완", "速": "빠를 속", "仲": "버금 중", "作": "지을 작", "錯": "어긋날 착", "考": "상고할 고", "急": "급할 급", "引": "끌 인", "培": "북돋울 배", "食": "먹을 식", "汗": "땀 한", "爭": "다툴 쟁", "因": "인할 인", "候": "물을 후", "寧": "편안할 녕", "晝": "낮 주", "將": "장차 장", "輕": "가벼울 경", "景": "볕 경", "內": "안 내", "夜": "밤 야", "奉": "받들 봉", "藏": "감출 장", "朝": "아침 조", "或": "혹 혹", "外": "바깥 외", "負": "질 부", "取": "가질 취", "止": "그칠 지", "暮": "저물 모", "旨": "뜻 지", "舒": "펼 서", "屬": "무리 속", "來": "올 래", "冷": "찰 냉", "旦": "아침 단", "拳": "주먹 권", "持": "가질 지", "從": "좇을 종", "亂": "어지러울 란", "助": "도울 조", "歸": "돌아갈 귀", "腎": "콩팥 신", "飮": "마실 음", "納": "들일 납", "勝": "이길 승", "志": "뜻 지", "堅": "굳을 견", "羸": "여윌 리", "稟": "받을 품", "困": "곤할 곤", "愼": "삼갈 신", "厚": "두터울 후", "弗": "아닐 불", "促": "재촉할 촉", "欺": "속일 기", "疾": "병 질", "夭": "일찍죽을 요", "艾": "쑥 애", "樂": "즐길 락", "栽": "심을 재", "廣": "넓을 광", "莫": "없을 막", "我": "나 아", "色": "빛 색", "由": "말미암을 유", "覆": "엎을 복", "耆": "늙을 기", "幷": "아울 병", "福": "복 복", "脆": "무를 취", "傾": "기울 경", "躁": "조급할 조", "蘊": "쌓을 온", "瘦": "파리할 수", "切": "끊을 절", "薄": "엷을 박", "恃": "믿을 시", "酒": "술 주", "斲": "깎을 착", "全": "온전할 전", "爾": "너 이", "制": "억제할 제", "懸": "매달 현", "耐": "견딜 내", "搖": "흔들 요", "賦": "줄 부", "毋": "말 무", "情": "뜻 정", "壽": "목숨 수", "心": "마음 심", "肺": "허파 폐", "卜": "점칠 복", "肝": "간 간", "倦": "게으를 권", "虧": "이지러질 휴", "祈": "빌 기", "犯": "범할 범", "質": "바탕 질", "朱": "붉을 주", "具": "갖출 구", "初": "처음 초", "箇": "낱 개", "洛": "물이름 락", "圖": "그림 도", "書": "책 서", "左": "왼 좌", "右": "오른 우", "列": "벌릴 렬", "儒": "선비 유", "對": "대할 대", "待": "기다릴 대", "三": "석 삼", "六": "여섯 륙", "七": "일곱 칠", "八": "여덟 팔", "九": "아홉 구", "十": "열 십", "流": "흐를 류", "次": "다음 차", "撓": "어지러울 요", "干": "방패 간", "支": "지탱할 지", "應": "응할 응", "甲": "갑옷 갑", "乙": "새 을", "丙": "남녘 병", "丁": "장정 정", "戊": "천간 무", "己": "몸 기", "庚": "천간 경", "壬": "천간 임", "亥": "돼지 해", "午": "낮 오", "巳": "뱀 사", "寅": "범 인", "卯": "토끼 묘", "申": "납 신", "酉": "닭 유", "辰": "별 진", "戌": "개 술", "丑": "소 축", "運": "운전할 운", "臨": "임할 림", "存": "있을 존", "星": "별 성", "熒": "등불 형", "惑": "미혹할 혹", "歲": "해 세", "白": "흰 백", "鎭": "진압할 진", "位": "자리 위", "南": "남녘 남", "西": "서녘 서", "春": "봄 춘", "夏": "여름 하", "秋": "가을 추", "冬": "겨울 동", "季": "계절 계", "風": "바람 풍", "濕": "젖을 습", "燥": "마를 조", "名": "이름 명", "目": "눈 목", "潤": "젖을 윤", "炎": "불꽃 염", "曲": "굽을 곡", "革": "가죽 혁", "爰": "이에 원", "稼": "심을 가", "穡": "거둘 색", "功": "공 공", "熯": "마를 한", "敷": "펼 부", "溽": "무더울 욕", "銳": "날카로울 예", "圜": "둥글 원", "淸": "맑을 청", "蒸": "찔 증", "帝": "임금 제", "皥": "밝을 호", "顓": "오로지 전", "頊": "삼갈 욱", "勾": "굽을 구", "芒": "까끄라기 망", "祝": "빌 축", "融": "녹을 융", "后": "임금 후", "蓐": "자리 욕", "收": "거둘 수", "冥": "어두울 명", "衡": "저울대 형", "權": "저울 권", "規": "법 규", "矩": "법 구", "繩": "줄 승", "穀": "곡식 곡", "畜": "짐승 축", "音": "소리 음", "臭": "냄새 취", "味": "맛 미", "異": "다를 이", "穉": "어릴 치", "律": "법 률", "向": "향할 향", "班": "나눌 반", "固": "굳을 고", "克": "이길 극", "敗": "패할 패", "救": "건질 구", "傷": "상할 상", "育": "기를 육", "亢": "오를 항", "循": "돌 순", "環": "고리 환", "息": "숨쉴 식", "第": "차례 제", "灰": "재 회", "燼": "깜부기불 신", "撲": "칠 박", "溺": "빠질 닉", "壅": "막을 옹", "滯": "막힐 체", "殘": "남을 잔", "濟": "건널 제", "頑": "완고할 완", "鈍": "무딜 둔", "煆": "불사를 하", "煉": "불릴 련", "器": "그릇 기", "芟": "벨 삼", "材": "재목 재", "曠": "빌 광", "墁": "흙손 만", "泛": "뜰 범", "濫": "넘칠 람", "堤": "둑 제", "障": "막을 장", "常": "항상 상", "禮": "예도 례", "智": "지혜 지", "信": "믿을 신", "斷": "끊을 단", "節": "마디 절", "拘": "잡을 구", "詐": "속일 사", "泉": "샘 천", "液": "진 액", "鎔": "녹일 용", "鑽": "뚫을 찬", "擊": "칠 격", "石": "돌 석", "鑿": "뚫을 착", "油": "기름 유", "雨": "비 우", "雷": "우레 뢰", "且": "또 차", "往": "갈 왕", "榮": "영화 영", "植": "심을 식", "衣": "옷 의", "推": "밀 추", "山": "메 산", "諸": "모두 제", "淘": "일 도", "沙": "모래 사", "隱": "숨을 은", "草": "풀 초", "汞": "수은 홍", "鑞": "땜납 랍", "結": "맺을 결", "毁": "헐 훼", "圓": "둥글 원", "瓜": "오이 과", "卵": "알 란", "居": "살 거", "包": "쌀 포", "皇": "임금 황", "起": "일어날 기", "墳": "무덤 분", "驪": "검은말 려", "入": "들 입", "百": "일백 백", "燒": "불사를 소", "健": "굳셀 건", "皮": "가죽 피", "殼": "껍질 각", "捍": "막을 한", "衛": "지킬 위", "挨": "밀칠 애", "配": "짝 배", "花": "꽃 화", "付": "줄 부", "坎": "구덩이 감", "世": "세상 세", "久": "오랠 구", "乘": "탈 승", "什": "열사람 십", "伯": "맏 백", "俗": "풍속 속", "倖": "요행 행", "僥": "바랄 요", "兵": "군사 병", "到": "이를 도", "口": "입 구", "古": "옛 고", "唯": "오직 유", "國": "나라 국", "夢": "꿈 몽", "妄": "망령될 망", "孰": "누구 숙", "寡": "적을 과", "庸": "떳떳할 용", "弓": "활 궁", "張": "베풀 장", "徙": "옮길 사", "忘": "잊을 망", "念": "생각 념", "悔": "뉘우칠 회", "慨": "슬퍼할 개", "慮": "생각 려", "抑": "누를 억", "捨": "버릴 사", "損": "덜 손", "擧": "들 거", "攻": "칠 공", "放": "놓을 방", "敎": "가르칠 교", "服": "옷 복", "望": "바랄 망", "末": "끝 말", "民": "백성 민", "泰": "클 태", "淨": "깨끗할 정", "焫": "불사를 설", "犬": "개 견", "甘": "달 감", "痊": "병나을 전", "療": "병고칠 료", "短": "짧을 단", "砭": "돌침 폄", "禍": "재앙 화", "空": "빌 공", "美": "아름다울 미", "老": "늙을 로", "聞": "들을 문", "臞": "여윌 구", "致": "이를 치", "舟": "배 주", "處": "곳 처", "解": "풀 해", "資": "재물 자", "賢": "어질 현", "輿": "수레 여", "辭": "말씀 사", "逐": "쫓을 축", "遂": "드디어 수", "遠": "멀 원", "釋": "풀 석", "陳": "베풀 진", "隨": "따를 수", "預": "미리 예", "頓": "조아릴 돈", "餌": "미끼 이", "鷄": "닭 계", "鄰": "이웃 린", "愚": "어리석을 우", "想": "생각 상", "傳": "전할 전", "匹": "짝 필", "厭": "싫어할 염", "友": "벗 우", "吾": "나 오", "士": "선비 사", "奪": "빼앗을 탈", "好": "좋을 호", "就": "나아갈 취", "帥": "장수 수", "師": "스승 사", "忠": "충성 충", "慍": "성낼 온", "敏": "민첩할 민", "新": "새 신", "曾": "일찍 증", "朋": "벗 붕", "殆": "위태할 태", "省": "살필 성", "罔": "없을 망", "耻": "부끄러울 치", "誨": "가르칠 회", "謀": "꾀할 모", "議": "의논할 의", "軍": "군사 군", "飽": "배부를 포", "黙": "잠잠할 묵", "齊": "가지런할 제"};
+const DICT=UNIFIED_DICT;
+
+// 음 테이블 (훈음 중 마지막 파트의 마지막 글자)
+const EUM={};
+for(const [c,h] of Object.entries(UNIFIED_DICT)){
+  const parts=h.split(',')[0].trim().split(' ');
+  EUM[c]=parts[parts.length-1];
+}
+
+// 두음법칙
+const EUM_DOOEUM={"립":"입","령":"영","녀":"여","량":"양","로":"노","류":"유","렴":"염","례":"예","락":"낙","리":"이","렬":"열"};
+function applyDooeum(s){let r=s;for(const [from,to] of Object.entries(EUM_DOOEUM)){r=r.replace(new RegExp(from,'g'),to);}return r;}
+
+// ============ 유틸 ============
+function shuf(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function normalize(s){return s.replace(/[\s]/g,'');}
+
+function go(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  el.classList.add('on');
+}
+
+function openNote(key,catId){
+  const notes=catId?NOTES_BY_CAT[catId]:null;
+  const n=notes?notes[key]:null;
+  if(!n)return;
+  document.getElementById('nTitle').innerHTML=n.title;
+  document.getElementById('nBody').innerHTML=n.body;
+  document.getElementById('nBd').classList.add('show');
+  document.getElementById('nPop').classList.add('show');
+}
+function closeNote(){
+  document.getElementById('nBd').classList.remove('show');
+  document.getElementById('nPop').classList.remove('show');
+}
+
+// ============ 카테고리 체크박스 UI ============
+// 탭별 상태 (독립적)
+const CAT_STATE={
+  fc:new Set(CATEGORIES.map(c=>c.id)),
+  wq:new Set(CATEGORIES.map(c=>c.id)),
+  eq:new Set(CATEGORIES.map(c=>c.id)),
+  tq:new Set(CATEGORIES.map(c=>c.id))
+};
+
+function renderCatSelect(tabId,containerId){
+  const el=document.getElementById(containerId);
+  let html='<span class="cat-label">원문 선택:</span>';
+  CATEGORIES.forEach(c=>{
+    const on=CAT_STATE[tabId].has(c.id);
+    html+=`<div class="cat-cb${on?' on':''}" data-cat="${c.id}" onclick="toggleCat('${tabId}','${c.id}',this)">`+
+          `<span class="cat-mark">${on?'✓':'　'}</span>`+
+          `${c.name}<span class="hj">${c.hanja}</span>`+
+          `</div>`;
+  });
+  el.innerHTML=html;
+}
+function toggleCat(tabId,catId,labelEl){
+  const set=CAT_STATE[tabId];
+  if(set.has(catId)){
+    if(set.size<=1){
+      // 최소 1개는 유지 - 시각적 피드백
+      labelEl.animate([{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}],{duration:200});
+      return;
+    }
+    set.delete(catId);
+    labelEl.classList.remove('on');
+    labelEl.querySelector('.cat-mark').textContent='　';
+  } else {
+    set.add(catId);
+    labelEl.classList.add('on');
+    labelEl.querySelector('.cat-mark').textContent='✓';
+  }
+  // 탭별 후속 처리
+  if(tabId==='fc')onFcCatChange();
+  else if(tabId==='wq')onWqCatChange();
+  else if(tabId==='eq')onEqCatChange();
+  else if(tabId==='tq')onTqCatChange();
+}
+
+// 필터된 데이터 얻기
+function getActiveCats(tabId){return CATEGORIES.filter(c=>CAT_STATE[tabId].has(c.id));}
+function getActiveChars(tabId){
+  // [{ch, hun(local), srcId, srcName}, ...]
+  const out=[];
+  getActiveCats(tabId).forEach(cat=>{
+    cat.chars.forEach(ch=>{
+      out.push({ch,hun:cat.dict[ch]||UNIFIED_DICT[ch]||'',srcId:cat.id,srcName:cat.name});
+    });
+  });
+  return out;
+}
+function getActiveClauses(tabId){
+  const out=[];
+  getActiveCats(tabId).forEach(cat=>{
+    const sents=SENT_BY_CAT[cat.id];
+    sents.forEach(s=>{
+      s.clauses.forEach(cl=>{
+        out.push({...cl,srcId:cat.id,srcName:cat.name});
+      });
+    });
+  });
+  return out;
+}
+
+// ============ 문장 해석 탭: 원문별 카드 토글 ============
+const ST_OPEN=new Set(); // 열린 카드 id 기록
+
+function renderStCats(){
+  const w=document.getElementById('stCats');
+  let html='';
+  CATEGORIES.forEach(cat=>{
+    html+=`<div class="st-cat-card${ST_OPEN.has(cat.id)?' open':''}" id="stc-${cat.id}">`+
+          `<div class="st-cat-header" onclick="toggleStCat('${cat.id}')">`+
+          `<div class="st-cat-title">`+
+          `<span class="n">${cat.name}</span>`+
+          `<span class="hj">${cat.hanja}</span>`+
+          `<span class="au">${cat.author}</span>`+
+          `</div>`+
+          `<span class="st-cat-arrow">▼</span>`+
+          `</div>`+
+          `<div class="st-cat-body" id="stb-${cat.id}">`+
+          (ST_OPEN.has(cat.id)?renderStBody(cat):'')+
+          `</div></div>`;
+  });
+  w.innerHTML=html;
+}
+
+function toggleStCat(catId){
+  const card=document.getElementById('stc-'+catId);
+  const body=document.getElementById('stb-'+catId);
+  if(ST_OPEN.has(catId)){
+    ST_OPEN.delete(catId);
+    card.classList.remove('open');
+  } else {
+    ST_OPEN.add(catId);
+    card.classList.add('open');
+    if(!body.innerHTML.trim())body.innerHTML=renderStBody(CAT_BY_ID[catId]);
+  }
+}
+
+function renderStBody(cat){
+  const sents=SENT_BY_CAT[cat.id];
+  const d=cat.dict;
+  let html='<div class="st-global">'+
+           `<button class="st-gbtn" onclick="toggleAllHun(this,'${cat.id}')">전체 음훈 보기</button>`+
+           `<button class="st-gbtn" onclick="toggleAllEum(this,'${cat.id}')">전체 음만 보기</button>`+
+           '</div>';
+  html+='<div class="st-wrap">';
+  sents.forEach((s,si)=>{
+    let clausesHtml='';
+    const hunParts=[];const eumParts=[];
+    s.clauses.forEach(cl=>{
+      let origHtml='';let charIdx=0;
+      const clChars=[];
+      for(const c of cl.orig){
+        if(c===' '){origHtml+=' ';clChars.push(' ');continue;}
+        const noteKey=cl.notes&&cl.notes.find(n=>n.at===charIdx+1)?.key;
+        const cls='h'+(noteKey?' note':'');
+        const noteAttr=noteKey?`onclick="openNote('${noteKey}','${cat.id}')"`:'';
+        origHtml+=`<span class="${cls}" ${noteAttr}>${c}</span>`;
+        clChars.push(c);
+        charIdx++;
+      }
+      const isProf=cl.src==='prof';
+      clausesHtml+=`<div class="cl-row"><div class="cl-orig">${origHtml}</div><div class="cl-trans${isProf?' prof':''}">${cl.trans}</div></div>`;
+      // 훈음 - 한자/한글 조사 분리
+      let segHun='';let korBuf='';
+      const flushKor=()=>{if(korBuf){segHun+=`<span class="hi kor">${korBuf}</span>`;korBuf='';}};
+      for(const c of clChars){
+        if(c===' '){flushKor();segHun+='<span class="sp"></span>';continue;}
+        if(d[c]){flushKor();segHun+=`<span class="hi"><span class="hj">${c}</span><span class="rd">${d[c]}</span></span>`;}
+        else korBuf+=c;
+      }
+      flushKor();
+      hunParts.push(segHun);
+      // 음만
+      let segEum='';
+      for(const c of clChars){
+        if(c===' '){segEum+=' ';continue;}
+        segEum+=EUM[c]||'';
+      }
+      eumParts.push(segEum);
+    });
+    const sid=cat.id+'-s'+si;
+    html+=`<div class="st">`+
+          `<div class="st-num">문장 ${si+1}</div>`+
+          clausesHtml+
+          `<div class="st-hun" id="${sid}-hun">${hunParts.map(p=>`<div class="hun-line">${p}</div>`).join('')}</div>`+
+          `<div class="st-eum" id="${sid}-eum">${eumParts.join(' ')}</div>`+
+          `<div class="st-ctrl">`+
+          `<button class="st-btn" onclick="toggleEl('${sid}-hun',this)">음훈 보기</button>`+
+          `<button class="st-btn" onclick="toggleEl('${sid}-eum',this)">음만 보기</button>`+
+          `</div></div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+function toggleEl(id,btn){
+  const el=document.getElementById(id);
+  el.classList.toggle('show');
+  btn.classList.toggle('on');
+}
+function toggleAllHun(btn,catId){
+  const on=!btn.classList.contains('on');
+  document.querySelectorAll(`[id^="${catId}-s"][id$="-hun"]`).forEach(el=>{
+    if(on)el.classList.add('show');else el.classList.remove('show');
+  });
+  btn.classList.toggle('on');
+  // 개별 버튼 상태 동기화
+  document.querySelectorAll(`#stb-${catId} .st-btn`).forEach(b=>{
+    if(b.textContent==='음훈 보기'){if(on)b.classList.add('on');else b.classList.remove('on');}
+  });
+}
+function toggleAllEum(btn,catId){
+  const on=!btn.classList.contains('on');
+  document.querySelectorAll(`[id^="${catId}-s"][id$="-eum"]`).forEach(el=>{
+    if(on)el.classList.add('show');else el.classList.remove('show');
+  });
+  btn.classList.toggle('on');
+  document.querySelectorAll(`#stb-${catId} .st-btn`).forEach(b=>{
+    if(b.textContent==='음만 보기'){if(on)b.classList.add('on');else b.classList.remove('on');}
+  });
+}
+
+// ============ 플래시카드 ============
+let fPool=[],fIdx=0;
+function onFcCatChange(){fInit();fShow();}
+function fInit(){
+  fPool=getActiveChars('fc');
+  fIdx=0;
+}
+function fShow(){
+  const card=document.getElementById('fcard');
+  card.classList.remove('flip');
+  if(!fPool.length){document.getElementById('fch').textContent='-';document.getElementById('fhu').textContent='-';return;}
+  const it=fPool[fIdx];
+  document.getElementById('fch').textContent=it.ch;
+  document.getElementById('fhu').textContent=it.hun||UNIFIED_DICT[it.ch]||'?';
+  document.getElementById('fcSrc').textContent=it.srcName;
+  document.getElementById('fct').textContent=`${fIdx+1} / ${fPool.length}`;
+}
+function flip(){document.getElementById('fcard').classList.toggle('flip');}
+function fN(){if(!fPool.length)return;fIdx=(fIdx+1)%fPool.length;fShow();}
+function fP(){if(!fPool.length)return;fIdx=(fIdx-1+fPool.length)%fPool.length;fShow();}
+function fSh(){fPool=shuf(fPool);fIdx=0;fShow();}
+
+// ============ 훈 퀴즈 ============
+let wqQ=[],wqI=0,wqOk=0,wqNo=0,wqCur=null,wqWrong=[],wqLog=[],wqReviewFilter=null,wqAnswered=false;
+function onWqCatChange(){updateWqHint();}
+function updateWqHint(){
+  const total=getActiveChars('wq').length;
+  document.getElementById('wqTotalHint').textContent=`/ ${total}`;
+  document.getElementById('wqNum').max=total;
+}
+function wqStart(){
+  const pool=getActiveChars('wq');
+  if(!pool.length){alert('원문을 하나 이상 선택해주세요');return;}
+  let n=parseInt(document.getElementById('wqNum').value)||20;
+  n=Math.max(1,Math.min(n,pool.length));
+  wqI=0;wqOk=0;wqNo=0;wqWrong=[];wqLog=[];wqReviewFilter=null;
+  wqQ=shuf(pool).slice(0,n);
+  document.getElementById('wqSet').style.display='none';
+  document.getElementById('wqArea').style.display='';
+  document.getElementById('wqReview').innerHTML='';
+  document.getElementById('wqReviewBtn').style.display='none';
+  document.getElementById('wqAgainBtn').style.display='none';
+  document.getElementById('wqMidReview').style.display='none';
+  wqNext();
+}
+function wqReset(){
+  wqReviewFilter=null;
+  document.getElementById('wqArea').style.display='none';
+  document.getElementById('wqSet').style.display='';
+  document.getElementById('wqReview').innerHTML='';
+}
+function wqNext(){
+  document.getElementById('wqFb').textContent='';
+  document.getElementById('wqSc').textContent='';
+  wqAnswered=false;
+  if(wqI>=wqQ.length){
+    document.getElementById('wqPg').textContent='완료!';
+    document.getElementById('wqQ').innerHTML=`🎉 ${wqOk}/${wqQ.length} 맞음`;
+    document.getElementById('wqCh').innerHTML='';
+    document.getElementById('wqNx').style.display='none';
+    document.getElementById('wqMidReview').style.display='none';
+    document.getElementById('wqReviewBtn').style.display='inline-block';
+    document.getElementById('wqAgainBtn').style.display='inline-block';
+    return;
+  }
+  wqCur=wqQ[wqI];
+  document.getElementById('wqPg').textContent=`${wqI+1} / ${wqQ.length}  (맞 ${wqOk} / 틀 ${wqNo})`;
+  document.getElementById('wqQ').innerHTML=`<div style="font-family:'Noto Serif KR',serif;font-size:54px;font-weight:700">${wqCur.ch}</div><div style="font-size:10px;color:var(--t3);margin-top:4px">${wqCur.srcName}</div>`;
+  // 객관식 4지선다 - 같은 영역에서 다른 한자들의 훈음 추출
+  const allChars=getActiveChars('wq').filter(x=>x.ch!==wqCur.ch);
+  const picks=shuf(allChars).slice(0,3);
+  const opts=shuf([{hun:wqCur.hun,ok:true},...picks.map(p=>({hun:p.hun,ok:false}))]);
+  // 중복 훈음 제거
+  const seen=new Set();
+  const uniqueOpts=[];
+  for(const o of opts){if(!seen.has(o.hun)){seen.add(o.hun);uniqueOpts.push(o);}}
+  while(uniqueOpts.length<4 && uniqueOpts.length<allChars.length+1){
+    const extra=shuf(allChars).find(x=>!seen.has(x.hun));
+    if(!extra)break;
+    seen.add(extra.hun);
+    uniqueOpts.push({hun:extra.hun,ok:false});
+  }
+  document.getElementById('wqCh').innerHTML=uniqueOpts.map((o,i)=>`<div class="qz-opt" onclick="wqPick(this,${o.ok},'${o.hun.replace(/'/g,"\\'")}')">${i+1}. ${o.hun}</div>`).join('');
+  document.getElementById('wqNx').style.display='none';
+}
+function wqPick(el,ok,picked){
+  if(wqAnswered)return;
+  wqAnswered=true;
+  const opts=document.querySelectorAll('#wqCh .qz-opt');
+  opts.forEach(o=>{o.style.pointerEvents='none';if(o.textContent.slice(3)===wqCur.hun)o.classList.add('ok');});
+  if(ok){el.classList.add('ok');wqOk++;document.getElementById('wqFb').innerHTML='<span style="color:var(--g)">✓ 정답!</span>';}
+  else {el.classList.add('no');wqNo++;document.getElementById('wqFb').innerHTML='<span style="color:var(--r)">✗ 정답: '+wqCur.hun+'</span>';}
+  const item={ch:wqCur,picked,ok};
+  wqLog.push(item);wqUpdateReview(item);
+  const mid=document.getElementById('wqMidReview');
+  mid.style.display='inline-block';mid.textContent=`📝 풀이 기록 (${wqLog.length})`;
+  wqI++;
+  document.getElementById('wqNx').style.display='inline-block';
+  document.getElementById('wqNx').focus();
+}
+function wqRenderItem(it,animate){
+  return `<div class="rv-item ${it.ok?'ok':''}${animate?' rv-enter':''}">`+
+         `<div class="rv-q" style="font-size:20px">${it.ch.ch} <span style="font-size:11px;color:var(--t3);margin-left:6px">${it.ch.srcName}</span></div>`+
+         `<div class="rv-ans">${it.ok?'<span class="truth">✓ '+it.ch.hun+'</span>':'<span class="picked">내 답: '+it.picked+'</span> → <span class="truth">정답: '+it.ch.hun+'</span>'}</div>`+
+         `</div>`;
+}
+function wqRenderShell(){
+  const rv=document.getElementById('wqReview');
+  const f=wqReviewFilter;
+  rv.innerHTML=`<div class="rv-wrap">`+
+    `<div class="rv-title">📝 풀이 기록 <span class="cnt all">전체 ${wqLog.length}</span><span class="cnt ok">맞 ${wqOk}</span><span class="cnt">틀 ${wqNo}</span></div>`+
+    `<div class="rv-filter">`+
+      `<button class="rv-fb${f==='all'?' on':''}" onclick="wqShowReview('all')">전체</button>`+
+      `<button class="rv-fb${f==='ok'?' on':''}" onclick="wqShowReview('ok')">맞음</button>`+
+      `<button class="rv-fb${f==='no'?' on':''}" onclick="wqShowReview('no')">틀림</button>`+
+    `</div>`+
+    `<div class="rv-list" id="wqRvList"></div></div>`;
+  const items=wqLog.filter(x=>f==='all'||(f==='ok'&&x.ok)||(f==='no'&&!x.ok));
+  document.getElementById('wqRvList').innerHTML=items.slice().reverse().map(it=>wqRenderItem(it,false)).join('');
+}
+function wqUpdateReview(item){
+  if(wqReviewFilter===null)return;
+  const list=document.getElementById('wqRvList');if(!list)return;
+  const match=(wqReviewFilter==='all'||(wqReviewFilter==='ok'&&item.ok)||(wqReviewFilter==='no'&&!item.ok));
+  if(!match){wqRenderShell();return;}
+  const tmp=document.createElement('div');tmp.innerHTML=wqRenderItem(item,true);
+  const el=tmp.firstElementChild;list.prepend(el);
+  requestAnimationFrame(()=>el.classList.remove('rv-enter'));
+}
+function wqShowReview(f){
+  const rv=document.getElementById('wqReview');
+  if(!f&&wqReviewFilter!==null){wqReviewFilter=null;rv.innerHTML='';return;}
+  wqReviewFilter=f||'all';
+  wqRenderShell();
+  rv.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ============ 음 퀴즈 ============
+let eqQ=[],eqI=0,eqOk=0,eqNo=0,eqCur=null,eqLog=[],eqReviewFilter=null,eqAnswered=false;
+function onEqCatChange(){updateEqHint();}
+function updateEqHint(){
+  const total=getActiveClauses('eq').length;
+  document.getElementById('eqTotalHint').textContent=`/ ${total}`;
+  document.getElementById('eqNum').max=total;
+}
+function eqStart(){
+  const pool=getActiveClauses('eq');
+  if(!pool.length){alert('원문을 하나 이상 선택해주세요');return;}
+  let n=parseInt(document.getElementById('eqNum').value)||10;
+  n=Math.max(1,Math.min(n,pool.length));
+  eqI=0;eqOk=0;eqNo=0;eqLog=[];eqReviewFilter=null;
+  eqQ=shuf(pool).slice(0,n);
+  document.getElementById('eqSet').style.display='none';
+  document.getElementById('eqArea').style.display='';
+  document.getElementById('eqReview').innerHTML='';
+  document.getElementById('eqReviewBtn').style.display='none';
+  document.getElementById('eqAgainBtn').style.display='none';
+  document.getElementById('eqMidReview').style.display='none';
+  eqNext();
+}
+function eqReset(){
+  eqReviewFilter=null;
+  document.getElementById('eqArea').style.display='none';
+  document.getElementById('eqSet').style.display='';
+  document.getElementById('eqReview').innerHTML='';
+}
+function eqNext(){
+  const ta=document.getElementById('eqIn');
+  ta.value='';ta.disabled=false;
+  document.getElementById('eqFb').textContent='';
+  document.getElementById('eqSc').textContent='';
+  eqAnswered=false;
+  if(eqI>=eqQ.length){
+    document.getElementById('eqPg').textContent='완료!';
+    document.getElementById('eqQ').innerHTML=`🎉 ${eqOk}/${eqQ.length} 맞음`;
+    ta.style.display='none';
+    document.getElementById('eqNx').style.display='none';
+    document.getElementById('eqMidReview').style.display='none';
+    document.getElementById('eqReviewBtn').style.display='inline-block';
+    document.getElementById('eqAgainBtn').style.display='inline-block';
+    return;
+  }
+  ta.style.display='';
+  eqCur=eqQ[eqI];
+  document.getElementById('eqPg').textContent=`${eqI+1} / ${eqQ.length}  (맞 ${eqOk} / 틀 ${eqNo})`;
+  document.getElementById('eqQ').innerHTML=`<div>${eqCur.orig}</div><div style="font-size:10px;color:var(--t3);margin-top:6px">${eqCur.srcName}</div>`;
+  document.getElementById('eqNx').style.display='none';
+  ta.focus();
+}
+function eqCheck(){
+  if(!eqCur||eqAnswered)return;
+  eqAnswered=true;
+  const ta=document.getElementById('eqIn');
+  const mine=normalize(ta.value);
+  // 정답: 한자만 뽑아 음 변환
+  let truth='';
+  for(const c of eqCur.orig){if(/[\u4e00-\u9fff]/.test(c))truth+=EUM[c]||'?';}
+  const truthNorm=normalize(truth);
+  const truthDoo=applyDooeum(truthNorm);
+  const mineDoo=applyDooeum(mine);
+  const ok=(mine===truthNorm||mine===truthDoo||mineDoo===truthNorm||mineDoo===truthDoo);
+  ta.disabled=true;
+  if(ok){eqOk++;document.getElementById('eqFb').innerHTML=`<span style="color:var(--g)">✓ 정답!</span>`;}
+  else {eqNo++;document.getElementById('eqFb').innerHTML=`<span style="color:var(--r)">✗ 정답: ${truthNorm}</span>`;}
+  const item={clause:eqCur,picked:mine,truth:truthNorm,ok};
+  eqLog.push(item);eqUpdateReview(item);
+  const mid=document.getElementById('eqMidReview');
+  mid.style.display='inline-block';mid.textContent=`📝 풀이 기록 (${eqLog.length})`;
+  eqI++;
+  document.getElementById('eqNx').style.display='inline-block';
+  document.getElementById('eqNx').focus();
+}
+function eqRenderItem(it,animate){
+  return `<div class="rv-item ${it.ok?'ok':''}${animate?' rv-enter':''}">`+
+         `<div class="rv-q">${it.clause.orig} <span style="font-size:10px;color:var(--t3);margin-left:6px">${it.clause.srcName}</span></div>`+
+         `<div class="rv-trans">${it.clause.trans}</div>`+
+         `<div class="rv-ans">${it.ok?'<span class="truth">✓ '+(it.picked||it.truth)+'</span>':'<span class="picked">내 답: '+(it.picked||'(무응답)')+'</span> → <span class="truth">정답: '+it.truth+'</span>'}</div>`+
+         `</div>`;
+}
+function eqRenderShell(){
+  const rv=document.getElementById('eqReview');
+  const f=eqReviewFilter;
+  rv.innerHTML=`<div class="rv-wrap">`+
+    `<div class="rv-title">📝 풀이 기록 <span class="cnt all">전체 ${eqLog.length}</span><span class="cnt ok">맞 ${eqOk}</span><span class="cnt">틀 ${eqNo}</span></div>`+
+    `<div class="rv-filter">`+
+      `<button class="rv-fb${f==='all'?' on':''}" onclick="eqShowReview('all')">전체</button>`+
+      `<button class="rv-fb${f==='ok'?' on':''}" onclick="eqShowReview('ok')">맞음</button>`+
+      `<button class="rv-fb${f==='no'?' on':''}" onclick="eqShowReview('no')">틀림</button>`+
+    `</div>`+
+    `<div class="rv-list" id="eqRvList"></div></div>`;
+  const items=eqLog.filter(x=>f==='all'||(f==='ok'&&x.ok)||(f==='no'&&!x.ok));
+  document.getElementById('eqRvList').innerHTML=items.slice().reverse().map(it=>eqRenderItem(it,false)).join('');
+}
+function eqUpdateReview(item){
+  if(eqReviewFilter===null)return;
+  const list=document.getElementById('eqRvList');if(!list)return;
+  const match=(eqReviewFilter==='all'||(eqReviewFilter==='ok'&&item.ok)||(eqReviewFilter==='no'&&!item.ok));
+  if(!match){eqRenderShell();return;}
+  const tmp=document.createElement('div');tmp.innerHTML=eqRenderItem(item,true);
+  const el=tmp.firstElementChild;list.prepend(el);
+  requestAnimationFrame(()=>el.classList.remove('rv-enter'));
+}
+function eqShowReview(f){
+  const rv=document.getElementById('eqReview');
+  if(!f&&eqReviewFilter!==null){eqReviewFilter=null;rv.innerHTML='';return;}
+  eqReviewFilter=f||'all';
+  eqRenderShell();
+  rv.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ============ 해석 연습 ============
+let tqQ=[],tqI=0,tqCur=null,tqLog=[],tqChecked=false,tqReviewFilter=null;
+function onTqCatChange(){updateTqHint();}
+function updateTqHint(){
+  const total=getActiveClauses('tq').length;
+  document.getElementById('tqTotalHint').textContent=`/ ${total}`;
+  document.getElementById('tqNum').max=total;
+}
+function tqStart(){
+  const pool=getActiveClauses('tq');
+  if(!pool.length){alert('원문을 하나 이상 선택해주세요');return;}
+  let n=parseInt(document.getElementById('tqNum').value)||5;
+  n=Math.max(1,Math.min(n,pool.length));
+  tqQ=shuf(pool).slice(0,n);tqI=0;tqLog=[];tqReviewFilter=null;
+  document.getElementById('tqSet').style.display='none';
+  document.getElementById('tqArea').style.display='';
+  document.getElementById('tqReview').innerHTML='';
+  document.getElementById('tqReviewBtn').style.display='none';
+  document.getElementById('tqAgainBtn').style.display='none';
+  document.getElementById('tqMidReview').style.display='none';
+  tqNext();
+}
+function tqReset(){
+  tqReviewFilter=null;
+  document.getElementById('tqArea').style.display='none';
+  document.getElementById('tqSet').style.display='';
+  document.getElementById('tqReview').innerHTML='';
+}
+function tqNext(){
+  const ta=document.getElementById('tqIn');
+  const cmp=document.getElementById('tqCompare');
+  ta.value='';ta.disabled=false;cmp.innerHTML='';
+  tqChecked=false;
+  document.getElementById('tqNx').style.display='none';
+  document.getElementById('tqCheckBtn').style.display='inline-block';
+  if(tqI>=tqQ.length){
+    document.getElementById('tqPg').textContent='완료!';
+    document.getElementById('tqQ').textContent='🎉';
+    ta.style.display='none';
+    document.getElementById('tqCheckBtn').style.display='none';
+    document.getElementById('tqMidReview').style.display='none';
+    document.getElementById('tqReviewBtn').style.display='inline-block';
+    document.getElementById('tqAgainBtn').style.display='inline-block';
+    return;
+  }
+  ta.style.display='';
+  tqCur=tqQ[tqI];
+  document.getElementById('tqPg').textContent=`${tqI+1} / ${tqQ.length}`;
+  document.getElementById('tqQ').innerHTML=`<div>${tqCur.orig}</div><div style="font-size:10px;color:var(--t3);margin-top:6px">${tqCur.srcName}</div>`;
+  document.getElementById('tqSc').textContent='';
+  ta.focus();
+}
+function tqCheck(){
+  if(!tqCur||tqChecked)return;
+  const ta=document.getElementById('tqIn');
+  const cmp=document.getElementById('tqCompare');
+  const mine=ta.value.trim();
+  ta.disabled=true;tqChecked=true;
+  const isProf=tqCur.src==='prof';
+  const srcLabel=isProf?'교수님':'AI 해석';
+  const refClass=isProf?'ref':'blog';
+  cmp.innerHTML=`<div class="tq-cmp">`+
+    `<div class="tq-cmp-row mine"><div class="lbl">내 해석</div><div class="txt">${mine||'<span style="color:var(--t3)">(작성 안함)</span>'}</div></div>`+
+    `<div class="tq-cmp-row ${refClass}"><div class="lbl">${srcLabel}</div><div class="txt">${tqCur.trans}</div></div>`+
+    `</div>`;
+  const item={clause:tqCur,mine};
+  tqLog.push(item);tqUpdateReview(item);
+  document.getElementById('tqCheckBtn').style.display='none';
+  document.getElementById('tqNx').style.display='inline-block';
+  const mid=document.getElementById('tqMidReview');
+  mid.style.display='inline-block';mid.textContent=`📝 풀이 기록 (${tqLog.length})`;
+  tqI++;
+  document.getElementById('tqNx').focus();
+}
+function tqRenderItem(item,animate){
+  const isProf=item.clause.src==='prof';
+  const srcLabel=isProf?'교수님':'AI 해석';
+  const refClass=isProf?'ref':'blog';
+  return `<div class="rv-item${animate?' rv-enter':''}" style="border-left-color:#1e4d7b">`+
+    `<div class="rv-q" style="font-size:15px;margin-bottom:6px">${item.clause.orig} <span style="font-size:10px;color:var(--t3);margin-left:4px">${item.clause.srcName}</span></div>`+
+    `<div class="tq-cmp-row mine" style="margin-bottom:4px"><div class="lbl">내 해석</div><div class="txt">${item.mine||'<span style="color:var(--t3)">(작성 안함)</span>'}</div></div>`+
+    `<div class="tq-cmp-row ${refClass}"><div class="lbl">${srcLabel}</div><div class="txt">${item.clause.trans}</div></div>`+
+    `</div>`;
+}
+function tqRenderShell(){
+  const rv=document.getElementById('tqReview');
+  rv.innerHTML=`<div class="rv-wrap"><div class="rv-title">📝 풀이 기록 <span class="cnt all">총 ${tqLog.length}개</span></div><div class="rv-list" id="tqRvList"></div></div>`;
+  const list=document.getElementById('tqRvList');
+  list.innerHTML=tqLog.slice().reverse().map(it=>tqRenderItem(it,false)).join('');
+}
+function tqUpdateReview(item){
+  if(tqReviewFilter===null)return;
+  const list=document.getElementById('tqRvList');if(!list)return;
+  const tmp=document.createElement('div');tmp.innerHTML=tqRenderItem(item,true);
+  const el=tmp.firstElementChild;list.prepend(el);
+  requestAnimationFrame(()=>el.classList.remove('rv-enter'));
+}
+function tqShowReview(){
+  const rv=document.getElementById('tqReview');
+  if(tqReviewFilter!==null){tqReviewFilter=null;rv.innerHTML='';return;}
+  tqReviewFilter='all';
+  tqRenderShell();
+  rv.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ============ 전체 목록 ============
+function renderList(){
+  const w=document.getElementById('lsSections');
+  let html='';
+  CATEGORIES.forEach(cat=>{
+    const out1000Count=cat.chars.filter(ch=>!CHARS_1000.has(ch)).length;
+    html+=`<div class="ls-sec" data-cat="${cat.id}">`+
+          `<div class="ls-sec-head">${cat.name} <span class="hj">${cat.hanja}</span><span class="cnt">${cat.chars.length}자 <span style="color:#1e4d7b">(1~1000외: ${out1000Count}자)</span></span></div>`+
+          `<div class="ls-sec-body">`;
+    cat.chars.forEach(ch=>{
+      const hu=cat.dict[ch]||UNIFIED_DICT[ch]||'?';
+      const out1000=!CHARS_1000.has(ch);
+      html+=`<div class="lsc${out1000?' out1000':''}" data-ch="${ch}" data-hun="${hu}"><div class="ch">${ch}</div><div class="hu">${hu}</div></div>`;
+    });
+    html+='</div></div>';
+  });
+  w.innerHTML=html;
+}
+function toggleBlue(){
+  const on=document.getElementById('lsBlueToggle').checked;
+  document.getElementById('lsSections').classList.toggle('no-blue',!on);
+}
+function lsFilter(){
+  const q=document.getElementById('lsSearch').value.trim().toLowerCase();
+  const hit=document.getElementById('lsHit');
+  let count=0;
+  document.querySelectorAll('#lsSections .lsc').forEach(el=>{
+    const ch=el.dataset.ch;
+    const hu=el.dataset.hun.toLowerCase();
+    const match=!q||ch===q||hu.includes(q);
+    if(match){el.classList.remove('dim');if(q)el.classList.add('hit');else el.classList.remove('hit');if(q)count++;}
+    else {el.classList.add('dim');el.classList.remove('hit');}
+  });
+  hit.textContent=q?`${count}개 찾음`:'';
+}
+
+// ============ Init ============
+renderCatSelect('fc','fcCat');
+renderCatSelect('wq','wqCat');
+renderCatSelect('eq','eqCat');
+renderCatSelect('tq','tqCat');
+renderStCats();
+renderList();
+fInit();fShow();
+updateWqHint();updateEqHint();updateTqHint();
+
+// 키보드 단축키 (Enter for 음 퀴즈 etc already handled)
+
+const TIPS=[{"id": "particles", "name": "어조사 (語助辭)", "icon": "語", "desc": "문장에 의미를 보태주는 허사(虛辭). 실질적 뜻보다는 문법적 기능을 담당.", "items": [{"term": "而", "hun": "말 이을 이", "desc": "접속사. 앞뒤 절을 연결.<br><b>① 순접(그리고, ~하여)</b> <b>② 역접(그러나, ~이나)</b> <b>③ 주어+술어 강조</b><br>가장 빈번하게 나오는 어조사.", "examples": [{"orig": "無極而太極", "trans": "무극이 태극이요", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "太極動而生陽", "trans": "태극이 움직여서 양을 생하고", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "動極而靜", "trans": "움직임이 극에 달한 것은 고요해지니", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "也", "hun": "어조사 야", "desc": "문장 끝에 붙어 <b>단정·강조</b>의 의미를 더함. '~이다', '~인 것이다'.", "examples": [{"orig": "五行一陰陽也", "trans": "오행은 하나의 음양이요", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "陰陽一太極也", "trans": "음양은 하나의 태극이니", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "太極本無極也", "trans": "태극은 본래 무극이라", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "矣", "hun": "어조사 의", "desc": "문장 끝에 붙어 <b>완료·단정</b>. '~이로다', '~된 것이다'. 也보다 감탄·완결의 뉘앙스.", "examples": [{"orig": "形旣生矣 神發知矣", "trans": "형체가 이미 생성되어 정신이 앎을 드러내는도다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "萬事出矣", "trans": "만 가지 일을 드러내도다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "大哉易也 斯其至矣", "trans": "위대하도다 역의 이치여! 이것이 그토록 지극하도다", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "焉", "hun": "어조사 언 / 어찌 언", "desc": "① 문장 끝: <b>단정</b> ('~이다')<br>② 문장 앞/중: <b>의문·반어</b> ('어찌')", "examples": [{"orig": "分陰分陽 兩儀立焉", "trans": "음으로 나뉘고 양으로 나뉘어 두 짝이 세워진다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "五氣順布 四時行焉", "trans": "다섯 기운이 거스름 없이 펼쳐짐에 사시(사계절)이 운행된다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "萬物生生 而變化無窮焉", "trans": "만물이 태어나고 태어나서 그 변화가 무궁하도다", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "哉", "hun": "어조사 재", "desc": "<b>감탄·영탄</b>의 어조사. '~이로다!', '~인저!'. 감정을 강하게 실어줌.", "examples": [{"orig": "大哉易也 斯其至矣", "trans": "위대하도다 역의 이치여! 이것이 그토록 지극하도다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "與之共談斯道哉아", "trans": "그와 더불어 이 도를 함께 논할 수 있으리오", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "至矣哉라 兩言盡之矣여", "trans": "지극하도다! 두 마디로 그것을 다 하였음이여", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "乎", "hun": "어조사 호", "desc": "① 문장 끝: <b>의문·반어</b> ('~인가?')<br>② 문장 중: <b>~에서, ~에게</b> (於와 유사)", "examples": [{"orig": "此水火之氣 果可呼吸相離乎아", "trans": "이 수화의 기가 과연 호흡처럼 서로 떨어질 수 있겠는가", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "生氣通天이 惟賴乎此라", "trans": "생기통천이 오직 이에 의뢰한다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "嗟乎라 法高一尺에 魔高一丈하니", "trans": "아아! 법이 한 척 높아지면 마가 한 장 높아지니", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "於", "hun": "어조사 어", "desc": "<b>장소·대상·비교</b>를 나타내는 전치사. '~에서, ~에, ~보다'. 한문에서 가장 많이 쓰이는 전치사.", "examples": [{"orig": "至於陰中復有陽하고 陽中復有陰하여는", "trans": "음 중에 다시 양이 있고 양중에 다시 음이 있음에 이르러서는", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "然이나 總不離於前之數者라", "trans": "그러나 모두 앞서 말한 여러가지를 벗어나지 않는다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "故로 直削於此하야 實冀夫盡洗積陋하야", "trans": "그러므로 이에 바로 깎아 없애어 진실로 오래 쌓인 비루한 견해를 다 씻어내어", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "者", "hun": "놈 자", "desc": "<b>명사화</b>. '~하는 것', '~하는 자/사람'. 동사·형용사 뒤에 붙어 명사로 만들어줌.", "examples": [{"orig": "醫道雖繁이나 而可以一言蔽之者는 曰陰陽而已라", "trans": "의학의 도가 비록 복잡하나 가히 한 마디 말로써 전체를 덮는 것으로 말하되 음양일 따름이다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "多言者는 爲陽이요 無聲者는 爲陰이며", "trans": "말이 많은 것은 양이요 말이 없는 것은 음이며", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "喜明者는 爲陽이요 欲暗者는 爲陰이며", "trans": "밝을 것을 좋아하는 것은 양이요 어두움을 좋아하는 것은 음이며", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "之", "hun": "갈 지", "desc": "① <b>관형격(~의)</b>: A之B → A의 B<br>② <b>대명사(그것)</b><br>③ 간혹 <b>동사(가다)</b>", "examples": [{"orig": "五行之生也 各一其性", "trans": "오행의 생이 저마다의 성품을 갖추어", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "無極之眞 二五之精", "trans": "무극의 진리와 음양오행의 진수가 (정수가)", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "聖人定之 以中正仁義", "trans": "성인이 중정과 인의를 바르게 정하여", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "耳", "hun": "귀 이", "desc": "문장 끝에 붙어 <b>한정</b>. '~일 따름이다', '~뿐이다'. 而已와 비슷한 기능.", "examples": [{"orig": "此는 特後天有形之陰陽耳요", "trans": "이것은 다만 후천 유형의 음양일 따름이요", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "醫道雖繁이나 而可以一言蔽之者는 曰陰陽而已라", "trans": "의학의 도가 비록 복잡하나 가히 한 마디 말로써 전체를 덮는 것으로 말하되 음양일 따름이다", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "而已", "hun": "~할 뿐이다 / 따름이다", "prof": true, "desc": "<b>문장 끝의 한정 표현</b>. <b>'~할 뿐이다, ~일 따름이다'</b>. 而(말 이을 이) + 已(이미 이)의 결합. 耳(이)와 동의.<br>→ '오직 그것뿐, 그 이상은 아니다'라는 강한 한정의 뉘앙스.", "examples": [{"orig": "醫道雖繁이나 而可以一言蔽之者는 曰陰陽而已라", "trans": "의학의 도가 비록 복잡하나 가히 한 마디 말로써 전체를 덮는 것으로 말하되 음양일 따름이다", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}]}, {"id": "pronouns", "name": "대명사 · 지시사", "icon": "此", "desc": "가리키는 말. 근칭(이것)과 원칭(저것), 인칭 구분이 중요.", "items": [{"term": "此", "hun": "이 차", "desc": "<b>이것, 이</b>. 근칭 지시대명사. 문장 첫머리에 자주 나와 앞 내용을 받음.", "examples": [{"orig": "此는 皆醫中之大法이라", "trans": "이는 모두 의학의 대법이다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "此而不識이면 極易差訛하니 是又最爲緊要라", "trans": "이를 알지 못하면 지극히 착오가 일어나기 쉬우니 그래서 이것이 최고로 긴요하다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "但兩氣相兼이면 則此少彼多하야 其中便有變化하니", "trans": "다만 음양의 기가 서로 겸하면 즉 이것이 적으면 저것이 많아서 그 중에 문득 변화가 있으니", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "斯", "hun": "이 사", "desc": "<b>이, 여기</b>. 此와 유사하나 다소 문어적·격식있는 표현.", "examples": [{"orig": "大哉易也 斯其至矣", "trans": "위대하도다 역의 이치여! 이것이 그토록 지극하도다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "陽不足而更用陰方이면 則陰愈盛而陽斯滅矣라", "trans": "양이 부족한데 다시 음을 도우는 처방을 쓰면 음이 더욱 성하여지고 양은 곧 소멸하게 된다", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "是", "hun": "이 시", "desc": "<b>이것, 이</b>. 문맥에 따라 '옳다'의 뜻으로도 쓰임. 是故(그러므로) 숙어.", "examples": [{"orig": "此而不識이면 極易差訛하니 是又最爲緊要라", "trans": "이를 알지 못하면 지극히 착오가 일어나기 쉬우니 그래서 이것이 최고로 긴요하다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "其在人身에 是卽元陰元陽이니", "trans": "그것이 사람의 몸에 있어서는 이것은 즉 원음원양이니", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "以生以化로 神機是也요", "trans": "생하고 변화하니 신묘한 기능이 있음이라", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "其", "hun": "그 기", "desc": "<b>그, 그것의</b>. 3인칭 대명사 / 관형어. 앞서 언급된 것을 받음.", "examples": [{"orig": "一動一靜 互爲其根", "trans": "한번 움직이고 한번 멈춘 것이 서로 뿌리가 되어", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "五行之生也 各一其性", "trans": "오행의 생이 저마다의 성품을 갖추어", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "惟人也 得其秀而最靈", "trans": "오직 사람만이 그 빼어남을 얻어서 만물의 영장이니", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "我", "hun": "나 아", "desc": "<b>나, 나의</b>. 1인칭.", "examples": [{"orig": "則有天之天者는 謂生我之天이니", "trans": "천의 천이 있다는 것은 나를 낳는 천을 이름이니", "srcId": "seoncheon", "srcName": "선천후천론"}, {"orig": "有人之天者는 謂成我之天이니", "trans": "인의 천이 있다는 것은 나를 이루는 천을 이름이니", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "爾", "hun": "너 이", "desc": "<b>너, 그대</b>. 2인칭. (汝, 子와 유사)", "examples": [{"orig": "故로 廣成子曰 毋勞爾形하고 毋搖爾精이라야 乃可以長生이라하니", "trans": "그러므로 광성자가 말하기를 너의 형체를 수고롭게 하지 말고 너의 정을 흔들지 말아야 곧 장생할 수 있다 하니", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "余", "hun": "나 여", "desc": "<b>나</b>. 1인칭. 我보다 격식있음. 余深悼之(내가 이를 심히 애도한다).", "examples": [{"orig": "余深悼之라", "trans": "내가 이를 심히 애도함이라", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}]}, {"id": "conjunctions", "name": "부사 · 접속사", "icon": "則", "desc": "문장을 이어주고 논리 관계를 드러내는 말들.", "items": [{"term": "則", "hun": "곧 즉", "desc": "<b>~하면 곧, ~라면</b>. 조건·귀결 관계. 영어 then과 유사. A하면 B라는 구조.", "examples": [{"orig": "以證而言이면 則表爲陽이요 裏爲陰이며", "trans": "병중으로써 말하면 겉은 양이요 속은 음이며", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "以脈而言이면 則浮大滑數之類는 皆陽也요", "trans": "맥으로써 말하자면 빠르고 크고 미끄럽고 자주 뛰는 맥의 류는 모두 양이요", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "以藥而言이면 則升散者는 爲陽이요 斂降者는 爲陰이며", "trans": "약으로써 말하자면 상승하고 확산하는 것은 양이요 수렴하고 하강하는 것은 음이며", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "故", "hun": "연고 고", "desc": "<b>그러므로, 때문에</b>. 앞 내용의 결과/이유를 잇는 접속사.", "examples": [{"orig": "故聖人與天地合其德", "trans": "그러므로 성인은 천지와 더불어 그 덕을 합하셨고", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "故曰立天之道 曰陰與陽", "trans": "그러므로 하늘의 도를 세우는 것을 음과 양이라 하고", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "又曰原始反終 故知死生之說", "trans": "또 이르되 시작에 근원하여 끝으로 돌아간다 그러므로 삶과 죽음의 이야기를 안다 고 하였으니", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "然", "hun": "그럴 연", "desc": "<b>그러나, 그런데</b>. 역접 접속사. '그러하다'는 본래 뜻.", "examples": [{"orig": "然이나 總不離於前之數者라", "trans": "그러나 모두 앞서 말한 여러가지를 벗어나지 않는다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "一皆以理測之면 自有顯然可見者라", "trans": "모두 이치로써 헤아리면 저절로 분명하게 가히 보여지는 것이 있다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "然이나 陽爲生之本이요 陰實死之基라", "trans": "그러나 양은 생의 근본이 됨이요 음은 실로 멸하는 터가 된다", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "又", "hun": "또 우", "desc": "<b>또, 다시</b>. 첨가 부사. '또한 ~하다'.", "examples": [{"orig": "又曰原始反終 故知死生之說", "trans": "또 이르되 시작에 근원하여 끝으로 돌아간다 그러므로 삶과 죽음의 이야기를 안다 고 하였으니", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "此而不識이면 極易差訛하니 是又最爲緊要라", "trans": "이를 알지 못하면 지극히 착오가 일어나기 쉬우니 그래서 이것이 최고로 긴요하다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "嗟呼라 又安得有通神明而見無形者하야", "trans": "아아! 또 어찌 신명에 통하여 무형을 보는 자를 얻어", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "乃", "hun": "이에 내", "desc": "<b>이에, 곧</b>. 순접 / 결론. '~해야만 비로소 ~이다'의 구조에서 자주 쓰임.", "examples": [{"orig": "乃爲醫道之綱領이라", "trans": "이를 의도의 강령으로 여김이라", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "故로 廣成子曰 毋勞爾形하고 毋搖爾精이라야 乃可以長生이라하니", "trans": "그러므로 광성자가 말하기를 너의 형체를 수고롭게 하지 말고 너의 정을 흔들지 말아야 곧 장생할 수 있다 하니", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "但", "hun": "다만 단", "desc": "<b>다만, 오직</b>. 한정·제한. '다만 ~뿐이다'.", "examples": [{"orig": "但兩氣相兼이면 則此少彼多하야 其中便有變化하니", "trans": "다만 음양의 기가 서로 겸하면 즉 이것이 적으면 저것이 많아서 그 중에 문득 변화가 있으니", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "但知以氣血臟腑寒熱爲言이나", "trans": "다만 기혈 장부 한열로써 말한다면", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "惟", "hun": "오직 유", "desc": "<b>오직, 다만</b>. 강한 한정. 但보다 강조가 큼.", "examples": [{"orig": "惟人也 得其秀而最靈", "trans": "오직 사람만이 그 빼어남을 얻어서 만물의 영장이니", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "生氣通天이 惟賴乎此라", "trans": "생기통천이 오직 이에 의뢰한다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "惟樂은 可以養生이니 欲樂者는 莫如爲善이요", "trans": "즐거움으로 양생할 수 있으니 즐거움을 즐기는 것은 선행만한 것이 없고", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "亦", "hun": "또 역", "desc": "<b>또한, 역시</b>. 부사.", "examples": [{"orig": "性命係之라 故로 亦曰元氣라", "trans": "성과 명이 이것과 관계되니 그러므로 또한 원기라 한다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "强弱係之라 故로 亦曰元精이라", "trans": "강약이 이것과 관계되니 그러므로 또한 원정이라 한다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "一. 陰之病也엔 來亦緩而去亦緩하고", "trans": "음의 병은 오는 것도 느리고 가는 것도 느리며", "srcId": "eumyang3", "srcName": "음양편 part.3"}]}, {"term": "雖", "hun": "비록 수", "desc": "<b>비록 ~할지라도</b>. 양보·가정. 뒤에 대개 '而/나/이나'와 호응.", "examples": [{"orig": "醫道雖繁이나 而可以一言蔽之者는 曰陰陽而已라", "trans": "의학의 도가 비록 복잡하나 가히 한 마디 말로써 전체를 덮는 것으로 말하되 음양일 따름이다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "設能明徹陰陽이면 則醫理雖玄이나 思過半矣라", "trans": "만약 능히 음양을 분명하게 밝히면 의학의 이치가 비록 현묘하나 깨닫는 바가 이미 많도다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "身雖羸瘦나 而動作能耐者는 吉하고", "trans": "몸이 비록 말랐어도 동작이 견뎌내면 길하고", "srcId": "seoncheon", "srcName": "선천후천론"}]}]}, {"id": "conditional", "name": "가정 · 조건문", "icon": "若", "desc": "'만약 ~하면 ~이다' 형태의 조건·가정 표현.", "items": [{"term": "若", "hun": "같을 약", "desc": "<b>① 만약 ~하면</b> (조건) <b>② ~과 같다</b> (비교). 若A면 B 구조가 전형.", "examples": [{"orig": "若陽有餘而更施陽治면 則陽愈熾而陰愈消하고", "trans": "만약 양이 유여한데 다시 양을 돕는 것으로 치료하면 양이 더욱 치성하고 음은 점점 사라지게 되고", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "至若先天無形之陰陽하여는", "trans": "선천 무형의 음양같은 경우에 이른즉", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "若二子者 謂非軒岐之魔乎아", "trans": "만약 이 두 사람을 두고 헌원·기백의 마귀가 아니라 할 수 있겠는가", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "使", "hun": "하여금 사", "desc": "<b>① ~하게 하다</b> (사역)  <b>② 만약 ~하면</b> (가정). 使火中無水 = '화중에 수가 없다면'.", "examples": [{"orig": "蓋火性本熱이나 使火中無水면 其熱必極하고", "trans": "대개 화의 성질은 본래 열하나 만약 화중에 수가 없으면 그 열이 반드시 극에 달하고", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "水性本寒이나 使水中無火면 其寒必極하고", "trans": "수의 성질은 본래 차나, 만약 수중에 화가 없으면 그 한이 반드시 극에 달하고", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "設", "hun": "베풀 설", "desc": "<b>만약</b> (가정). 設能~ = '만약 ~할 수 있다면'.", "examples": [{"orig": "設能明徹陰陽이면 則醫理雖玄이나 思過半矣라", "trans": "만약 능히 음양을 분명하게 밝히면 의학의 이치가 비록 현묘하나 깨닫는 바가 이미 많도다", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "則", "hun": "곧 즉", "desc": "조건문의 <b>귀결</b>을 이끔. 'A면 則 B' = 'A면 B이다'. 앞의 若/使/如 등과 호응.", "examples": [{"orig": "若陽有餘而更施陽治면 則陽愈熾而陰愈消하고", "trans": "만약 양이 유여한데 다시 양을 돕는 것으로 치료하면 양이 더욱 치성하고 음은 점점 사라지게 되고", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "至若先天無形之陰陽하여는", "trans": "선천 무형의 음양같은 경우에 이른즉", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "以證而言이면 則表爲陽이요 裏爲陰이며", "trans": "병중으로써 말하면 겉은 양이요 속은 음이며", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "如", "hun": "같을 여", "desc": "<b>① ~와 같다</b> <b>② 만약</b>. 莫如 = '~만한 것이 없다'.", "examples": [{"orig": "如水爲陰이요 火爲陽이라", "trans": "수는 음이요 화는 양이라", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "舍此他求는 如涉海問津矣니", "trans": "이것을 버리고 다른 데서 구하는 것은 바다를 건너려면서 나루터만 묻는 것과 같으니", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "身必冷如氷이라하니", "trans": "'몸이 반드시 얼음처럼 차다' 하니", "srcId": "eumyang3", "srcName": "음양편 part.3"}]}]}, {"id": "interrogative", "name": "의문 · 반어 표현", "icon": "何", "desc": "질문이나 수사 의문에 쓰이는 말들. 반어는 형식만 질문일 뿐 강한 단정·강조.", "items": [{"term": "何", "hun": "어찌 하", "desc": "<b>어찌, 어떻게, 무엇</b>. 何以 = 어떻게 ~할까, 何謂 = 어찌 ~라 하는가.", "examples": [{"orig": "何以見之오", "trans": "어떻게 그것을 알 수 있는가", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "象分氷炭이어늘 何謂同源고", "trans": "형상이 얼음과 숯처럼 나뉘거늘, 어찌 같은 근원이라 하는가", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "但使表裏無虧면 則邪疾이 何由而犯이리오", "trans": "다만 표리가 휴손되지 않으면 사악한 질병이 무엇을 연유하여 침범하겠는가", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "焉", "hun": "어찌 언", "desc": "<b>어찌, 어디</b>. 반어로 쓰이면 '어찌 ~하리오(당연히 그러하지 않다)'.", "examples": [{"orig": "陰陽無謬면 治焉有差리오", "trans": "음양에 어긋남이 없으면 어찌 착오가 있으리오", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "分陰分陽 兩儀立焉", "trans": "음으로 나뉘고 양으로 나뉘어 두 짝이 세워진다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "五氣順布 四時行焉", "trans": "다섯 기운이 거스름 없이 펼쳐짐에 사시(사계절)이 운행된다", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "安", "hun": "편안 안", "desc": "<b>어찌, 어떻게</b>. 반어 자주 쓰임. 安得~ = '어찌 ~을 얻으리오'.", "examples": [{"orig": "嗟呼라 又安得有通神明而見無形者하야", "trans": "아아! 또 어찌 신명에 통하여 무형을 보는 자를 얻어", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "乎", "hun": "어조사 호", "desc": "<b>~인가?</b> 의문 종결. 반어로도 자주 쓰임. 文末에서 질문을 만듦.", "examples": [{"orig": "此水火之氣 果可呼吸相離乎아", "trans": "이 수화의 기가 과연 호흡처럼 서로 떨어질 수 있겠는가", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "生氣通天이 惟賴乎此라", "trans": "생기통천이 오직 이에 의뢰한다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "嗟乎라 法高一尺에 魔高一丈하니", "trans": "아아! 법이 한 척 높아지면 마가 한 장 높아지니", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "哉", "hun": "어조사 재", "desc": "<b>~인가!</b>. 감탄 + 반어 기능. 大哉 = '크도다!'.", "examples": [{"orig": "大哉易也 斯其至矣", "trans": "위대하도다 역의 이치여! 이것이 그토록 지극하도다", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "與之共談斯道哉아", "trans": "그와 더불어 이 도를 함께 논할 수 있으리오", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "至矣哉라 兩言盡之矣여", "trans": "지극하도다! 두 마디로 그것을 다 하였음이여", "srcId": "seoncheon", "srcName": "선천후천론"}]}]}, {"id": "negation", "name": "부정 표현", "icon": "不", "desc": "아니다/없다/하지 말라 등 부정을 나타내는 여러 한자. 강도와 용법이 조금씩 다름.", "items": [{"term": "不", "hun": "아닐 불", "desc": "가장 일반적 부정. <b>~이 아니다, ~하지 않는다</b>. 뒤에 ㄷ·ㅈ이 오면 '부'로 읽음 (不動=부동).", "examples": [{"orig": "陽微者는 不能呼하고 陰微者는 不能吸하며", "trans": "양이 미미한 자는 숨을 내쉬기가 힘들고 음이 미미한 자는 숨을 들이마시기가 힘들다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "陽病者는 不能俯하고 陰病者는 不能仰이라", "trans": "양병인 자는 (앞으로) 구부리지를 못하고, 음병인 자는 (뒤로) 펴지 못한다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "此而不識이면 極易差訛하니 是又最爲緊要라", "trans": "이를 알지 못하면 지극히 착오가 일어나기 쉬우니 그래서 이것이 최고로 긴요하다", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "無", "hun": "없을 무", "desc": "<b>~이 없다</b>. 존재의 부정. 有(있다)의 반대.", "examples": [{"orig": "無極而太極", "trans": "무극이 태극이요", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "太極本無極也", "trans": "태극은 본래 무극이라", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "無極之眞 二五之精", "trans": "무극의 진리와 음양오행의 진수가 (정수가)", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "非", "hun": "아닐 비", "desc": "<b>~이 아니다</b>. 명사 앞에서 '~이 아닌 것'. 謂非軒岐之魔乎 = '헌기의 마귀가 아니라 하겠는가'.", "examples": [{"orig": "變幻倏忽하야 挽回非易라", "trans": "변화가 순식간이라 만회하기가 쉽지 않다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "若二子者 謂非軒岐之魔乎아", "trans": "만약 이 두 사람을 두고 헌원·기백의 마귀가 아니라 할 수 있겠는가", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "莫", "hun": "없을 막", "desc": "<b>~하는 것이 없다, ~하지 말라</b>. 莫如 = '~만한 것이 없다' (최상급 표현).", "examples": [{"orig": "惟樂은 可以養生이니 欲樂者는 莫如爲善이요", "trans": "즐거움으로 양생할 수 있으니 즐거움을 즐기는 것은 선행만한 것이 없고", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "勿", "hun": "말 물", "desc": "<b>~하지 말라</b>. 금지. 勿欺天 = '하늘을 속이지 말라'.", "examples": [{"orig": "勿以誹謗先輩爲責也면 幸甚이로다", "trans": "선배를 비방한다고 책망하지 아니하면 매우 다행이겠다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "惟福은 可以保生이니 祈福者는 切勿欺天이라", "trans": "복은 생명을 보전할 수 있고 복을 기원하면 절대로 하늘을 속이지 말라", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "毋", "hun": "말 무", "desc": "<b>~하지 말라</b>. 勿과 유사한 금지. 毋勞爾形 = '너의 형체를 수고롭게 하지 말라'.", "examples": [{"orig": "故로 廣成子曰 毋勞爾形하고 毋搖爾精이라야 乃可以長生이라하니", "trans": "그러므로 광성자가 말하기를 너의 형체를 수고롭게 하지 말고 너의 정을 흔들지 말아야 곧 장생할 수 있다 하니", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "弗", "hun": "아닐 불", "desc": "<b>~하지 않는다</b>. 不의 강조형. 문어적. 弗卜 = '점치지 않아도 알 수 있다'.", "examples": [{"orig": "先後俱失其守者는 夭促弗卜也라", "trans": "선후천이 다 그 지킴을 잃으면 요절을 재촉함을 점칠 필요가 없다", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "未", "hun": "아닐 미", "desc": "<b>아직 ~하지 않았다</b>. 시간적 미완료. 未盡 = '아직 다 ~하지 않음'.", "examples": [{"orig": "故로 道家曰 分陰未盡則不仙이요 分陽未盡則不死라하고", "trans": "그러므로 도가에서 이르기를 '음의 분량이 다하지 않으면 신선이 되지 못하고 양의 분량이 다하지 않으면 죽지 않는다' 하고", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "然이나 尙未能盡斥一偏之謬어늘", "trans": "그러나 아직 한쪽에 치우친 오류를 다 배척하지 못했거늘", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}]}, {"id": "comparison", "name": "비교 · 유사 표현", "icon": "如", "desc": "'~와 같다', '~만 못하다' 등 비교 표현들.", "items": [{"term": "如", "hun": "같을 여", "desc": "<b>~와 같다</b>. 如A = 'A와 같다'. 莫如 = '~만한 것이 없다' (최상급 구조).", "examples": [{"orig": "如水爲陰이요 火爲陽이라", "trans": "수는 음이요 화는 양이라", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "舍此他求는 如涉海問津矣니", "trans": "이것을 버리고 다른 데서 구하는 것은 바다를 건너려면서 나루터만 묻는 것과 같으니", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "身必冷如氷이라하니", "trans": "'몸이 반드시 얼음처럼 차다' 하니", "srcId": "eumyang3", "srcName": "음양편 part.3"}]}, {"term": "若", "hun": "같을 약", "desc": "<b>~와 같다</b>. 如와 거의 동의. 若二子者 = '이 두 사람과 같은 자는'.", "examples": [{"orig": "若陽有餘而更施陽治면 則陽愈熾而陰愈消하고", "trans": "만약 양이 유여한데 다시 양을 돕는 것으로 치료하면 양이 더욱 치성하고 음은 점점 사라지게 되고", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "至若先天無形之陰陽하여는", "trans": "선천 무형의 음양같은 경우에 이른즉", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "若二子者 謂非軒岐之魔乎아", "trans": "만약 이 두 사람을 두고 헌원·기백의 마귀가 아니라 할 수 있겠는가", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "猶", "hun": "오히려 유", "desc": "<b>① ~와 같다  ② 오히려</b>. 문맥에 따라 '여전히, 마치 ~같이'.", "examples": [{"orig": "後習而用者는 猶迷而不悟하니", "trans": "후에 배워 쓰는 자는 오히려 미혹되어 깨닫지 못하니", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "似", "hun": "닮을 사", "desc": "<b>비슷하다, ~인 것 같다</b>. 疑似 = 의심스럽고 비슷함 (애매함).", "examples": [{"orig": "疑似之間에 辨須的確이라", "trans": "애매모호한 중에 분별함이 반드시 확실해야 한다", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}]}, {"id": "structure", "name": "수식 · 접속 구조", "icon": "之", "desc": "문장을 구성하는 기본 구조. 之·而·者의 사용법을 파악하면 한문 독해가 훨씬 쉬워짐.", "items": [{"term": "A之B", "hun": "A의 B", "desc": "<b>之가 관형격 조사</b>. 'A의 B'로 해석. 가장 기본 구조.<br><b>先天之元氣</b> = 선천의 원기, <b>陰陽之道</b> = 음양의 도", "examples": [{"orig": "所謂先天之元氣也라", "trans": "소위 선천의 원기라고 한다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "一. 天地陰陽之道는 本貴和平이니", "trans": "천지자연에서의 음양의 도는 본래 화평을 귀중하게 여긴즉", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "則氣令調而萬物生하니 此造化生成之理也라", "trans": "시령이 조화해서 만물이 생하니 이것이 조화생성의 이치이다", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "A而B", "hun": "A하여/하고 B", "desc": "<b>而는 접속</b>. 앞뒤 동작/상태를 이음.<br><b>① 순접</b>: A而B = 'A하고 B' (太極動而生陽)<br><b>② 역접</b>: A而B = 'A이나 B' (身雖羸瘦而動作能耐者)", "examples": [{"orig": "醫道雖繁이나 而可以一言蔽之者는 曰陰陽而已라", "trans": "의학의 도가 비록 복잡하나 가히 한 마디 말로써 전체를 덮는 것으로 말하되 음양일 따름이다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "太極動而生陽", "trans": "태극이 움직여서 양을 생하고", "srcId": "taegeuk", "srcName": "태극도설"}]}, {"term": "A者", "hun": "A하는 것/자", "desc": "<b>者는 명사화</b>. 동사·형용사 뒤에 붙어 '~하는 것/사람'으로 만듦.<br><b>生者</b> = 생한 것, <b>得神者</b> = 신을 얻는 자", "examples": [{"orig": "生者는 在前하고 成者는 在後하니", "trans": "생은 앞에 있고 성은 뒤에 있으니", "srcId": "seoncheon", "srcName": "선천후천론"}, {"orig": "經曰 得神者는 昌하고 失神者는 亡이라하니", "trans": "경에 이르기를 '신을 얻는 자는 창성하고 신을 잃는 자는 망한다' 하니", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "後天培養者는 壽者更壽하고", "trans": "후천을 배양한 자는 장수할 자가 더욱 장수하고", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "A者B也", "hun": "A는 B이다", "desc": "<b>정의·판단 구문</b>. 'A라는 것은 B이다' 형태. 한문의 가장 기본적인 판단문.<br><b>元陽者, 卽無形之火</b> = 원양이라는 것은 곧 무형의 화이다", "examples": [{"orig": "元陽者는 卽無形之火니", "trans": "원양이라는 것은 즉 무형의 화이니", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "爲陽/爲陰", "hun": "양이다/음이다", "desc": "<b>爲는 '~이다'</b>. 술어 기능. 表爲陽, 裏爲陰 = 표는 양이요 리는 음이다. 한의학 원문에서 많이 나오는 패턴.", "examples": [{"orig": "以證而言이면 則表爲陽이요 裏爲陰이며", "trans": "병중으로써 말하면 겉은 양이요 속은 음이며", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "以 A 爲 B", "hun": "A를 B로 여기다 / 삼다", "prof": true, "desc": "<b>以 ~ 爲 ~</b> 형태. <b>'~을 ~로 여기다 / 삼다 / 만들다'</b>. 以(써 이)는 '~을 가지고', 爲(할 위)는 '~이다, 되다, 삼다'.<br>→ 해석: <b>以 [A] 爲 [B]</b> = '[A]를 [B]로 여기다'", "examples": [{"orig": "勿以此爲易而忽之어다", "trans": "이를 쉽게 여기고 소홀히 하지 말지어다", "srcId": "seoncheon", "srcName": "선천후천론"}, {"orig": "乃爲醫道之綱領이라", "trans": "이를 의도의 강령으로 여김이라", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "但知以氣血臟腑寒熱爲言이나", "trans": "다만 기혈 장부 한열로써 말한다면", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}]}, {"id": "reading_tips", "name": "해석 팁 & 요령", "icon": "訣", "desc": "한문을 읽을 때의 실전적 조언들.", "items": [{"term": "① 끊어 읽기", "desc": "한문은 띄어쓰기가 없음. <b>토(하고, 이요, 이라)</b>가 있는 현토(懸吐) 문장은 토를 기준으로 절을 나눠 읽음.<br>예: <b>無極而太極</b> → '無極而 / 太極' 이 아니라 '無極 / 而 / 太極' 처럼 의미 단위로.<br>우리가 쓰는 원문은 '하고', '이니', '하여'같은 토가 있어서 비교적 쉬움.", "examples": []}, {"term": "② 대구(對句) 찾기", "desc": "한문은 <b>대구 구조</b>가 매우 많음. 같은 패턴이 음양으로 반복됨.<br>예: <b>陽盛則外熱, 陰盛則外寒</b> — 陽↔陰, 外熱↔外寒 대구.<br>대구를 찾으면 한쪽만 알아도 다른 쪽 해석이 쉬워짐.", "examples": []}, {"term": "③ 주어 생략", "desc": "한문은 주어를 자주 생략. <b>앞 문장에서 언급된 주체를 그대로 이어받음</b>.<br>예: '治之則愈 而' — '그것을 치료하면 낫는데, (그것이)...' 앞 주어를 계속 가져옴.", "examples": []}, {"term": "④ 동사가 가운데", "desc": "한문은 <b>S+V+O</b>가 기본. 한국어(S+O+V)와 어순이 다름.<br>예: <b>得神者昌</b> = '신을 얻는 자가 번성한다' (V가 가운데)<br>목적어(神)가 동사(得) 앞/뒤 어느 쪽이든 올 수 있음.", "examples": []}, {"term": "⑤ 之 = 그것", "desc": "문장 끝의 <b>之</b>는 대개 <b>'그것을'</b>로 해석되는 대명사.<br>예: <b>愼之</b> = 그것을 삼가다, <b>察之</b> = 그것을 살피다.", "examples": []}, {"term": "⑥ 한의학 용어는 직역", "desc": "한의학 전문용어(命門, 天癸, 元陽, 引火歸源 등)는 <b>그대로 음독</b>해서 쓰고 괄호로 풀이 추가.<br>예: '납기귀신(納氣歸腎)의 치법을 쓴다'처럼.", "examples": []}, {"term": "⑦ 동일 글자의 복합 의미", "desc": "같은 한자라도 문맥에 따라 다르게 읽힘.<br><b>中</b>: 가운데(중) / 적중(중) / 속(속으로)<br><b>復</b>: 다시(부) / 돌아올(복)<br><b>惡</b>: 악할(악) / 미워할(오)<br>문맥으로 판단.", "examples": []}]}, {"id": "idioms", "name": "자주 나오는 한의학 관용구", "icon": "言", "desc": "원문에서 반복적으로 나오는 관용 표현.", "items": [{"term": "是故", "hun": "이 까닭으로", "desc": "<b>이런 까닭으로, 그러므로</b>. 앞 내용을 받아 결론을 내릴 때 사용.", "examples": [{"orig": "是故로 兩天俱得其全者는 耆艾無疑也요", "trans": "이 까닭으로 두 하늘(선천·후천)을 다 얻어 완전해짐은 50, 60세까지 사는 것을 의심할 게 없고", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "所謂", "hun": "이른바", "desc": "<b>이른바, 소위</b>. 어떤 용어를 풀이할 때 쓰는 표현.<br>所謂愼者 = '이른바 삼간다는 것은'", "examples": [{"orig": "所謂先天之元氣也라", "trans": "소위 선천의 원기라고 한다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "所謂愼者는 愼情志면 可以保心神하고", "trans": "삼간다고 하는 것은 감정과 의지를 삼가서 심신을 보호할 수 있고", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "經曰", "hun": "경에 이르기를", "desc": "<b>(내경 등) 경서에 이르기를</b>. 고전 인용. 주로 素問이나 靈樞 같은 의학 고전을 인용할 때.", "examples": [{"orig": "經曰 得神者는 昌하고 失神者는 亡이라하니", "trans": "경에 이르기를 '신을 얻는 자는 창성하고 신을 잃는 자는 망한다' 하니", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "故로 經曰 粗守形하고 上守神이라하니라", "trans": "그러므로 경에 이르기를 '거친 의사는 형체를 지키고 뛰어난 의사는 신을 지킨다' 하였다", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "可以~", "hun": "~할 수 있다", "desc": "<b>~할 수 있다, ~할 수 있는</b>. 可(옳을 가/가능할 가) + 以(써 이)의 결합. 가능·허락의 뜻.<br><b>可以 + 동사</b> 형태로 많이 쓰임.", "examples": [{"orig": "醫道雖繁이나 而可以一言蔽之者는 曰陰陽而已라", "trans": "의학의 도가 비록 복잡하나 가히 한 마디 말로써 전체를 덮는 것으로 말하되 음양일 따름이다", "srcId": "eumyang1", "srcName": "음양편 part.1"}, {"orig": "所謂愼者는 愼情志면 可以保心神하고", "trans": "삼간다고 하는 것은 감정과 의지를 삼가서 심신을 보호할 수 있고", "srcId": "seoncheon", "srcName": "선천후천론"}, {"orig": "愼寒暑면 可以保肺氣하고", "trans": "한서를 삼가면 폐기를 보전할 수 있고", "srcId": "seoncheon", "srcName": "선천후천론"}], "prof": true}, {"term": "不可~", "hun": "~할 수 없다", "desc": "<b>~할 수 없다, ~해서는 안 된다</b>. 不可恃 = '믿을 수 없다'.", "examples": [{"orig": "此卽以生以化之元神이니 不可忽也라", "trans": "이것이 곧 생하고 화하는 원신이니 소홀히 해서는 안 된다", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "凡病有不可正治者는", "trans": "무릇 병이 있어 바르게 치료하지 못하는 경우는", "srcId": "eumyang3", "srcName": "음양편 part.3"}]}, {"term": "不得不~", "hun": "~하지 않을 수 없다", "desc": "<b>부득이 ~할 수밖에 없다</b>. 不得不然也 = '그렇게 하지 않을 수 없다'.", "examples": [{"orig": "以蘇生命之厄이니 誠不得不然也라", "trans": "재앙에 빠진 생명을 소생시키고자 함이니 진실로 그렇게 하지 않을 수 없었다", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "莫如~", "hun": "~만한 것이 없다", "desc": "<b>~만한 것이 없다 (최상급)</b>. 莫如爲善 = '선행하는 것만한 것이 없다'.", "examples": [{"orig": "惟樂은 可以養生이니 欲樂者는 莫如爲善이요", "trans": "즐거움으로 양생할 수 있으니 즐거움을 즐기는 것은 선행만한 것이 없고", "srcId": "seoncheon", "srcName": "선천후천론"}]}, {"term": "至若~", "hun": "~에 이르러서는", "desc": "<b>~에 이르러서는</b>. 주제 전환. 至若先天無形之陰陽 = '선천 무형의 음양에 이르러서는'.", "examples": [{"orig": "至若先天無形之陰陽하여는", "trans": "선천 무형의 음양같은 경우에 이른즉", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "夫~", "hun": "무릇, 대저", "desc": "문장 첫머리 발어사. <b>무릇, 대저</b>. 夫有形者迹也 = '무릇 유형이란 자취이다'.", "examples": [{"orig": "夫有形者는 迹也니", "trans": "무릇 유형이라는 것은 자취이니", "srcId": "eumyang2", "srcName": "음양편 part.2"}, {"orig": "夫先受其害者는 旣去而不返하고", "trans": "먼저 그 폐해를 받은 자는 이미 죽어 돌아오지 못하고", "srcId": "eumyang2", "srcName": "음양편 part.2"}]}, {"term": "何以~", "hun": "어떻게 ~하는가", "desc": "<b>어떻게 ~할 수 있는가</b>. 의문문. 何以見之 = '어떻게 그것을 알 수 있는가'.", "examples": [{"orig": "何以見之오", "trans": "어떻게 그것을 알 수 있는가", "srcId": "eumyang1", "srcName": "음양편 part.1"}]}, {"term": "又曰", "hun": "또 이르기를", "desc": "앞서 인용한 사람이 <b>또 말하기를</b>. 추가 인용.", "examples": [{"orig": "又曰原始反終 故知死生之說", "trans": "또 이르되 시작에 근원하여 끝으로 돌아간다 그러므로 삶과 죽음의 이야기를 안다 고 하였으니", "srcId": "taegeuk", "srcName": "태극도설"}, {"orig": "又曰 陰氣有餘하면 爲多汗身寒이라하니", "trans": "또 이르기를 '음기가 남으면 땀이 많고 몸이 차다' 하니", "srcId": "eumyang3", "srcName": "음양편 part.3"}]}]}];
+
+// ============ 해석 TIP ============
+let currentTipCat = TIPS[0].id;
+
+function renderTpNav() {
+  const nav = document.getElementById('tpNav');
+  nav.innerHTML = TIPS.map(t => 
+    `<button class="tp-nav-btn${t.id===currentTipCat?' on':''}" onclick="switchTipCat('${t.id}')">`+
+    `<span class="ic">${t.icon}</span>${t.name}`+
+    `</button>`
+  ).join('');
+}
+
+function switchTipCat(catId) {
+  currentTipCat = catId;
+  renderTpNav();
+  renderTpContent();
+  // 스크롤을 TIP 섹션 상단으로
+  document.getElementById('tp').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderTpContent() {
+  const cat = TIPS.find(t => t.id === currentTipCat);
+  const content = document.getElementById('tpContent');
+  
+  let html = `<div class="tp-head">${cat.icon}  ${cat.name}</div>`;
+  html += `<div class="tp-desc">${cat.desc}</div>`;
+  html += '<div class="tp-cards">';
+  
+  cat.items.forEach(item => {
+    html += '<div class="tp-card">';
+    html += '<div class="tp-card-head">';
+    html += `<div class="tp-term">${item.term}</div>`;
+    if (item.hun) html += `<div class="tp-hun">${item.hun}</div>`;
+    if (item.prof) html += `<div class="tp-prof">🎓 교수님 설명</div>`;
+    html += '</div>';
+    html += `<div class="tp-body">${item.desc}</div>`;
+    
+    if (item.examples && item.examples.length) {
+      html += '<div class="tp-examples">';
+      html += '<div class="tp-examples-label">📖 원문 예시</div>';
+      item.examples.forEach(ex => {
+        html += '<div class="tp-ex">';
+        html += `<span class="tp-ex-src">${ex.srcName}</span>`;
+        html += `<span class="tp-ex-orig">${ex.orig}</span>`;
+        html += `<span class="tp-ex-trans">→ ${ex.trans}</span>`;
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  content.innerHTML = html;
+}
+
+// Init
+renderTpNav();
+renderTpContent();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>음양 스와이프</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Pretendard:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard',sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;overflow:hidden;user-select:none}
+.gw{width:100%;max-width:480px;height:100vh;margin:0 auto;position:relative;overflow:hidden}
+.zone{position:absolute;top:0;height:100%;width:50%;z-index:1;display:flex;align-items:center;transition:.15s;cursor:pointer}
+.z-l{left:0;justify-content:flex-start;padding-left:20px;background:#f0f0ec}
+.z-r{right:0;justify-content:flex-end;padding-right:20px;background:#0a0a0a}
+.z-lb{font-family:'Noto Serif KR',serif;font-size:48px;font-weight:900;opacity:.1;transition:.2s}
+.z-l .z-lb{color:#0a0a0a}.z-r .z-lb{color:#fff}
+.z-l.flash{background:#fff}.z-l.flash .z-lb{opacity:.35}
+.z-r.flash{background:#1a1a1a}.z-r.flash .z-lb{opacity:.35}
+.cline{position:absolute;top:0;left:50%;width:2px;height:100%;background:rgba(128,128,128,.25);z-index:2}
+.hud{position:absolute;top:0;left:0;right:0;padding:16px 20px;z-index:10;display:flex;justify-content:space-between;align-items:flex-start}
+.h-l{display:flex;flex-direction:column;gap:4px}
+.h-score{font-size:32px;font-weight:900;letter-spacing:-1px;color:#0a0a0a}
+.h-slb{font-size:10px;color:rgba(0,0,0,.3);letter-spacing:2px}
+.h-r{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.hearts{display:flex;gap:4px;font-size:20px;color:#fff}
+.heart{transition:.2s}.heart.lost{opacity:.15;transform:scale(.8)}
+.combo-w{text-align:right}
+.combo{font-size:14px;font-weight:800;color:rgba(255,255,255,.5);transition:.2s}
+.combo.hot{color:#f59e0b;font-size:18px;text-shadow:0 0 20px rgba(245,158,11,.4)}
+.combo.fire{color:#ef4444;font-size:22px;text-shadow:0 0 25px rgba(239,68,68,.5);animation:pulse .3s ease}
+.combo-lb{font-size:9px;color:rgba(255,255,255,.25);letter-spacing:1px}
+.h-ok{font-size:11px;color:rgba(0,0,0,.35);margin-top:2px}
+.h-rank{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:10;font-weight:900;font-size:14px;padding:4px 16px;border-radius:100px;display:none;text-align:center;letter-spacing:1px}
+.h-rank.rk-s-live{display:block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;animation:rankPulse 2s ease infinite;box-shadow:0 0 16px rgba(245,158,11,.3)}
+.h-rank.rk-sss-live{display:block;background:linear-gradient(135deg,#8b5cf6,#ec4899,#f59e0b);color:#fff;animation:rankPulse 1.5s ease infinite;box-shadow:0 0 20px rgba(139,92,246,.4)}
+.h-rank.rk-god-live{display:block;background:linear-gradient(135deg,#ffd700,#ff6b6b,#c084fc,#60a5fa,#ffd700);background-size:300% 300%;color:#fff;animation:rankGod 2s ease infinite,rankPulse 1s ease infinite;box-shadow:0 0 30px rgba(255,215,0,.5)}
+@keyframes rankPulse{0%,100%{opacity:1;transform:translateX(-50%) scale(1)}50%{opacity:.85;transform:translateX(-50%) scale(1.03)}}
+.c-area{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;touch-action:none}
+.card{width:200px;height:240px;background:#2a2a2a;border:3px solid rgba(255,255,255,.15);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 40px rgba(0,0,0,.4);transition:opacity .25s;position:relative}
+.card.dragging{transition:none}
+.card .ch{font-family:'Noto Serif KR',serif;font-size:64px;font-weight:900;color:#fff;margin-bottom:8px}
+.card .rd{font-size:14px;color:rgba(255,255,255,.5)}
+.card.anim-left{animation:flyL .4s ease forwards}.card.anim-right{animation:flyR .4s ease forwards}
+.card.wrong{animation:shake .4s ease}
+.card.ok-yang{border-color:rgba(255,255,255,.5);box-shadow:0 0 30px rgba(255,255,255,.15)}
+.card.ok-yin{border-color:rgba(100,100,100,.5);box-shadow:0 0 30px rgba(0,0,0,.3)}
+.time-ring{position:absolute;top:-8px;right:-8px;width:32px;height:32px}
+.time-ring circle{fill:none;stroke-width:3;transform:rotate(-90deg);transform-origin:center}
+.time-bg{stroke:rgba(255,255,255,.1)}.time-fg{stroke:#22c55e;transition:stroke-dashoffset .1s linear,stroke .3s}
+.time-fg.warn{stroke:#f59e0b}.time-fg.danger{stroke:#ef4444}
+.fb{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);z-index:20;font-weight:900;opacity:0;pointer-events:none;text-align:center}
+.fb.show{animation:feedPop .6s ease forwards}
+.fb .fb-main{font-size:28px}.fb .fb-pts{font-size:14px;opacity:.6;margin-top:2px}
+.fb.ok .fb-main{color:#22c55e}.fb.great .fb-main{color:#f59e0b}.fb.perfect .fb-main{color:#ef4444}.fb.miss .fb-main{color:#ef4444}
+.prog{position:absolute;bottom:0;left:0;right:0;height:3px;z-index:10}
+.prog-bar{height:100%;background:linear-gradient(90deg,rgba(128,128,128,.2),rgba(128,128,128,.4));transition:width .3s}
+.guide{position:absolute;bottom:80px;left:0;right:0;display:flex;justify-content:space-between;padding:0 28px;z-index:6;pointer-events:none}
+.guide-l{font-size:12px;font-weight:600;color:rgba(0,0,0,.25)}.guide-r{font-size:12px;font-weight:600;color:rgba(255,255,255,.25)}
+.scr{position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;background:#0a0a0a}.scr.on{display:flex}
+.scr h1{font-family:'Noto Serif KR',serif;font-size:36px;font-weight:900;margin-bottom:4px;letter-spacing:2px}
+.scr .sub{font-size:14px;color:rgba(255,255,255,.4);margin-bottom:32px}
+.scr .sub2{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:24px;text-align:center;line-height:2}
+.sbtn{padding:14px 40px;border:2px solid rgba(255,255,255,.2);background:transparent;border-radius:14px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;letter-spacing:1px}
+.sbtn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.4)}
+.sbtn-row{display:flex;gap:10px}
+/* Logo & Start screen */
+.scr.start-scr{background:linear-gradient(90deg,#f0f0ec 50%,#0a0a0a 50%);padding:0;overflow:hidden}
+.start-logo{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);z-index:2;text-align:center}
+.start-logo .logo-yy{width:64px;height:64px;margin:0 auto 12px}
+.start-logo .logo-yy svg{width:100%;height:100%;animation:logoSpin 20s linear infinite;filter:drop-shadow(0 2px 8px rgba(0,0,0,.15))}
+.logo-title{display:flex;align-items:baseline;justify-content:center;transform:translateX(14px)}
+.logo-eum{font-family:'Noto Serif KR',serif;font-size:48px;font-weight:900;color:#0a0a0a;letter-spacing:2px}
+.logo-yang{font-family:'Noto Serif KR',serif;font-size:48px;font-weight:900;color:#fff;letter-spacing:2px}
+.logo-bang{font-size:52px;font-weight:900;color:#fff;margin:0 1px;font-family:'Pretendard',sans-serif}
+.logo-swipe{font-family:'Playfair Display',serif;font-style:italic;font-size:24px;font-weight:700;letter-spacing:10px;margin-top:4px;display:flex;justify-content:center}
+.logo-swipe span:nth-child(1){color:#0a0a0a}.logo-swipe span:nth-child(2){color:#0a0a0a}
+.logo-swipe span:nth-child(3){color:#fff;mix-blend-mode:difference}.logo-swipe span:nth-child(4){color:#fff}.logo-swipe span:nth-child(5){color:#fff}
+@keyframes logoSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.start-panel{position:absolute;bottom:70px;left:0;width:50%;padding:0 16px 0 20px;z-index:3;display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.start-panel .sp-row{display:flex;align-items:center;gap:6px}
+.start-panel .sp-row label{font-size:11px;color:rgba(0,0,0,.35);min-width:44px;text-align:right}
+.start-panel .sel{padding:6px 10px;border:1px solid rgba(0,0,0,.12);background:rgba(0,0,0,.03);color:#0a0a0a;border-radius:6px;font-size:11px;font-family:inherit;flex:1}
+.start-panel .sel option{background:#fff;color:#0a0a0a}
+.start-panel .sbtn{border-color:rgba(0,0,0,.15);color:#0a0a0a;font-size:12px;padding:10px 0;text-align:center;width:100%}
+.start-panel .sbtn:hover{background:rgba(0,0,0,.05)}
+.start-btns{position:absolute;bottom:70px;right:0;width:50%;padding:0 20px 0 16px;z-index:3;display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.start-btns .sp-row{display:flex;align-items:center;gap:6px}
+.start-btns .sp-row label{font-size:11px;color:rgba(255,255,255,.35);min-width:44px;text-align:right}
+.start-btns .sel{padding:6px 10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;border-radius:6px;font-size:11px;font-family:inherit;flex:1}
+.start-btns .sel option{background:#1a1a1a;color:#fff}
+.start-btns .sbtn{border-color:rgba(255,255,255,.2);color:#fff;font-size:12px;padding:10px 0;text-align:center;width:100%}
+.start-btns .sbtn:hover{background:rgba(255,255,255,.08)}
+/* Tutorial */
+.tut{position:absolute;top:0;left:0;width:100%;height:100%;z-index:60;display:none;flex-direction:column;background:rgba(0,0,0,.92);overflow-y:auto}
+.tut.on{display:flex}
+.tut-page{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+.tut-page.on{display:flex}
+.tut-step{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:16px}
+.tut-title{font-family:'Noto Serif KR',serif;font-size:24px;font-weight:900;margin-bottom:12px}
+.tut-desc{font-size:14px;color:rgba(255,255,255,.5);line-height:2;margin-bottom:24px;max-width:320px}
+.tut-visual{margin:20px 0;display:flex;gap:16px;align-items:center;justify-content:center}
+.tut-zone{width:120px;height:160px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:700;transition:.3s}
+.tut-zone.tz-yang{background:#f0f0ec;color:#0a0a0a;border:2px solid rgba(0,0,0,.1)}
+.tut-zone.tz-yin{background:#1a1a1a;color:#fff;border:2px solid rgba(255,255,255,.1)}
+.tut-zone .tz-ch{font-family:'Noto Serif KR',serif;font-size:32px;font-weight:900}
+.tut-zone .tz-lb{font-size:11px;opacity:.5}
+.tut-arrow{font-size:24px;color:rgba(255,255,255,.3)}
+.tut-card-demo{width:140px;height:170px;background:#2a2a2a;border:3px solid rgba(255,255,255,.15);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto}
+.tut-card-demo .tcd-ch{font-family:'Noto Serif KR',serif;font-size:44px;font-weight:900;color:#fff}
+.tut-card-demo .tcd-rd{font-size:12px;color:rgba(255,255,255,.4)}
+.tut-score-row{display:flex;gap:8px;align-items:center;margin:4px 0;font-size:13px}
+.tut-score-row .tsr-time{color:rgba(255,255,255,.4);min-width:80px;text-align:right}
+.tut-score-row .tsr-pts{font-weight:700;min-width:60px}
+.tsr-perfect{color:#ef4444}.tsr-great{color:#f59e0b}.tsr-good{color:#22c55e}.tsr-ok{color:rgba(255,255,255,.5)}
+.tbtn{padding:10px 28px;border:2px solid rgba(255,255,255,.2);background:transparent;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+.tbtn:hover{background:rgba(255,255,255,.1)}.tbtn-go{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3)}
+.tut-btns{display:flex;gap:10px;margin-top:8px}
+.r-score{font-size:72px;font-weight:900;margin:16px 0 4px;letter-spacing:-2px}
+.r-det{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:8px}
+.r-combo{font-size:15px;color:#f59e0b;font-weight:700;margin-bottom:24px}
+.r-rank{font-size:18px;font-weight:800;margin-bottom:24px;padding:8px 24px;border-radius:100px}
+.r-setting{font-size:11px;color:rgba(255,255,255,.35);display:flex;gap:12px;justify-content:center}
+.r-setting span{padding:3px 10px;border:1px solid rgba(255,255,255,.1);border-radius:100px}
+.rk-s{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:24px;padding:12px 32px;animation:rankGlow 1.5s ease infinite;box-shadow:0 0 30px rgba(245,158,11,.4)}
+.rk-sss{background:linear-gradient(135deg,#8b5cf6,#ec4899,#f59e0b);color:#fff;font-size:28px;padding:14px 36px;animation:rankGlow2 1s ease infinite;box-shadow:0 0 40px rgba(139,92,246,.5);text-shadow:0 0 10px rgba(255,255,255,.5)}
+.rk-god{background:linear-gradient(135deg,#ffd700,#ff6b6b,#c084fc,#60a5fa,#ffd700);background-size:300% 300%;color:#fff;font-size:32px;padding:16px 40px;animation:rankGod 2s ease infinite,rankGlow3 .8s ease infinite;box-shadow:0 0 60px rgba(255,215,0,.6);text-shadow:0 0 20px rgba(255,255,255,.8);letter-spacing:6px}
+.rk-a{background:#22c55e;color:#fff}.rk-b{background:#3b82f6;color:#fff}.rk-c{background:rgba(255,255,255,.15);color:rgba(255,255,255,.6)}
+@keyframes rankGlow{0%,100%{box-shadow:0 0 20px rgba(245,158,11,.3)}50%{box-shadow:0 0 40px rgba(239,68,68,.5),0 0 80px rgba(245,158,11,.2)}}
+@keyframes rankGlow2{0%,100%{box-shadow:0 0 30px rgba(139,92,246,.4);transform:scale(1)}50%{box-shadow:0 0 50px rgba(236,72,153,.5),0 0 80px rgba(139,92,246,.3);transform:scale(1.03)}}
+@keyframes rankGod{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes rankGlow3{0%,100%{box-shadow:0 0 40px rgba(255,215,0,.5);transform:scale(1)}50%{box-shadow:0 0 80px rgba(255,107,107,.6),0 0 120px rgba(255,215,0,.3);transform:scale(1.05)}}
+.srow{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.srow label{font-size:13px;color:rgba(255,255,255,.5);min-width:80px;text-align:right}
+.sel{padding:8px 14px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;border-radius:8px;font-size:13px;font-family:inherit}.sel option{background:#1a1a1a;color:#fff}
+@keyframes flyL{to{transform:translateX(-350px) rotate(-25deg);opacity:0}}
+@keyframes flyR{to{transform:translateX(350px) rotate(25deg);opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+@keyframes feedPop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}20%{transform:translate(-50%,-50%) scale(1.15);opacity:1}100%{transform:translate(-50%,-70%) scale(1);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@media(max-width:380px){.card{width:160px;height:200px}.card .ch{font-size:48px}.z-lb{font-size:36px}
+.logo-eum,.logo-yang{font-size:38px}.logo-bang{font-size:42px}.logo-swipe{font-size:20px;letter-spacing:8px}
+.start-logo .logo-yy{width:52px;height:52px}
+.start-panel,.start-btns{bottom:40px;padding:0 16px}}
+</style>
+</head>
+<body>
+<div class="gw" id="gw">
+  <div class="scr on start-scr" id="sStart">
+    <div class="start-logo">
+      <div class="logo-yy">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="49" fill="#fff" stroke="#fff" stroke-width="2"/>
+          <path d="M50,1 A49,49,0,0,1,50,99 A24.5,24.5,0,0,1,50,50 A24.5,24.5,0,0,0,50,1" fill="#000"/>
+          <circle cx="50" cy="25.5" r="7" fill="#000"/><circle cx="50" cy="74.5" r="7" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="logo-title"><span class="logo-eum">음</span><span class="logo-yang">양</span><span class="logo-bang">!</span></div>
+      <div class="logo-swipe"><span>S</span><span>W</span><span>I</span><span>P</span><span>E</span></div>
+    </div>
+    <div class="start-panel">
+      <div class="sp-row"><label>난이도</label><select class="sel" id="sDiff"><option value="easy">쉬움</option><option value="normal" selected>보통</option><option value="hard">어려움</option><option value="hyper">HYPER</option></select></div>
+      <button class="sbtn" onclick="openTut()">튜토리얼</button>
+    </div>
+    <div class="start-btns">
+      <div class="sp-row"><label>한글</label><select class="sel" id="sHan"><option value="1" selected>한자+한글</option><option value="0">한자만</option></select></div>
+      <button class="sbtn" onclick="startGame()">시작</button>
+    </div>
+  </div>
+  <!-- Tutorial -->
+  <div class="tut" id="tut">
+    <div class="tut-page on" id="tp0">
+      <div class="tut-step">1 / 4</div>
+      <div class="tut-title">게임 방법</div>
+      <div class="tut-desc">카드에 한자가 나타나면<br><b>陽(양)</b>인지 <b>陰(음)</b>인지 판단해서<br>올바른 방향으로 보내세요!</div>
+      <div class="tut-visual">
+        <div class="tut-zone tz-yang"><div class="tz-ch">陽</div><div class="tz-lb">← 왼쪽</div></div>
+        <div class="tut-zone tz-yin"><div class="tz-ch">陰</div><div class="tz-lb">오른쪽 →</div></div>
+      </div>
+      <div class="tut-btns"><button class="tbtn tbtn-go" onclick="tutGo(1)">다음 →</button></div>
+    </div>
+    <div class="tut-page" id="tp1">
+      <div class="tut-step">2 / 4</div>
+      <div class="tut-title">조작법</div>
+      <div class="tut-desc" style="line-height:2.2">
+        ⌨️ 키보드: ← → 화살표 키<br>
+        👆 터치: 카드를 좌우로 스와이프<br>
+        🖱️ 마우스: 카드를 잡고 드래그<br>
+        👇 클릭: 화면 왼쪽/오른쪽 터치
+      </div>
+      <div class="tut-btns"><button class="tbtn" onclick="tutGo(0)">← 이전</button><button class="tbtn tbtn-go" onclick="tutGo(2)">다음 →</button></div>
+    </div>
+    <div class="tut-page" id="tp2">
+      <div class="tut-step">3 / 4</div>
+      <div class="tut-title">점수 시스템</div>
+      <div class="tut-desc">빨리 맞출수록 높은 점수!<br>연속 정답 시 콤보 보너스</div>
+      <div style="margin:12px 0">
+        <div class="tut-score-row"><span class="tsr-time">1초 이내</span><span class="tsr-pts tsr-perfect">+200 PERFECT!</span></div>
+        <div class="tut-score-row"><span class="tsr-time">2초 이내</span><span class="tsr-pts tsr-great">+150 GREAT!</span></div>
+        <div class="tut-score-row"><span class="tsr-time">3초 이내</span><span class="tsr-pts tsr-good">+100 GOOD</span></div>
+        <div class="tut-score-row"><span class="tsr-time">3초 이후</span><span class="tsr-pts tsr-ok">+50 OK</span></div>
+      </div>
+      <div class="tut-desc" style="font-size:12px">♥ 3개 — 틀리거나 시간 초과 시 감소<br>콤보 5+ → GREAT! | 10+ → ON FIRE!<br><br><b style="color:#ef4444">HYPER</b> — ♥ 1개, 30문제, 2.5초 제한</div>
+      <div class="tut-btns"><button class="tbtn" onclick="tutGo(1)">← 이전</button><button class="tbtn tbtn-go" onclick="tutGo(3)">다음 →</button></div>
+    </div>
+    <div class="tut-page" id="tp3">
+      <div class="tut-step">4 / 4</div>
+      <div class="tut-title">예시</div>
+      <div class="tut-desc">이 카드는 어디로 보내야 할까요?</div>
+      <div class="tut-card-demo"><div class="tcd-ch">天</div><div class="tcd-rd">하늘</div></div>
+      <div style="margin-top:16px;font-size:14px;color:rgba(255,255,255,.6)">天(하늘) = <b style="color:#fff">陽</b> → <b>왼쪽!</b></div>
+      <div style="height:20px"></div>
+      <div class="tut-card-demo"><div class="tcd-ch">地</div><div class="tcd-rd">땅</div></div>
+      <div style="margin-top:16px;font-size:14px;color:rgba(255,255,255,.6)">地(땅) = <b style="color:#fff">陰</b> → <b>오른쪽!</b></div>
+      <div style="height:20px"></div>
+      <div class="tut-btns"><button class="tbtn" onclick="tutGo(2)">← 이전</button><button class="tbtn tbtn-go" onclick="closeTut()">시작하러 가기</button></div>
+    </div>
+  </div>
+  <div class="scr" id="sResult">
+    <div class="r-setting" id="rSett"></div>
+    <div style="font-size:10px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-top:12px">SCORE</div>
+    <div class="r-score" id="rSc">0</div>
+    <div class="r-det" id="rDet"></div>
+    <div class="r-combo" id="rCo"></div>
+    <div class="r-rank" id="rRk"></div>
+    <button class="sbtn" onclick="document.getElementById('sResult').classList.remove('on');document.getElementById('sStart').classList.add('on');">다시 하기</button>
+  </div>
+  <div class="cline"></div>
+  <div class="zone z-l" id="zL"><div class="z-lb">陽</div></div>
+  <div class="zone z-r" id="zR"><div class="z-lb">陰</div></div>
+  <div class="hud" id="hud" style="display:none">
+    <div class="h-l"><div class="h-slb">SCORE</div><div class="h-score" id="hSc">0</div><div class="h-ok" id="hOk"></div></div>
+    <div class="h-r"><div class="hearts" id="hHt"></div><div class="combo-w"><div class="combo" id="hCo"></div><div class="combo-lb" id="hCoLb"></div></div></div>
+  </div>
+  <div class="h-rank" id="hRank"></div>
+  <div class="c-area" id="cArea">
+    <div class="card" id="card" style="display:none">
+      <svg class="time-ring" viewBox="0 0 32 32"><circle class="time-bg" cx="16" cy="16" r="14"/><circle class="time-fg" id="tRing" cx="16" cy="16" r="14"/></svg>
+      <div class="ch" id="cCh"></div><div class="rd" id="cRd"></div>
+    </div>
+  </div>
+  <div class="fb" id="fb"><div class="fb-main" id="fbM"></div><div class="fb-pts" id="fbP"></div></div>
+  <div class="guide" id="guide" style="display:none"><div class="guide-l">← 陽</div><div class="guide-r">陰 →</div></div>
+  <div class="prog"><div class="prog-bar" id="pBar"></div></div>
+</div>
+<script>
+const DATA=[
+["天","하늘","yang"],["地","땅","yin"],["男","남자","yang"],["女","여자","yin"],
+["晝","낮","yang"],["夜","밤","yin"],["明","밝음","yang"],["暗","어둠","yin"],
+["上","위","yang"],["下","아래","yin"],["動","움직임","yang"],["靜","고요함","yin"],
+["輕","가벼움","yang"],["重","무거움","yin"],["燥","건조함","yang"],["濕","습함","yin"],
+["用","기능","yang"],["體","구조","yin"],["表","겉","yang"],["裏","속","yin"],
+["背","등","yang"],["腹","배","yin"],["腑","육부","yang"],["臟","오장","yin"],
+["衛","위기","yang"],["營","영기","yin"],["熱","열","yang"],["寒","한","yin"],
+["發散","발산","yang"],["收斂","수렴","yin"],["亢進","항진","yang"],["衰退","쇠퇴","yin"],
+["發生","발생","yang"],["養育","양육","yin"],["推進","추진","yang"]
+];
+let Q=[],qi=0,score=0,combo=0,maxCo=0,lives=3,maxLives=3,total=0,ok=0;
+let showH=true,baseTime=5000,playing=false,canIn=true,curDiff='normal';
+let autoT=null,startT=0,ringI=null;
+const CIRC=2*Math.PI*14;
+
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;}
+function startGame(){
+  const d=document.getElementById('sDiff').value;
+  curDiff=d;
+  showH=document.getElementById('sHan').value==='1';
+  if(d==='hyper'){
+    baseTime=2500;maxLives=1;
+    Q=shuf(DATA);
+  } else {
+    baseTime=d==='easy'?7000:d==='hard'?3500:5000;
+    maxLives=3;Q=shuf(DATA);
+  }
+  qi=0;score=0;combo=0;maxCo=0;lives=maxLives;total=0;ok=0;
+  playing=true;canIn=true;
+  document.getElementById('sStart').classList.remove('on');
+  document.getElementById('sResult').classList.remove('on');
+  document.getElementById('hud').style.display='';
+  document.getElementById('guide').style.display='';
+  document.getElementById('card').style.display='';
+  updHUD();showNext();
+}
+function updHUD(){
+  document.getElementById('hSc').textContent=score;
+  let h='';for(let i=0;i<maxLives;i++)h+=`<span class="heart${i>=lives?' lost':''}">${i<lives?'♥':'♡'}</span>`;
+  document.getElementById('hHt').innerHTML=h;
+  const c=document.getElementById('hCo'),lb=document.getElementById('hCoLb');
+  if(combo>=10){c.textContent=combo+' COMBO';c.className='combo fire';lb.textContent='ON FIRE!';}
+  else if(combo>=5){c.textContent=combo+' COMBO';c.className='combo hot';lb.textContent='GREAT!';}
+  else if(combo>=2){c.textContent=combo+' COMBO';c.className='combo';lb.textContent='';}
+  else{c.textContent='';c.className='combo';lb.textContent='';}
+  const hr=document.getElementById('hRank');
+  const hok=document.getElementById('hOk');
+  if(curDiff==='hyper'){
+    document.getElementById('pBar').style.width=((qi%DATA.length)/DATA.length*100)+'%';
+    hok.textContent=`정답 ${ok} · 라운드 ${Math.floor(total/DATA.length)+1}`;
+    if(ok>=70){hr.innerHTML='👑 과탑 👑';hr.className='h-rank rk-god-live';}
+    else if(ok>=50){hr.innerHTML='✦ RANK SSS ✦';hr.className='h-rank rk-sss-live';}
+    else if(ok>=35){hr.innerHTML='★ RANK S ★';hr.className='h-rank rk-s-live';}
+    else{hr.className='h-rank';hr.style.display='none';}
+  } else {
+    document.getElementById('pBar').style.width=(qi/Q.length*100)+'%';
+    hok.textContent='';hr.className='h-rank';hr.style.display='none';
+  }
+}
+function startRing(){
+  const ring=document.getElementById('tRing');
+  ring.style.strokeDasharray=CIRC;ring.style.strokeDashoffset='0';
+  ring.classList.remove('warn','danger');startT=Date.now();
+  clearInterval(ringI);
+  ringI=setInterval(()=>{const el=(Date.now()-startT)/baseTime;ring.style.strokeDashoffset=(CIRC*Math.min(el,1))+'';if(el>.7)ring.classList.add('danger');else if(el>.5)ring.classList.add('warn');},50);
+}
+function showNext(){
+  clearTimeout(autoT);clearInterval(ringI);
+  if(lives<=0){endGame();return;}
+  // HYPER: loop endlessly, reshuffle every 35
+  if(curDiff==='hyper'){
+    if(qi>=Q.length){Q=shuf(DATA);qi=0;}
+  } else {
+    if(qi>=Q.length){endGame();return;}
+  }
+  canIn=true;const q=Q[qi];
+  const card=document.getElementById('card');
+  card.className='card';card.style.display='';card.style.transform='';
+  document.getElementById('cCh').textContent=q[0];
+  document.getElementById('cCh').style.fontSize=q[0].length>1?'40px':'64px';
+  document.getElementById('cRd').textContent=showH?q[1]:'';
+  startRing();
+  autoT=setTimeout(()=>{if(canIn)doAns('timeout');},baseTime);
+}
+function calcScore(ms){
+  if(ms<=1000)return{pts:200,label:'PERFECT!',cls:'perfect'};
+  if(ms<=2000)return{pts:150,label:'GREAT!',cls:'great'};
+  if(ms<=3000)return{pts:100,label:'GOOD',cls:'ok'};
+  return{pts:50,label:'OK',cls:'ok'};
+}
+function doAns(dir){
+  if(!canIn||!playing)return;
+  canIn=false;clearTimeout(autoT);clearInterval(ringI);
+  const q=Q[qi];
+  const correct=(dir==='left'&&q[2]==='yang')||(dir==='right'&&q[2]==='yin');
+  const card=document.getElementById('card');
+  const fb=document.getElementById('fb'),fbM=document.getElementById('fbM'),fbP=document.getElementById('fbP');
+  const elapsed=Date.now()-startT;
+  if(dir==='timeout'){
+    lives--;combo=0;total++;card.classList.add('wrong');
+    fbM.textContent='MISS';fbP.textContent='TIME OUT';fb.className='fb miss show';flashZ(q[2]);
+  } else if(correct){
+    ok++;combo++;total++;if(combo>maxCo)maxCo=combo;
+    const sc=calcScore(elapsed);const comboB=Math.min(combo,20)*5;const pts=sc.pts+comboB;score+=pts;
+    card.classList.add(dir==='left'?'anim-left':'anim-right');card.classList.add(q[2]==='yang'?'ok-yang':'ok-yin');
+    fbM.textContent=sc.label;fbP.textContent=`+${pts}`;fb.className='fb '+sc.cls+' show';flashZ(q[2]);
+  } else {
+    lives--;combo=0;total++;card.classList.add('wrong');
+    fbM.textContent='MISS';fbP.textContent='';fb.className='fb miss show';setTimeout(()=>flashZ(q[2]),150);
+  }
+  updHUD();qi++;setTimeout(()=>{fb.className='fb';showNext();},dir==='timeout'?700:450);
+}
+function flashZ(type){const z=document.getElementById(type==='yang'?'zL':'zR');z.classList.add('flash');setTimeout(()=>z.classList.remove('flash'),350);}
+function endGame(){
+  playing=false;clearInterval(ringI);
+  document.getElementById('card').style.display='none';document.getElementById('hud').style.display='none';document.getElementById('guide').style.display='none';
+  document.getElementById('hRank').className='h-rank';document.getElementById('hRank').style.display='none';
+  const pct=total?Math.round(ok/total*100):0;
+  const diff=document.getElementById('sDiff').value;
+  const diffName=diff==='easy'?'쉬움':diff==='hard'?'어려움':diff==='hyper'?'HYPER':'보통';
+  const hanName=showH?'한자+한글':'한자만';
+  const r=document.getElementById('rRk');
+  
+  if(diff==='hyper'){
+    document.getElementById('rSett').innerHTML=`<span>HYPER</span><span>${hanName}</span>`;
+    document.getElementById('rSc').textContent=score;
+    document.getElementById('rDet').textContent=`${ok}/${total} 정답 (${pct}%) · ${Math.floor(ok/35)+1}라운드`;
+    document.getElementById('rCo').textContent=maxCo>=2?`최대 콤보: ${maxCo}`:'';
+    if(ok>=70){r.innerHTML='👑 과탑 👑';r.className='r-rank rk-god';}
+    else if(ok>=50){r.innerHTML='✦ RANK SSS ✦';r.className='r-rank rk-sss';}
+    else if(ok>=35){r.innerHTML='★ RANK S ★';r.className='r-rank rk-s';}
+    else{r.textContent='';r.className='r-rank';}
+  } else {
+    // Normal ranks
+    let rk='C',rc='rk-c';
+    if(pct===100&&lives===maxLives){rk='S';rc='rk-s';}
+    else if(pct>=90){rk='A';rc='rk-a';}
+    else if(pct>=75){rk='B';rc='rk-b';}
+    document.getElementById('rSett').innerHTML=`<span>${diffName}</span><span>${hanName}</span>`;
+    document.getElementById('rSc').textContent=score;
+    document.getElementById('rDet').textContent=`${ok}/${total} 정답 (${pct}%)`;
+    document.getElementById('rCo').textContent=maxCo>=2?`최대 콤보: ${maxCo}`:'';
+    if(rk==='S'){r.innerHTML='★ RANK S ★';} else {r.textContent='RANK '+rk;}
+    r.className='r-rank '+rc;
+  }
+  document.getElementById('sResult').classList.add('on');
+}
+
+// ===== Tutorial =====
+function openTut(){document.getElementById('tut').classList.add('on');tutGo(0);}
+function closeTut(){document.getElementById('tut').classList.remove('on');}
+function tutGo(n){document.querySelectorAll('.tut-page').forEach(p=>p.classList.remove('on'));document.getElementById('tp'+n).classList.add('on');}
+
+// ===== Touch swipe =====
+let tx=null;
+const ca=document.getElementById('cArea');
+ca.addEventListener('touchstart',e=>{if(!playing)return;tx=e.touches[0].clientX;},{passive:true});
+ca.addEventListener('touchend',e=>{if(!playing||tx===null)return;const ex=e.changedTouches[0].clientX,d=ex-tx;if(Math.abs(d)>30)doAns(d<0?'left':'right');else doAns(ex<window.innerWidth/2?'left':'right');tx=null;},{passive:true});
+
+// ===== Mouse swipe =====
+let mx=null,mdrag=false;
+ca.addEventListener('mousedown',e=>{if(!playing)return;mx=e.clientX;mdrag=true;document.getElementById('card').classList.add('dragging');e.preventDefault();});
+document.addEventListener('mousemove',e=>{if(!mdrag||!playing)return;const dx=e.clientX-mx;document.getElementById('card').style.transform=`translateX(${dx*0.5}px) rotate(${dx*0.05}deg)`;});
+document.addEventListener('mouseup',e=>{if(!mdrag||!playing)return;mdrag=false;const card=document.getElementById('card');card.classList.remove('dragging');const dx=e.clientX-mx;if(Math.abs(dx)>40)doAns(dx<0?'left':'right');else card.style.transform='';mx=null;});
+
+// ===== Zone click =====
+document.getElementById('zL').addEventListener('click',()=>{if(playing&&canIn)doAns('left');});
+document.getElementById('zR').addEventListener('click',()=>{if(playing&&canIn)doAns('right');});
+
+// ===== Keyboard =====
+document.addEventListener('keydown',e=>{if(!playing)return;if(e.key==='ArrowLeft'){e.preventDefault();doAns('left');}if(e.key==='ArrowRight'){e.preventDefault();doAns('right');}});
+</script>
+</body>
+</html>

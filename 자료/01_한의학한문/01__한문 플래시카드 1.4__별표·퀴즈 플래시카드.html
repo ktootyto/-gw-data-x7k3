@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한의학한문 플래시카드 1.4</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Pretendard:wght@300;400;500;600;700&family=Nanum+Gothic:wght@700;800&display=swap');
+:root{--bg:#f8f8f6;--s:#fff;--s2:#f3f3f0;--bd:#e5e3df;--t:#1c1917;--t2:#57534e;--t3:#a8a29e;--r:#991b1b;--rl:#fef2f2;--g:#166534;--gl:#f0fdf4;--rd:10px;--sh:0 1px 3px rgba(0,0,0,.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--t);-webkit-font-smoothing:antialiased}
+.hero{padding:44px 24px 36px;text-align:center;background:var(--s);border-bottom:1px solid var(--bd)}
+.hero-badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--r);background:var(--rl);padding:4px 14px;border-radius:100px;margin-bottom:14px}
+.hero h1{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:900;letter-spacing:3px;margin-bottom:4px}
+.hero .sub{font-size:13px;color:var(--t3)}
+.nav{display:flex;gap:6px;padding:12px 20px;background:var(--s);border-bottom:1px solid var(--bd);overflow-x:auto;position:sticky;top:0;z-index:100}
+.tab{padding:7px 14px;border:1px solid var(--bd);background:var(--s);border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.15s;font-family:inherit;color:var(--t2)}
+.tab:hover{border-color:var(--t3);color:var(--t)}
+.tab.on{background:var(--t);color:#fff;border-color:var(--t)}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 80px}
+.sec{display:none}.sec.on{display:block}
+.rb{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--s);border:1px solid var(--bd);border-radius:var(--rd);align-items:center}
+.rb-btn{padding:5px 12px;border:1px solid var(--bd);background:var(--s2);border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;color:var(--t2)}
+.rb-btn:hover{border-color:var(--t3)}
+.rb-btn.on{background:var(--r);color:#fff;border-color:var(--r)}
+.rb-btn.cat{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+.fc-wrap{perspective:1000px;margin:16px auto;max-width:460px}
+.fc{width:100%;height:300px;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .5s}
+.fc.flip{transform:rotateY(180deg)}
+.fc-f,.fc-b{position:absolute;width:100%;height:300px;backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.fc-f{background:var(--s);border:1.5px solid var(--bd)}
+.fc-b{background:var(--t);color:var(--bg);transform:rotateY(180deg);border:1.5px solid var(--t)}
+.fc-char{font-family:'Noto Serif KR',serif;font-size:76px;font-weight:900;margin-bottom:8px}
+.fc-char.gothic{font-family:'Nanum Gothic',sans-serif}
+.qq.gothic{font-family:'Nanum Gothic',sans-serif}
+/* body에 gothic 클래스 붙으면 모든 한자 표시 영역 일괄 적용 */
+body.gothic .fc-char{font-family:'Nanum Gothic',sans-serif}
+body.gothic .qq{font-family:'Nanum Gothic',sans-serif}
+body.gothic .li .c{font-family:'Nanum Gothic',sans-serif}
+body.gothic .rk-q-char{font-family:'Nanum Gothic',sans-serif}
+.font-toggle{padding:5px 12px;border:1px solid var(--bd);background:var(--s2);border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;color:var(--t2);margin-left:auto}
+.font-toggle:hover{border-color:var(--t3)}
+.font-toggle.on{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+.fc-hint{font-size:11px;color:var(--t3);margin-top:12px}
+.fc-hun{font-size:22px;margin-bottom:4px;font-weight:600}
+.fc-tip{font-size:13px;opacity:.6;margin-top:4px}
+.fc-hun.compound{color:#fff;font-size:22px}
+.fc-detail{display:none;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,.1);border-radius:8px;font-size:14px;opacity:.8}
+.fc-detail.show{display:block}
+.fc-tap-hint{font-size:10px;opacity:.4;margin-top:8px}
+.fc-err{font-size:14px;color:var(--t3)}
+.fc-ctrl{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.btn{padding:8px 18px;border:1px solid var(--bd);background:var(--s);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:.15s;font-weight:500}
+.btn:hover{background:var(--t);color:#fff;border-color:var(--t)}
+.fc-cnt{text-align:center;font-size:11px;color:var(--t3);margin-top:8px}
+.fc-prog{max-width:460px;margin:6px auto 0;height:3px;background:var(--bd);border-radius:2px;overflow:hidden}
+.fc-prog-bar{height:100%;background:var(--g);border-radius:2px;transition:width .3s}
+.qs{max-width:440px;margin:16px auto;text-align:center;background:var(--s);border:1px solid var(--bd);border-radius:var(--rd);padding:22px}
+.qs-t{font-size:14px;font-weight:600;margin-bottom:14px}
+.qs-r{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qs-r label{font-size:12px;font-weight:500;color:var(--t2);min-width:50px;text-align:right}
+.sel{padding:7px 12px;border:1px solid var(--bd);border-radius:8px;font-size:13px;font-family:inherit;background:var(--s);cursor:pointer}
+.qq{font-family:'Noto Serif KR',serif;font-size:52px;font-weight:900;text-align:center;margin:24px 0 16px}
+.qsub{text-align:center;font-size:12px;color:var(--t3);margin-bottom:16px}
+.qo-w{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:420px;margin:0 auto}
+.qo{padding:12px;border:1.5px solid var(--bd);border-radius:var(--rd);text-align:center;cursor:pointer;font-size:13px;background:var(--s);transition:.15s;font-family:inherit}
+.qo:hover{border-color:var(--t);background:var(--s2)}
+.qo.ok{border-color:var(--g);background:var(--gl);color:var(--g)}
+.qo.no{border-color:var(--r);background:var(--rl);color:var(--r)}
+.qsc{text-align:center;margin-top:14px;font-size:12px;display:flex;gap:14px;justify-content:center}
+.qsc .ok{color:var(--g);font-weight:600}.qsc .no{color:var(--r);font-weight:600}
+.qp{text-align:center;font-size:11px;color:var(--t3);margin-bottom:6px}
+.ls-s{width:100%;padding:9px 12px;border:1px solid var(--bd);border-radius:var(--rd);font-size:13px;font-family:inherit;margin-bottom:10px;outline:none}
+.ls-s:focus{border-color:var(--t)}
+.lg{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:6px}
+.li{background:var(--s);border:1px solid var(--bd);border-radius:var(--rd);padding:12px 8px;text-align:center;transition:.15s;position:relative}
+.li:hover{border-color:#b8860b;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.li .c{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:700;margin-bottom:3px}
+.li .h{font-size:10px;color:var(--t2)}
+.li .e{font-size:11px;color:var(--r);font-weight:600}
+.li .n{position:absolute;top:3px;left:5px;font-size:8px;color:var(--t3);font-weight:600}
+.li .tp{font-size:9px;color:var(--t3);margin-top:2px}
+.li .yytag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-top:2px;display:inline-block}
+.li .yytag.ytag{background:#fff;color:#1c1917;border:1px solid #1c1917}
+.li .yytag.ntag{background:#1c1917;color:#fff}
+.li .detail{display:none;font-size:9px;color:var(--t2);margin-top:3px;padding:3px 6px;background:var(--s2);border-radius:4px;cursor:pointer}
+.li .detail.show{display:block}
+.li.clickable{cursor:pointer}.li.clickable:hover{background:var(--s2)}
+.note-box{background:var(--s);border:1px solid var(--bd);border-radius:var(--rd);padding:24px;min-height:200px}
+.note-box h2{font-size:16px;font-weight:700;margin-bottom:16px}
+.note-content{font-size:14px;line-height:1.8;color:var(--t2)}
+.star-btn{position:absolute;top:12px;right:14px;font-size:28px;cursor:pointer;z-index:5;line-height:1;transition:.15s;background:none;border:none;padding:0;opacity:.3}
+.star-btn:hover{opacity:.7}
+.star-btn.on{opacity:1;color:#f59e0b}
+.li .star-li{position:absolute;top:3px;right:5px;font-size:12px;color:#f59e0b;cursor:pointer}
+.li .star-li:hover{transform:scale(1.3)}
+.li .star-empty{position:absolute;top:3px;right:5px;font-size:12px;color:var(--bd);cursor:pointer}
+.li .star-empty:hover{color:#f59e0b}
+.exp-box{background:var(--s);border:1px solid var(--bd);border-radius:var(--rd);padding:20px;margin-top:16px}
+.exp-box h3{font-size:14px;font-weight:600;margin-bottom:10px}
+.exp-ta{width:100%;height:60px;border:1px solid var(--bd);border-radius:8px;padding:8px;font-size:11px;font-family:monospace;resize:vertical}
+.exp-btns{display:flex;gap:8px;margin-top:8px}
+.star-count{font-size:11px;color:#f59e0b;font-weight:600;text-align:center;margin-top:4px}
+/* quiz mode toggle */
+.qm-toggle{display:flex;gap:6px;justify-content:center;margin-bottom:12px}
+.qm-btn{padding:6px 14px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--t2);background:var(--s);transition:.15s}
+.qm-btn:hover{border-color:var(--t3)}.qm-btn.on{background:var(--t);color:#fff;border-color:var(--t)}
+/* custom range */
+.qcr{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;font-size:12px;color:var(--t2)}
+.qcr input{width:60px;padding:5px 8px;border:1px solid var(--bd);border-radius:6px;font-size:12px;font-family:inherit;text-align:center}
+.qcr input:focus{border-color:var(--t);outline:none}
+.qcr-err{color:var(--r);font-size:11px;text-align:center;margin-top:4px;min-height:16px}
+/* subjective quiz */
+.sq-input-wrap{max-width:360px;margin:0 auto;text-align:center}
+.sq-input{width:100%;padding:12px 16px;border:2px solid var(--bd);border-radius:10px;font-size:16px;font-family:inherit;text-align:center;outline:none;transition:.15s}
+.sq-input:focus{border-color:var(--t)}
+.sq-input.ok{border-color:var(--g);background:var(--gl)}
+.sq-input.no{border-color:var(--r);background:var(--rl)}
+.sq-answer{text-align:center;font-size:14px;margin-top:8px;font-weight:600;min-height:22px}
+.sq-answer.ok{color:var(--g)}.sq-answer.no{color:var(--r)}
+.sq-submit{margin-top:10px}
+/* star filter in flashcard */
+.star-filter{padding:6px 12px;border:1px solid #fbbf24;background:#fffbeb;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;color:#92400e;transition:.15s}
+.star-filter:hover{background:#fef3c7}.star-filter.on{background:#f59e0b;color:#fff;border-color:#f59e0b}
+.lg-sec{grid-column:1/-1;padding:10px 12px;margin-top:8px;font-size:13px;font-weight:700;color:var(--t);background:var(--s2);border-radius:8px;border-left:3px solid var(--t)}
+.lg-sec:first-child{margin-top:0}
+.lg-sec.sub{font-size:12px;color:var(--t2);border-left-color:var(--g);background:var(--gl)}
+@media(max-width:640px){.hero h1{font-size:22px}.fc-char{font-size:58px}.qq{font-size:40px}.qo-w{grid-template-columns:1fr}.lg{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}}
+
+/* ── 랭킹전 ── */
+.rk-box{background:var(--c);border:1px solid var(--b);border-radius:14px;padding:22px;margin-bottom:14px}
+.rk-box h2{margin:0 0 14px;color:var(--t);font-size:18px}
+.rk-box h3{margin:18px 0 10px;color:var(--t);font-size:15px}
+.rk-input{width:100%;padding:11px 14px;border:1px solid var(--b);border-radius:8px;font-size:14px;margin-bottom:8px;box-sizing:border-box}
+.rk-input:focus{outline:none;border-color:var(--r)}
+.rk-btn-wrap{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.rk-btn{flex:1;min-width:100px;padding:11px;border:1px solid var(--b);background:#fff;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600;color:var(--t)}
+.rk-btn:hover{background:var(--s2)}
+.rk-btn.primary{background:var(--r);border-color:var(--r);color:#fff}
+.rk-btn.primary:hover{background:#a3251e}
+.rk-btn.danger{color:var(--r)}
+.rk-msg{font-size:13px;padding:8px 12px;border-radius:6px;margin-top:8px;display:none}
+.rk-msg.ok{background:#dcfce7;color:#166534;display:block}
+.rk-msg.no{background:#fee2e2;color:#991b1b;display:block}
+.rk-greet{padding:10px 14px;background:var(--s2);border-radius:8px;margin-bottom:14px;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.rk-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:8px}
+.rk-cat{padding:14px 12px;border:1px solid var(--b);background:#fff;border-radius:10px;cursor:pointer;text-align:left;transition:all .15s}
+.rk-cat:hover{border-color:var(--r);background:var(--rl);transform:translateY(-1px)}
+.rk-cat-title{font-weight:700;font-size:14px;color:var(--t);margin-bottom:4px}
+.rk-cat-sub{font-size:11px;color:var(--t2)}
+.rk-game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:10px 14px;background:var(--s2);border-radius:8px;font-size:13px;font-weight:600;color:var(--t)}
+.rk-game-progress{color:var(--t2)}
+.rk-game-score{color:var(--r)}
+.rk-timer{height:10px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-bottom:18px}
+.rk-timer-fill{height:100%;background:linear-gradient(90deg,#10b981,#10b981);transition:width .1s linear,background .3s}
+.rk-timer-fill.warn{background:linear-gradient(90deg,#f59e0b,#f59e0b)}
+.rk-timer-fill.crit{background:linear-gradient(90deg,#ef4444,#ef4444)}
+.rk-timer-text{text-align:center;font-size:13px;color:var(--t2);margin-bottom:14px;font-weight:600}
+.rk-question{text-align:center;padding:30px 14px;background:var(--c);border:2px solid var(--b);border-radius:14px;margin-bottom:14px}
+.rk-q-char{font-size:78px;color:var(--t);font-family:'Noto Serif KR',serif;font-weight:900;line-height:1.1}
+.rk-q-sub{font-size:13px;color:var(--t2);margin-top:10px}
+.rk-feedback{text-align:center;padding:14px;border-radius:8px;font-size:14px;font-weight:600;margin-top:10px;display:none}
+.rk-feedback.ok{background:#dcfce7;color:#166534;display:block}
+.rk-feedback.no{background:#fee2e2;color:#991b1b;display:block}
+.rk-feedback.timeout{background:#fef3c7;color:#92400e;display:block}
+.rk-result-card{text-align:center;padding:30px 16px;background:linear-gradient(135deg,var(--rl),#fff);border:2px solid var(--r);border-radius:14px;margin-bottom:14px}
+.rk-result-score{font-size:48px;font-weight:800;color:var(--r);line-height:1;margin:8px 0}
+.rk-result-detail{font-size:13px;color:var(--t2);margin-top:10px}
+.rk-board-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.rk-board-table th{background:var(--s2);padding:8px;text-align:left;font-weight:700;color:var(--t);border-bottom:2px solid var(--b)}
+.rk-board-table td{padding:8px;border-bottom:1px solid var(--b)}
+.rk-board-table tr.me{background:var(--rl);font-weight:700}
+.rk-board-table .rank-1{color:#f59e0b;font-weight:800}
+.rk-board-table .rank-2{color:#9ca3af;font-weight:700}
+.rk-board-table .rank-3{color:#cd7f32;font-weight:700}
+.rk-config-warn{padding:14px;background:#fef3c7;color:#92400e;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:14px}
+.rk-config-warn b{color:#78350f}
+</style>
+</head>
+<body>
+
+<!-- ── 진입 모달 (처음 페이지 열 때) ── -->
+<div id="entryModal" style="display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:1000;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--r);background:var(--rl);padding:4px 14px;border-radius:100px;display:inline-block">한의학한문 1.4</div>
+      <h2 style="margin:14px 0 6px;font-size:22px;color:var(--t)">漢字 1000</h2>
+      <div id="entryGreeting" style="font-size:13px;color:var(--t2);line-height:1.5"></div>
+    </div>
+    <div id="entryButtons" style="display:flex;flex-direction:column;gap:10px">
+      <!-- 동적 생성 -->
+    </div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b);text-align:center;font-size:11px;color:var(--t3);line-height:1.6">
+      💡 비로그인 사용 시: 별표는 이 PC에만 저장<br>
+      💡 로그인 사용 시: 별표가 계정에 저장 (다른 기기에서도 보임)
+    </div>
+  </div>
+</div>
+
+<!-- ── 로그인 모달 (상단 [로그인] 버튼 클릭 시) ── -->
+<div id="loginModal" onclick="if(event.target===this)closeLoginModal()" style="display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:1000;align-items:center;justify-content:center;padding:16px">
+  <div id="rkLogin" class="rk-box" style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;margin:0">
+    <button onclick="closeLoginModal()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--t3);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center" title="닫기">×</button>
+    <h2 style="margin:0 0 14px;font-size:18px;color:var(--t)">🔑 로그인 / 가입</h2>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.6">
+      닉네임과 PIN 4자리로 가입/로그인합니다.<br>
+      <span style="color:var(--t3);font-size:12px">※ 닉네임 = 2~10자 (한글/영문/숫자), PIN = 숫자 4자리</span>
+    </div>
+    <input class="rk-input" id="rkNick" placeholder="닉네임" maxlength="10">
+    <input class="rk-input" id="rkPin" type="password" placeholder="PIN 4자리" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t2);margin:6px 0;cursor:pointer">
+      <input type="checkbox" id="rkAutoLoginChk" checked style="width:16px;height:16px;cursor:pointer">
+      다음에도 자동 로그인 (이 PC)
+    </label>
+    <div class="rk-btn-wrap">
+      <button class="rk-btn primary" onclick="rkLogInHandler()">로그인</button>
+      <button class="rk-btn" onclick="rkSignUpHandler()">가입</button>
+    </div>
+    <div id="rkLoginMsg" class="rk-msg"></div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-badge">한의학한문 1.4</div>
+  <h1>漢字 1000</h1>
+  <div class="sub">플래시카드 · 퀴즈 · 전체 목록 · 참고사항</div>
+</div>
+<div class="nav">
+  <button class="tab on" onclick="go('fc',this)">플래시카드</button>
+  <button class="tab" onclick="go('qz',this)">퀴즈</button>
+  <button class="tab" onclick="go('ls',this)">전체 목록</button>
+  <button class="tab" onclick="go('nt',this)">참고사항</button>
+  <div style="flex:1"></div>
+  <button class="font-toggle" id="navAuthBtn" onclick="navAuthClick()" style="margin-left:0;margin-right:6px"></button>
+  <button class="font-toggle" id="fontBtn" onclick="toggleFont()" style="margin-left:0">고딕체</button>
+</div>
+<div class="wrap">
+
+<div class="sec on" id="fc">
+<div class="rb" id="fcR"></div>
+<div class="qcr" style="margin:6px 0 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11px">
+  <span style="color:#666">직접입력:</span>
+  <input type="text" id="fcRangeText" placeholder="예: 1-50, 100-150" style="flex:1;min-width:140px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;font-family:inherit">
+  <button class="btn" style="padding:4px 10px;font-size:11px" onclick="applyFcRange()">적용</button>
+  <span class="qcr-err" id="fcRangeErr" style="font-size:11px;color:#dc2626;width:100%"></span>
+</div>
+<div class="fc-wrap"><div class="fc" id="fcard" onclick="flip()">
+  <div class="fc-f"><button class="star-btn" id="starBtn" onclick="event.stopPropagation();toggleStar()">☆</button><div class="fc-char" id="fch"></div><div class="fc-hint">클릭하면 훈음 확인</div></div>
+  <div class="fc-b"><button class="star-btn" id="starBtn2" onclick="event.stopPropagation();toggleStar()">☆</button><div class="fc-hun" id="fhu"></div><div class="fc-tip" id="ftp"></div><div class="fc-detail" id="fdt" onclick="event.stopPropagation()"></div></div>
+</div></div>
+<div class="fc-prog"><div class="fc-prog-bar" id="fpb"></div></div>
+<div class="star-count" id="starCnt"></div>
+<div class="fc-ctrl">
+  <button class="btn" onclick="fP()">◀ 이전</button>
+  <button class="btn" onclick="fSh()">섞기</button>
+  <button class="btn" onclick="fN()">다음 ▶</button>
+  <button class="star-filter" id="sfBtn" onclick="toggleStarFilter()">☆ 별표만</button>
+</div>
+<div class="fc-cnt" id="fct"></div>
+</div>
+
+<div class="sec" id="qz">
+<div class="qs" id="qset">
+  <div class="qs-t">퀴즈 설정</div>
+  <div class="qm-toggle">
+    <button class="qm-btn on" id="qmObj" onclick="qMode='obj';document.getElementById('qmObj').classList.add('on');document.getElementById('qmSub').classList.remove('on')">객관식</button>
+    <button class="qm-btn" id="qmSub" onclick="qMode='sub';document.getElementById('qmSub').classList.add('on');document.getElementById('qmObj').classList.remove('on')">주관식</button>
+  </div>
+  <div class="qs-r"><label>범위</label><select class="sel" id="qrng"></select></div>
+  <div class="qcr">
+    <span>직접입력:</span>
+    <input type="text" id="qcrText" placeholder="예: 1-50, 100-150" style="flex:1;min-width:140px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;font-family:inherit">
+    <button class="btn" style="padding:4px 10px;font-size:11px" onclick="applyCustomRange()">적용</button>
+  </div>
+  <div class="qcr-err" id="qcrErr" style="font-size:11px;color:#dc2626;margin-top:4px"></div>
+  <div class="qs-r"><label>문제 수</label>
+    <select class="sel" id="qnum" onchange="onQnumChange()">
+      <option value="10">10</option>
+      <option value="15">15</option>
+      <option value="20" selected>20</option>
+      <option value="30">30</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="200">200</option>
+      <option value="custom">직접 입력...</option>
+      <option value="0">전체</option>
+    </select>
+    <input type="number" id="qnumCustom" min="1" max="1000" placeholder="문제 수 입력" style="display:none;margin-left:6px;padding:4px 8px;border:1px solid #ddd;border-radius:4px;font-size:13px;width:100px">
+  </div>
+  <button class="btn" style="margin-top:10px" onclick="qSt()">퀴즈 시작</button>
+</div>
+<div id="qa" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+    <div class="qp" id="qpg"></div>
+    <span style="font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline" onclick="qRs()">초기화 ↩</span>
+  </div>
+  <div class="qq" id="qqt"></div>
+  <div class="qsub" id="qsb"></div>
+  <!-- 객관식 -->
+  <div id="qaObj">
+    <div class="qo-w" id="qow"></div>
+  </div>
+  <!-- 주관식 -->
+  <div id="qaSub" style="display:none">
+    <div class="sq-input-wrap">
+      <input type="text" class="sq-input" id="sqInput" placeholder="훈음을 입력하세요" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();sqCheck();}">
+      <button class="btn sq-submit" onclick="sqCheck()">확인</button>
+    </div>
+    <div class="sq-answer" id="sqAns"></div>
+  </div>
+  <div class="qsc" id="qsc"></div>
+  <div style="text-align:center;margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+    <button class="btn" id="qrvPrev" onclick="qReviewPrev()" style="display:none">◀ 이전 오답</button>
+    <button class="btn" id="qrvBtn" onclick="qReviewStart()" style="display:none">📋 오답 복습</button>
+    <button class="btn" id="qnx" onclick="qNx()" style="display:none">다음 ▶</button>
+    <button class="btn" id="qrvNext" onclick="qReviewNext()" style="display:none">다음 오답 ▶</button>
+    <button class="btn" id="qrs" onclick="qRs()" style="display:none">다시 시작</button>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--t3);margin-top:6px;min-height:16px" id="qrvHint"></div>
+</div>
+</div>
+
+<!-- ── 내 계정 ── -->
+<div class="sec" id="rk">
+  <!-- 로그인 사용자: 계정 관리 -->
+  <div id="rkMenu" class="rk-box" style="display:none">
+    <div class="rk-greet" style="flex-wrap:wrap;gap:8px">
+      <span><b id="rkUserName"></b>님 환영합니다 🎉</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2);cursor:pointer">
+          <input type="checkbox" id="rkAutoLoginToggle" onchange="rkToggleAutoLogin()" style="width:14px;height:14px;cursor:pointer">
+          자동로그인
+        </label>
+        <button class="rk-btn danger" style="flex:0;min-width:auto;padding:6px 12px;font-size:12px" onclick="rkLogOut()">로그아웃</button>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.8;margin-top:6px">
+      로그인 상태입니다. 별표(☆)가 계정에 저장되어 다른 기기에서도 같은 별표가 보입니다.<br>
+      로그아웃하면 이 PC에 저장된 비로그인 별표가 다시 표시됩니다.
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="ls">
+<div class="rb" id="lsR"></div>
+<div class="qcr" style="margin:6px 0 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11px">
+  <span style="color:#666">직접입력:</span>
+  <input type="text" id="lsRangeText" placeholder="예: 1-50, 100-150" style="flex:1;min-width:140px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;font-size:12px;font-family:inherit">
+  <button class="btn" style="padding:4px 10px;font-size:11px" onclick="applyLsRange()">적용</button>
+  <span class="qcr-err" id="lsRangeErr" style="font-size:11px;color:#dc2626;width:100%"></span>
+</div>
+<input class="ls-s" id="lss" placeholder="한자, 훈, 음으로 검색..." oninput="fL()">
+<div class="lg" id="lsg"></div>
+</div>
+
+<div class="sec" id="nt">
+<div class="note-box">
+  <h2>참고사항</h2>
+  <div class="note-content" id="noteContent">
+    <ul style="list-style:none;padding:0">
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 이 html은 한의학한문 프린트 공부를 위해 AI를 이용해 만든 플래시카드입니다.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 삼수변을 가진 한자가 폰트 문제로 인해 마지막 밑 획이 본래보다 길게 표시됩니다.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 컴퓨터에서는 화살표 키로 카드를 넘길 수 있고, 스페이스키로 카드를 뒤집을 수 있습니다.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 퀴즈에서는 숫자키 1, 2, 3, 4로 답을 고를 수 있습니다.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 퀴즈에서 →키로 다음 문제, ←키로 이전에 틀린 문제를 복습할 수 있습니다.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 플래시카드에서 '고딕체' 버튼으로 명조체↔나눔고딕체 전환이 가능합니다. (삼수변 표시 차이)</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 플래시카드에서 ☆ 버튼으로 별표 표시가 가능하며, '별표만' 버튼으로 별표한 한자만 모아볼 수 있습니다. (키보드 S키로도 가능)</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 별표는 같은 브라우저에서 자동 저장됩니다. 다른 기기로 옮기려면 아래 내보내기/불러오기를 사용하세요.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• 검수 다 제가 하는거라 오류있으면 언제든지 카톡으로 말해주세요.</li>
+    </ul>
+
+    <h3 style="margin-top:24px;color:var(--t)">📌 데이터 안내</h3>
+    <ul style="list-style:none;padding:0;margin-top:8px">
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• <b>911번 빈자리</b>는 교수님 자료의 哮(으르렁거릴 효)로 채워서 한 칸씩 당겨 1000자를 맞추었습니다.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• <b>940번 빈자리</b>는 교수님 자료에서도 비어 있어 ⬜ 빈 카드로 두었습니다 (플래시카드/퀴즈에서는 출제 제외, 전체목록에만 표시).</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• <b>음훈 누락 8자 (별도 부록)</b>: 1002~1009번에 해당하는 8자(癥, 態, 延, 杼, 滲, 擾, 柔, 萸)는 교수님 자료에서 음훈이 빠져 있어 1.4에 미포함입니다. 추후 교수님 확인 후 1.41에서 추가 예정.</li>
+      <li style="margin-bottom:10px;padding-left:16px;text-indent:-16px">• <b>퀴즈 출제 정책</b>: 같은 한자가 여러 번 등록되어 있어도 퀴즈에서는 한자별로 한 번만 출제되며, 어느 음훈이든 정답으로 인정합니다 (예: 參은 '간여할 참'만, '석 삼'만, '간여할 참, 석 삼' 모두 정답).</li>
+    </ul>
+
+    <h3 style="margin-top:24px;color:var(--t)">📋 한자 중복 (23종, 의도된 중복)</h3>
+    <p style="font-size:12px;color:var(--t2);margin:6px 0 8px">교수님 자료 자체의 의도된 중복입니다. 두 카드 모두 등록되어 있으나, 퀴즈에서는 한자별로 한 번만 출제됩니다.</p>
+    <div style="font-size:13px;line-height:1.9;color:var(--t2)">
+      <div>不: 18번(아닐 부) / 160번(아닐 불)</div>
+      <div>兩: 171번(두 양) / 538번(두 량)</div>
+      <div>六: 152번(여섯 육) / 493번(여섯 륙)</div>
+      <div>凉: 338번(서늘할 량) / 815번(서늘할 량)</div>
+      <div>利: 164번 / 290번 (둘 다 '날카로울 리')</div>
+      <div>勞: 301번(일할 노) / 374번(일할 로)</div>
+      <div>參: 310번(간여할 참) / 679번(석 삼)</div>
+      <div>女: 514번(여자 녀) / 762번(여자 여)</div>
+      <div>復: 403번(다시 부, 돌아올 복) / 602번(돌아올 복, 다시 부)</div>
+      <div>數: 245번(셀 수) / 413번(자주 삭, 셀 수)</div>
+      <div>易: 731번(쉬울 이, 바꿀 역) / 976번(바꿀 역, 쉬울 이)</div>
+      <div>流: 262번(흐를 류) / 414번(흐를 유)</div>
+      <div>淋: 494번(방울져 떨어질 림) / 793번(물 뿌릴 임)</div>
+      <div>留: 388번(머무를 유) / 584번(머무를 류)</div>
+      <div>痢: 446번(설사 리) / 895번(설사 이)</div>
+      <div>療: 151번(병 고칠 료) / 444번(병 고칠 요)</div>
+      <div>肋: 387번(갈비 늑) / 859번(갈비 륵)</div>
+      <div>臨: 223번(임할 임) / 877번(임할 림)</div>
+      <div>良: 656번(좋을 량) / 827번(어질 양)</div>
+      <div>論: 119번(말할 론) / 821번(말할 논)</div>
+      <div>連: 391번(잇닿을 연) / 716번(잇닿을 련)</div>
+      <div>量: 210번(헤아릴 량(양)) / 742번(헤아릴 량)</div>
+      <div>龍: 518번(용 룡(용)) / 684번(용 룡)</div>
+    </div>
+
+    <h3 style="margin-top:24px;color:var(--t)">📋 음훈 동일 / 한자 다른 케이스 (11종)</h3>
+    <p style="font-size:12px;color:var(--t2);margin:6px 0 8px">한자는 다르지만 음훈이 동일한 케이스입니다. 퀴즈 객관식에서 같은 음훈이 정답 보기와 오답 보기에 동시에 등장하지 않도록 처리되어 있습니다.</p>
+    <div style="font-size:13px;line-height:1.9;color:var(--t2)">
+      <div>'근원 원': 原(186번) / 源(366번)</div>
+      <div>'기침 해': 咳(184번) / 欬(981번)</div>
+      <div>'꽃 화': 花(209번) / 華(316번)</div>
+      <div>'끊을 절': 切(357번) / 絶(406번)</div>
+      <div>'나아갈 진': 晋(910번) / 進(368번)</div>
+      <div>'넓을 홍': 弘(870번) / 洪(818번)</div>
+      <div>'떫을 삽': 澀(880번) / 澁(404번)</div>
+      <div>'모래 사': 沙(899번) / 砂(789번)</div>
+      <div>'석 삼': 三(31번) / 參(679번 - 석 삼 의미)</div>
+      <div>'저릴 비': 痹(886번) / 痺(169번)</div>
+      <div>'취할 취': 取(90번) / 醉(790번)</div>
+    </div>
+  </div>
+</div>
+<div class="exp-box" style="margin-top:16px;background:var(--s2)">
+  <h3>📋 업데이트 내역</h3>
+  <div style="font-size:13px;line-height:1.9;color:var(--t2)">
+    <div style="font-weight:700;color:var(--t);margin-bottom:4px">v1.4</div>
+    <ul style="list-style:none;padding:0;margin:0">
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- <b>한자 1000자로 확장</b> (501~1000번 추가, 교수님 자료 전수)</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 911번 빈자리에 哮(으르렁거릴 효) 추가, 940번은 ⬜ 빈 카드 처리, 음훈 누락 8자(癥/態/延/杼/滲/擾/柔/萸)는 부록 안내</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- <b>같은 한자 다중 음훈 채점</b>: 參(310:간여할 참 / 679:석 삼)처럼 같은 한자 두 카드 등록 시, 어느 음훈이든 정답 처리 (예: '간여할 참'만, '석 삼'만, '간여할 참, 석 삼' 모두 정답)</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- <b>퀴즈 출제 한자 dedup</b>: 한자가 같으면 중복 출제하지 않음 (한 한자당 한 번)</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 객관식 정답 보기 다중 음훈 표시 (예: '간여할 참, 석 삼')</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 158번 湯 음훈 정정 (넘어질 탕 → 끓일 탕)</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 표기 통일: PDF의 '{...}' 두음 표기 → '(...)' 형태로 변환, '기록할지/가질지/늦을지' → '기록할 지' 띄어쓰기 정정, 다중 음훈에 콤마 추가 (예: '별 진 지지 진' → '별 진, 지지 진')</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 참고사항에 한자 중복 23종, 음훈 동일/한자 다른 케이스 11종 전체 목록 추가</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 범위 선택에 501~1000 그룹 (100자/50자 단위) 추가</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 인체관련한자 / 한의학관련한자 카테고리 제거 (1~1000 본 데이터로 단일화)</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 회원가입 시스템 (닉네임 + PIN 4자리, SHA-256 해시 저장)</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 일반 퀴즈 문제 수 선택 확장 (10/15/20/30/50/100/200/전체) + 직접 입력 옵션 추가</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- ⭐ <b>별표 클라우드 동기화</b>: 로그인 시 계정별 별표 저장 (다른 기기에서도 같은 별표 표시), 로그아웃 시 비로그인 별표(localStorage) 그대로 보존. 첫 로그인 시 비로그인 별표를 계정으로 옮길지 물음.</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- 🚪 <b>진입 모달 추가</b>: 페이지 첫 진입 시 "로그인/가입" 또는 "비로그인으로 시작" 선택. 비로그인 선택은 다음에도 기억됨 (바로 비로그인 메인 진입).</li>
+      <li style="padding-left:14px;text-indent:-14px;margin-bottom:3px">- ⚙️ <b>자동 로그인 토글</b>: 로그인 시 "다음에도 자동 로그인" 체크박스, 로그인 후 메뉴에서도 ON/OFF 가능. OFF 시 다음 진입 때 진입 모달 표시.</li>
+    </ul>
+  </div>
+</div>
+<div class="exp-box">
+  <h3>⭐ 별표 내보내기 / 불러오기</h3>
+  <textarea class="exp-ta" id="expTa" placeholder="여기에 코드가 표시됩니다"></textarea>
+  <div class="exp-btns">
+    <button class="btn" onclick="exportStars()">내보내기 (코드 복사)</button>
+    <button class="btn" onclick="importStars()">불러오기 (코드 붙여넣기 후 클릭)</button>
+    <button class="btn" style="color:var(--r)" onclick="resetStars()">초기화</button>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+// [char, huneum, tooltip] - tooltip shows on hover/back
+const A=[
+// 1~100
+["經","날 경",""],["穴","구멍 혈",""],["氣","기운 기",""],["陽","볕 양",""],["陰","응달 음",""],
+["鍼","침 침",""],["痛","아플 통",""],["中","가운데 중",""],["脈","혈맥 맥",""],["治","다스릴 치",""],
+["下","아래 하",""],["血","피 혈",""],["足","발 족",""],["病","병 병",""],["熱","더울 열",""],
+["之","갈 지",""],["上","위 상",""],["不","아닐 부",""],["法","법 법",""],["大","큰 대",""],
+["灸","뜸 구",""],["主","주인 주",""],["心","마음 심",""],["部","거느릴 부",""],["寸","마디 촌",""],
+["太","클 태",""],["內","안 내",""],["刺","찌를 자",""],["分","나눌 분",""],["風","바람 풍",""],
+["三","석 삼",""],["絡","헌솜 락",""],["神","귀신 신",""],["寒","찰 한",""],["少","적을 소",""],
+["手","손 수",""],["證","증거 증",""],["虛","빌 허",""],["骨","뼈 골",""],["本","근본 본",""],
+["胃","밥통 위",""],["筋","힘줄 근",""],["外","밖 외",""],["小","작을 소",""],["腎","콩팥 신",""],
+["五","다섯 오",""],["頭","머리 두",""],["水","물 수",""],["方","모 방",""],["生","날 생",""],
+["合","합할 합",""],["肝","간 간",""],["明","밝을 명",""],["脾","지라 비",""],["肺","허파 폐",""],
+["位","자리 위",""],["通","통할 통",""],["者","놈 자",""],["性","성품 성",""],["兪","점점 유",""],
+["腹","배 복",""],["腸","창자 장",""],["配","아내 배",""],["行","갈 행",""],["門","문 문",""],
+["關","빗장 관",""],["解","풀 해",""],["人","사람 인",""],["後","뒤 후",""],["名","이름 명",""],
+["火","불 화",""],["淸","맑을 청",""],["目","눈 목",""],["天","하늘 천",""],["黃","누를 황",""],
+["化","될 화",""],["金","쇠 금",""],["出","날 출",""],["子","아들 자",""],["腫","부스럼 종",""],
+["臟","오장 장",""],["二","두 이",""],["用","쓸 용",""],["濕","축축할 습",""],["胸","가슴 흉",""],
+["白","흰 백",""],["而","말 이을 이",""],["瀉","쏟을 사",""],["四","넉 사",""],["取","취할 취",""],
+["醫","의원 의",""],["耳","귀 이",""],["一","한 일",""],["藥","약 약",""],["補","보할 보",""],
+["入","들 입",""],["十","열 십",""],["肉","고기 육",""],["傷","상처 상",""],["邪","사악할 사",""],
+// 101~200
+["溫","따뜻할 온",""],["要","구할 요",""],["症","증세 증",""],["止","그칠 지",""],["間","틈 간",""],
+["精","정미로울 정",""],["也","어조사 야",""],["正","바를 정",""],["散","흩을 산",""],["谷","골 곡",""],
+["發","필 발",""],["側","곁 측",""],["能","능할 능",""],["動","움직일 동",""],["口","입 구",""],
+["厥","그 궐",""],["爲","할 위",""],["腰","허리 요",""],["論","말할 론(논)",""],["會","모일 회",""],
+["學","배울 학",""],["前","앞 전",""],["節","마디 절",""],["皮","가죽 피",""],["結","맺을 결",""],
+["有","있을 유",""],["感","느낄 감",""],["交","사귈 교",""],["時","때 시",""],["其","그 기",""],
+["腑","장부 부",""],["衝","찌를 충",""],["則","법칙 칙, 곧 즉",""],["食","먹을 식",""],["相","서로 상",""],
+["脹","배부를 창",""],["海","바다 해",""],["調","조화로울 조",""],["地","땅 지",""],["肩","어깨 견",""],
+["草","풀 초",""],["說","말씀 설",""],["表","겉 표",""],["焦","그을릴 초",""],["體","몸 체",""],
+["無","없을 무",""],["直","곧을 직",""],["樞","지도리 추",""],["身","몸 신",""],["疾","병 질",""],
+["療","병 고칠 료(요)",""],["六","여섯 육(륙)",""],["所","바 소",""],["面","낯 면",""],["背","등 배",""],
+["肢","사지 지",""],["實","열매 실",""],["湯","끓일 탕",""],["別","나눌 별",""],["不","아닐 불",""],
+["痰","가래 담",""],["指","손가락 지",""],["多","많을 다",""],["利","날카로울 리(이)",""],["以","써 이",""],
+["滿","찰 만",""],["便","문득 변, 편할 편",""],["成","이룰 성",""],["痺","저릴 비",""],["膽","쓸개 담",""],
+["兩","두 양(량)",""],["味","맛 미",""],["壯","씩씩할 장",""],["處","곳 처",""],["里","마을 리",""],
+["於","어조사 어",""],["泄","샐 설",""],["麻","삼 마",""],["消","사라질 소",""],["理","다스릴 리",""],
+["木","나무 목",""],["和","화할 화",""],["逆","거스를 역",""],["咳","기침 해",""],["曲","굽을 곡",""],
+["原","근원 원",""],["泉","샘 천",""],["開","열 개",""],["元","으뜸 원",""],["汗","땀 한",""],
+["鼻","코 비",""],["急","급할 급",""],["膝","무릎 슬",""],["舌","혀 설",""],["千","일천 천",""],
+["燥","마를 조",""],["機","틀 기",""],["喘","헐떡거릴 천",""],["在","있을 재",""],["丹","붉을 단",""],
+// 201~300
+["極","다할 극",""],["攣","걸릴 련(연)",""],["尖","뾰족할 첨",""],["王","임금 왕",""],["肌","살 기",""],
+["皆","다 개",""],["婦","아내 부",""],["基","터 기",""],["花","꽃 화",""],["量","헤아릴 량(양)",""],
+["線","줄 선",""],["眞","참 진",""],["渴","목마를 갈",""],["膈","흉격 격",""],["服","옷 복",""],
+["細","가늘 세",""],["辨","분별할 변",""],["巨","클 거",""],["癎","간질 간",""],["仁","어질 인",""],
+["迎","맞이할 영",""],["升","되 승",""],["臨","임할 임(림)",""],["宣","베풀 선",""],["系","이을 계",""],
+["廉","청렴할 렴(염)",""],["考","상고할 고",""],["九","아홉 구",""],["狂","미칠 광",""],["張","베풀 장",""],
+["靑","푸를 청",""],["加","더할 가",""],["反","되돌릴 반",""],["宜","마땅할 의",""],["脚","다리 각",""],
+["久","오랠 구",""],["癰","악창 옹",""],["商","헤아릴 상",""],["損","덜 손",""],["玉","옥 옥",""],
+["暈","어지러울 훈",""],["衰","쇠할 쇠",""],["年","해 년",""],["枝","가지 지",""],["數","셀 수",""],
+["知","알 지",""],["環","고리 환",""],["深","깊을 심",""],["呼","부를 호",""],["聚","모일 취",""],
+["委","맡길 위",""],["除","덜 제",""],["命","목숨 명",""],["穀","곡식 곡",""],["孫","손자 손",""],
+["痿","저릴 위",""],["脫","벗을 탈",""],["掌","손바닥 장",""],["圖","그림 도",""],["葉","잎 엽",""],
+["忌","꺼릴 기",""],["流","흐를 류(유)",""],["期","기약할 기",""],["滋","불을 자",""],["器","그릇 기",""],
+["篇","책 편",""],["輸","나를 수",""],["條","가지 조",""],["情","뜻 정",""],["文","글월 문",""],
+["綱","벼리 강",""],["毛","털 모",""],["濁","흐릴 탁",""],["固","굳을 고",""],["腋","겨드랑이 액",""],
+["周","두루 주",""],["頰","뺨 협",""],["官","벼슬 관",""],["潤","젖을 윤",""],["次","버금 차",""],
+["緣","말미암을 연",""],["臥","엎드릴, 누울 와",""],["附","붙을 부",""],["西","서녘 서",""],["溝","도랑 구",""],
+["區","지경 구",""],["等","가지런할 등",""],["度","법도 도",""],["向","향할 향",""],["利","날카로울 리(이)",""],
+["母","어미 모",""],["滑","미끄러울 활",""],["短","짧을 단",""],["視","볼 시",""],["腿","넓적다리 퇴",""],
+["按","누를 안",""],["空","빌 공",""],["屈","굽을 굴",""],["柱","기둥 주",""],["景","볕 경",""],
+// 301~400
+["勞","일할 노(로)",""],["及","미칠 급",""],["惡","악할 악, 미워할 오",""],["膜","막 막",""],["硏","갈 연",""],
+["欲","하고자 할 욕",""],["北","북녘 북",""],["夏","여름 하",""],["肘","팔꿈치 주",""],["參","간여할 참",""],
+["集","모일 집",""],["疝","산증 산",""],["製","지을 제",""],["現","나타날 현",""],["趾","발 지",""],
+["華","꽃 화",""],["伸","펼 신",""],["收","거둘 수",""],["泣","울 읍",""],["竹","대나무 죽",""],
+["擧","들 거",""],["吸","숨 들이쉴 흡",""],["賦","줄 부",""],["盆","동이 분",""],["善","착할 선",""],
+["悸","두근거릴 계",""],["伏","엎드릴 복",""],["透","통할 투",""],["寶","보배 보",""],["使","하여금 사",""],
+["照","비출 조",""],["坐","앉을 좌",""],["丘","언덕 구",""],["堂","집 당",""],["劑","약 지을 제",""],
+["公","공평할 공",""],["光","빛 광",""],["凉","서늘할 량",""],["始","처음 시",""],["若","같을 약",""],
+["緩","느릴 완",""],["錄","기록할 록",""],["眠","잠잘 면",""],["頂","정수리 정",""],["淵","못 연",""],
+["髓","골수 수",""],["沈","가라앉을 침",""],["布","펼 포",""],["鑑","거울 감",""],["痙","힘줄 땅길 경",""],
+["局","판 국",""],["受","받을 수",""],["授","줄 수",""],["捻","비틀 염(념)",""],["蟲","벌레 충",""],
+["孔","구멍 공",""],["切","끊을 절",""],["川","내 천",""],["炮","구울 포",""],["必","반드시 필",""],
+["聾","귀머거리 롱(농)",""],["髮","터럭 발",""],["壓","누를 압",""],["診","볼 진",""],["悶","번민할 민",""],
+["源","근원 원",""],["冬","겨울 동",""],["進","나아갈 진",""],["古","옛 고",""],["尾","꼬리 미",""],
+["蔘","인삼 삼",""],["苔","이끼 태",""],["究","궁구할 구",""],["勞","일할 로(노)",""],["牙","어금니 아",""],
+["陳","늘어놓을 진",""],["黑","검을 흑",""],["桂","계수나무 계",""],["昏","어두울 혼",""],["死","죽을 사",""],
+["斷","끊을 단",""],["語","말씀 어",""],["標","끝 표",""],["滎","실개천 형",""],["見","볼 견",""],
+["家","집 가",""],["肋","갈비 늑(륵)",""],["留","머무를 유(류)",""],["衄","코피 뉵(육)",""],["魚","고기 어",""],
+["連","잇닿을 연(련)",""],["甚","심할 심",""],["濟","구제할 제",""],["軟","연할 연",""],["瘧","학질 학",""],
+["舒","펼 서",""],["意","뜻 의",""],["脛","정강이 경",""],["術","꾀 술",""],["胞","태의 포",""],
+// 401~500
+["阻","막을 조",""],["股","넓적다리 고",""],["復","다시 부, 돌아올 복",""],["澁","떫을 삽",""],["暑","더울 서",""],
+["絶","끊을 절",""],["淡","묽을 담",""],["未","아닐 미",""],["膏","살찔 고",""],["音","소리 음",""],
+["品","물건 품",""],["紫","자줏빛 자",""],["數","자주 삭, 셀 수",""],["流","흐를 유(류)",""],["字","글자 자",""],
+["君","임금 군",""],["申","아홉째 지지 신",""],["漏","샐 루(누)",""],["募","모을 모",""],["床","상 상",""],
+["胎","아이 밸 태",""],["喜","기쁠 희",""],["亂","어지러울 란(난)",""],["星","별 성",""],["庭","뜰 정",""],
+["種","씨 종",""],["導","이끌 도",""],["列","벌일 열(렬)",""],["疹","피부병 진",""],["聽","들을 청",""],
+["暴","사나울 폭",""],["居","있을 거",""],["卽","곧 즉",""],["末","끝 말",""],["紋","무늬 문",""],
+["舍","집 사",""],["脣","입술 순",""],["溜","물방울 떨어질 류(유)",""],["痒","종기 양, 가려울 양",""],["統","큰 줄기 통",""],
+["伯","맏 백",""],["提","끌 제",""],["朮","삽주 출",""],["療","병 고칠 요(료)",""],["退","물러날 퇴",""],
+["痢","설사 리(이)",""],["氏","성 씨",""],["來","올 래(내)",""],["馬","말 마",""],["勝","이길 승",""],
+["鎭","진압할 진",""],["懸","매달 현",""],["歌","노래 가",""],["令","영 령(영)",""],["薑","생강 강",""],
+["事","일 사",""],["戶","지게 호",""],["江","강 강",""],["廣","넓을 광",""],["岐","갈림길 기",""],
+["制","마를 제",""],["淺","얕을 천",""],["蘇","차조기 소",""],["片","조각 편",""],["莖","줄기 경",""],
+["納","바칠 납",""],["總","거느릴 총",""],["漢","한수 한",""],["垂","드리울 수",""],["塞","막힐 색",""],
+["踝","복사뼈 과",""],["胡","턱밑 살 호",""],["瘍","종기 양, 상처 양, 헐 양",""],["京","서울 경",""],["回","돌 회",""],
+["縮","줄일 축",""],["互","서로 호",""],["輕","가벼울 경",""],["技","재주 기",""],["李","오얏 이(리)",""],
+["仰","우러를 앙",""],["酒","술 주",""],["乃","이에 내",""],["痔","치질 치",""],["亢","오를 항",""],
+["堅","굳을 견",""],["果","과실 과",""],["謂","이를 위",""],["何","어찌 하",""],["又","또 우",""],
+["棘","가시 극",""],["靈","신령 령(영)",""],["六","여섯 륙(육)",""],["淋","방울져 떨어질 림(임)",""],["翳","가릴 예, 흐릴 예",""],
+["蒸","찔 증",""],["約","묶을 약",""],["薄","엷을 박",""],["吳","나라 이름 오",""],["都","도읍 도",""],
+// 501~600
+["槪","평미레 개",""],["唐","당나라 당",""],["折","꺾을 절",""],["完","완전할 완",""],["容","얼굴 용",""],
+["睛","눈동자 정",""],["春","봄 춘",""],["怒","성낼 노",""],["亦","또 역",""],["鬼","귀신 귀",""],
+["扶","도울 부",""],["餘","남을 여",""],["虧","이지러질 휴",""],["女","여자 녀(여)",""],["苓","도꼬마리 령(영)",""],
+["膿","고름 농",""],["崩","무너질 붕",""],["龍","용 룡(용)",""],["郄","틈 극",""],["思","생각할 사",""],
+["已","이미 이",""],["汁","즙 즙",""],["肛","똥구멍 항",""],["慢","게으를 만",""],["司","맡을 사",""],
+["隨","따를 수",""],["闕","대궐 궐",""],["窩","움집 와",""],["榮","꽃 영",""],["凹","오목할 요",""],
+["聖","성스러울 성",""],["河","강 이름 하",""],["跳","뛸 도",""],["電","번개 전",""],["崑","산 이름 곤",""],
+["近","가까울 근",""],["午","일곱째 지지 오",""],["兩","두 량(양)",""],["夜","밤 야",""],["減","덜 감",""],
+["觀","볼 관",""],["貫","꿸 관",""],["崙","산 이름 륜(윤)",""],["房","방 방",""],["修","닦을 수",""],
+["遂","이를 수",""],["蹻","발돋움할 교",""],["緊","긴할 긴",""],["遠","멀 원",""],["客","손 객",""],
+["躁","조급할 조",""],["聲","소리 성",""],["炷","심지 주",""],["牛","소 우",""],["初","처음 초",""],
+["誌","기록할 지",""],["扁","넓적할 편",""],["覺","깨달을 각",""],["疸","황달 달",""],["達","다다를 달",""],
+["額","이마 액",""],["芍","함박꽃 작",""],["障","가로막을 장",""],["挾","낄 협",""],["拘","잡을 구",""],
+["最","가장 최",""],["核","씨 핵",""],["俠","호협할 협",""],["章","글 장",""],["己","자기 기",""],
+["防","둑 방",""],["飛","날 비",""],["隱","숨길 은",""],["拔","뺄 발",""],["茯","복령 복",""],
+["輔","도울 보",""],["罐","항아리 관",""],["宋","송나라 송",""],["英","꽃부리 영",""],["振","떨 진",""],
+["炒","볶을 초",""],["孕","아이 밸 잉",""],["凝","엉길 응",""],["留","머무를 류(유)",""],["麥","보리 맥",""],
+["萎","마를 위",""],["煎","달일 전",""],["仲","버금 중",""],["枕","베개 침",""],["立","설 립(입)",""],
+["例","법식 예(례)",""],["寧","편안할 녕(영)",""],["玄","검을 현",""],["豆","콩 두",""],["淫","음란할 음",""],
+["倉","곳집 창",""],["寬","너그러울 관",""],["桃","복숭아나무 도",""],["胛","어깨 갑",""],["涎","침 연",""],
+// 601~700
+["烏","까마귀 오",""],["復","돌아올 복, 다시 부",""],["雲","구름 운",""],["隆","클 륭(융)",""],["痞","뱃속 결릴 비",""],
+["市","저자 시",""],["義","옳을 의",""],["秋","가을 추",""],["冷","찰 랭(냉)",""],["史","역사 사",""],
+["壅","막을 옹",""],["翼","날개 익",""],["推","밀 추",""],["晒","쬘 쇄",""],["老","늙은이 노(로)",""],
+["痲","저릴 마",""],["闔","문짝 합",""],["油","기름 유",""],["腺","샘 선",""],["停","머무를 정",""],
+["記","기록할 기",""],["終","마칠 종",""],["鍾","종 종",""],["獨","홀로 독",""],["卒","군사 졸",""],
+["充","찰 충",""],["熟","익을 숙",""],["接","사귈 접",""],["破","깨뜨릴 파",""],["豊","풍성할 풍",""],
+["臑","팔뚝 노",""],["世","세상 세",""],["眥","흘길 자",""],["湧","샘솟을 용",""],["橈","꺾일 요, 굽을 뇨",""],
+["絲","실 사",""],["瘦","파리할 수",""],["順","순할 순",""],["仙","신선 선",""],["脂","기름 지",""],
+["辰","별 진, 지지 진",""],["蒼","푸를 창",""],["塊","덩어리 괴",""],["訣","이별할 결",""],["攻","칠 공",""],
+["泌","샘물 흐르는 모양 비",""],["夫","지아비 부",""],["熄","꺼질 식",""],["凡","무릇 범",""],["施","베풀 시",""],
+["厚","두터울 후",""],["夢","꿈 몽",""],["頷","턱 함",""],["選","가릴 선",""],["室","집 실",""],
+["良","좋을 량(양)",""],["幷","어우를 병",""],["揷","꽂을 삽",""],["響","울림 향",""],["建","세울 건",""],
+["囊","주머니 낭",""],["輪","바퀴 륜(윤)",""],["省","살필 성",""],["盡","다할 진",""],["髃","어깨 앞쪽 우",""],
+["顔","얼굴 안",""],["矣","어조사 의",""],["敦","도타울 돈",""],["粉","가루 분",""],["救","건질 구",""],
+["溪","시내 계",""],["封","봉할 봉",""],["殖","번성할 식",""],["兌","빛날 태",""],["梁","들보 양(량)",""],
+["膻","누린내 전, 옷벗을 단",""],["戟","창 극",""],["聞","들을 문",""],["參","석 삼",""],["爪","손톱 조",""],
+["倦","게으를 권",""],["非","아닐 비",""],["漿","미음 장",""],["龍","용 룡",""],["圓","둥글 원",""],
+["丁","넷째 천간 정, 못 정",""],["窓","창 창",""],["枯","마를 고",""],["癧","연주창 력(역)",""],["央","가운데 앙",""],
+["朱","붉을 주",""],["恐","두려울 공",""],["犯","범할 범",""],["徐","천천할 서",""],["邊","가 변",""],
+["垣","담 원",""],["干","방패 간",""],["註","주낼 주",""],["困","괴로울 곤",""],["溏","진흙 당",""],
+// 701~800
+["萬","일만 만",""],["排","물리칠 배",""],["須","모름지기 수",""],["疽","옹저 저",""],["墟","언덕 허",""],
+["男","사내 남",""],["射","쏠 사",""],["秦","나라 이름 진",""],["抽","뺄 추",""],["兼","겸할 겸",""],
+["冒","덮을 모",""],["士","선비 사",""],["溢","넘칠 일",""],["州","고을 주",""],["盜","훔칠 도",""],
+["連","잇닿을 련(연)",""],["旁","두루 방",""],["臭","냄새 취",""],["唾","침 타",""],["社","토지의 신 사",""],
+["弦","시위 현",""],["歷","지낼 력(역)",""],["濡","젖을 유",""],["嗜","즐길 기",""],["芪","황기 기",""],
+["脉","맥 맥",""],["民","백성 민",""],["蓋","덮을 개",""],["季","계절 계",""],["愈","나을 유",""],
+["易","쉬울 이, 바꿀 역",""],["車","수레 거, 차",""],["攝","당길 섭",""],["肅","엄숙할 숙",""],["硬","굳을 경",""],
+["束","묶을 속",""],["臀","볼기 둔",""],["虎","범 호",""],["求","구할 구",""],["揚","오를 양",""],
+["暢","화창할 창",""],["量","헤아릴 량",""],["朝","아침 조",""],["潮","조수 조",""],["遲","늦을 지",""],
+["單","홑 단",""],["斑","얼룩 반",""],["旺","성할 왕",""],["版","널 판",""],["瘕","적취 가",""],
+["韓","나라 이름 한",""],["校","학교 교",""],["臺","돈대 대",""],["瘰","연주창 라(나)",""],["斂","거둘 렴(염)",""],
+["妙","묘할 묘",""],["潰","무너질 궤",""],["髀","넓적다리 비",""],["型","모양 형",""],["痠","저릴 산",""],
+["癸","열째 천간 계",""],["女","여자 여(녀)",""],["沿","따를 연",""],["路","길 로(노)",""],["腧","경혈 이름 수",""],
+["褐","털옷 갈",""],["膩","살찔 니(이)",""],["瞳","눈동자 동",""],["醒","깰 성",""],["增","더할 증",""],
+["驗","증험할 험",""],["格","바로잡을 격",""],["岳","큰산 악",""],["炙","구울 자, 적",""],["俱","함께 구",""],
+["疫","염병 역",""],["著","분명할 저",""],["魂","넋 혼",""],["齊","가지런할 제",""],["頻","자주 빈",""],
+["師","스승 사",""],["珠","구슬 주",""],["察","살필 찰",""],["幹","줄기 간",""],["妄","허망할 망",""],
+["隔","나눌 격",""],["忘","잊을 망",""],["魄","넋 백",""],["砂","모래 사",""],["醉","취할 취",""],
+["樂","즐길 락, 풍류 악, 좋아할 요",""],["眉","눈썹 미",""],["淋","물 뿌릴 임(림)",""],["略","다스릴 략(약)",""],["縫","꿰맬 봉",""],
+["備","갖출 비",""],["桑","뽕나무 상",""],["資","재물 자",""],["典","법 전",""],["助","도울 조",""],
+// 801~900
+["鳩","비둘기 구",""],["耗","줄 모",""],["續","이을 속",""],["灼","사를 작",""],["縱","늘어질 종",""],
+["功","공 공",""],["武","굳셀 무",""],["楊","버들 양",""],["克","이길 극",""],["跗","발등 부",""],
+["羊","양 양",""],["柴","섶 시",""],["含","머금을 함",""],["肓","명치끝 황",""],["凉","서늘할 량",""],
+["整","가지런할 정",""],["早","이를 조, 새벽 조",""],["洪","넓을 홍",""],["芎","궁궁이 궁",""],["匱","함 궤",""],
+["論","말할 논(론)",""],["敷","펼 부",""],["悲","슬플 비",""],["銳","날카로울 예",""],["致","이를 치",""],
+["普","널리 보",""],["良","어질 양(량)",""],["劉","유",""],["鼓","북 고",""],["阿","언덕 아",""],
+["搖","흔들릴 요",""],["衣","옷 의",""],["農","농사 농",""],["陶","질그릇 도",""],["銅","구리 동",""],
+["拇","엄지손가락 무",""],["由","말미암을 유",""],["鹹","짤 함",""],["腔","속 빌 강",""],["似","같을 사",""],
+["湖","호수 호",""],["林","수풀 림(임)",""],["愼","삼갈 신",""],["瓜","오이 과",""],["芩","풀이름 금",""],
+["沫","거품 말",""],["保","지킬 보",""],["印","도장 인",""],["霍","빠를 곽",""],["異","다를 이",""],
+["適","갈 적",""],["浙","땅 이름 절",""],["特","특별할 특",""],["灰","재 회",""],["亡","망할 망",""],
+["寅","셋째 지지 인",""],["姙","임신할 임",""],["介","끼일 개",""],["肋","갈비 륵(늑)",""],["迷","미혹할 미",""],
+["毫","가는 털 호",""],["却","물리칠 각",""],["渚","물가 저",""],["今","이제 금",""],["序","차례 서",""],
+["碍","거리낄 애",""],["畏","두려워할 외",""],["慾","욕심 욕",""],["抵","막을 저",""],["弘","넓을 홍",""],
+["洗","씻을 세",""],["他","다를 타",""],["兎","토끼 토",""],["肥","살찔 비",""],["程","한도 정",""],
+["巴","땅 이름 파",""],["臨","임할 림(임)",""],["田","밭 전",""],["好","좋을 호",""],["澀","떫을 삽",""],
+["露","이슬 로(노)",""],["柏","나무 이름 백",""],["歲","해 세",""],["壽","목숨 수",""],["決","결단할 결",""],
+["痹","저릴 비",""],["信","믿을 신",""],["類","무리 유(류)",""],["膺","가슴 응",""],["將","장차 장, 장수 장",""],
+["促","재촉할 촉",""],["還","돌아올 환",""],["德","덕 덕",""],["哀","슬플 애",""],["痢","설사 이(리)",""],
+["腠","살결 주",""],["號","이름 호",""],["蒙","어두울 몽",""],["沙","모래 사",""],["攢","모일 찬",""],
+// 901~1000
+["惠","은혜 혜",""],["放","놓을 방",""],["銀","은 은",""],["材","재료 재",""],["梅","매화나무 매",""],
+["朴","후박나무 박",""],["步","걸음 보",""],["戌","개 술",""],["睾","불알 고",""],["晋","나아갈 진",""],
+["哮","으르렁거릴 효",""],["殺","죽일 살",""],["尸","주검 시",""],["磁","자석 자",""],["棗","대추 조",""],
+["丑","소 축",""],["嘉","아름다울 가",""],["街","거리 가",""],["噤","입 다물 금",""],["癭","혹 영",""],
+["梗","가시나무, 느릅나무 경",""],["紀","벼리 기",""],["但","다만 단",""],["丙","남녘 병",""],["首","머리 수",""],
+["癱","중풍 탄",""],["瘈","미칠 계",""],["暗","어두울 암",""],["錢","돈 전",""],["逐","쫓을 축",""],
+["蛇","뱀 사",""],["瘙","피부병 소",""],["搏","칠 박",""],["焉","어조사 언",""],["怔","두려워할 정",""],
+["差","어긋날 차",""],["聰","귀 밝을 총",""],["杏","살구나무 행",""],["竭","다할 갈",""],["⬜","빈자리","940번 자리 빈 칸 (교수님 자료 누락)"],
+["守","지킬 수",""],["育","기를 육",""],["膠","아교 교",""],["譫","헛소리 섬",""],["雙","쌍 쌍",""],
+["幽","그윽할 유",""],["侵","침노할 침",""],["齦","잇몸 은",""],["疥","옴 개",""],["柄","자루 병",""],
+["憂","근심할 우",""],["乎","어조사 호",""],["盲","소경 맹",""],["培","북돋울 배",""],["植","심을 식",""],
+["伍","대오 오",""],["酉","닭 유",""],["渠","도랑 거",""],["庚","일곱째 천간 경",""],["密","빽빽할 밀",""],
+["政","정사 정",""],["亥","돼지 해",""],["搐","경련할 축",""],["繫","맬 계",""],["鷄","닭 계",""],
+["卯","토끼 묘",""],["副","버금 부",""],["往","갈 왕",""],["越","넘을 월",""],["持","가질 지",""],
+["涕","콧물 체",""],["忡","근심할 충",""],["瘲","경풍 종",""],["旋","돌 선",""],["御","거느릴 어",""],
+["易","바꿀 역, 쉬울 이",""],["葛","칡 갈",""],["犢","송아지 독",""],["存","있을 존",""],["徵","부를 징",""],
+["欬","기침 해",""],["粘","끈끈할 점",""],["更","다시 갱, 고칠 경",""],["顧","돌아볼 고",""],["球","공 구",""],
+["燒","불사를 소",""],["乘","탈 승",""],["厭","싫어할 염",""],["再","두 재",""],["貞","곧을 정",""],
+["枳","탱자나무 지",""],["灌","물 댈 관",""],["潛","잠길 잠",""],["着","붙을 착",""],["癃","느른할 륭(융)",""],
+["識","알 식",""],["鹽","소금 염",""],["鵲","까치 작",""],["低","낮을 저",""],["組","짤 조",""]
+];
+
+// 인체관련한자/한의학관련한자 카테고리는 1.4에서 제거됨
+// (랭킹전 도입과 함께 1~1000 본 데이터로 단일화)
+
+const ranges=[
+["전체 1000","0-"+A.length],["⭐ 별표만","star"],
+["1~100","0-100"],["101~200","100-200"],["201~300","200-300"],["301~400","300-400"],["401~500","400-500"],
+["501~600","500-600"],["601~700","600-700"],["701~800","700-800"],["801~900","800-900"],["901~1000","900-"+A.length],
+["1~50","0-50"],["51~100","50-100"],["101~150","100-150"],["151~200","150-200"],
+["201~250","200-250"],["251~300","250-300"],["301~350","300-350"],["351~400","350-400"],
+["401~450","400-450"],["451~500","450-500"],
+["501~550","500-550"],["551~600","550-600"],["601~650","600-650"],["651~700","650-700"],
+["701~750","700-750"],["751~800","750-800"],["801~850","800-850"],["851~900","850-900"],
+["901~950","900-950"],["951~1000","950-"+A.length]
+];
+
+function go(id,el){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById(id).classList.add('on');el.classList.add('on');}
+
+// ── Range buttons ──
+function buildRB(containerId,onClick){
+  const c=document.getElementById(containerId);
+  ranges.forEach(r=>{
+    const b=document.createElement('button');
+    b.className='rb-btn'+(r[1]==='star'?' star':'')+(r[0]==='전체 1000'?' on':'');
+    if(r[1]==='star')b.style.cssText='background:#fffbeb;color:#92400e;border-color:#fbbf24;';
+    b.textContent=r[0];b.dataset.v=r[1];
+    b.onclick=function(){c.querySelectorAll('.rb-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');onClick(r[1]);};
+    c.appendChild(b);
+  });
+}
+function getPool(v){
+  if(v==='star'){const s=getStars();return A.filter(c=>s.has(c[0]+c[1]));}
+  // Multi-range: "0-50,100-150"
+  if(v.includes(',')){
+    const out=[];
+    v.split(',').forEach(part=>{
+      const p=part.trim().split('-');
+      if(p.length===2){out.push(...A.slice(+p[0],+p[1]));}
+    });
+    // 중복 제거 (순서 유지)
+    const seen=new Set();const dedup=[];
+    out.forEach(c=>{const k=c[0]+c[1];if(!seen.has(k)){seen.add(k);dedup.push(c);}});
+    return dedup;
+  }
+  const p=v.split('-');return A.slice(+p[0],+p[1]);
+}
+
+// ── Stars (로그인 시 Firebase 별도 저장, 비로그인 시 localStorage) ──
+// 비로그인 시: localStorage('stars500')만 사용
+// 로그인 시: 인메모리 starsLoggedIn Set + Firebase 자동 동기화 (별표 토글마다)
+
+let starsLoggedIn = null; // 로그인 중일 때만 사용. null이면 비로그인 모드.
+
+function getStars(){
+  // 로그인 중이면 인메모리 별표 반환, 아니면 localStorage
+  if(starsLoggedIn !== null) return new Set(starsLoggedIn);
+  try{return new Set(JSON.parse(localStorage.getItem('stars500')||'[]'));}catch(e){return new Set();}
+}
+function saveStars(s){
+  if(starsLoggedIn !== null){
+    // 로그인 중: 인메모리 갱신 + Firebase 백그라운드 저장
+    starsLoggedIn = new Set(s);
+    saveStarsToFirebase();
+  } else {
+    // 비로그인: localStorage
+    localStorage.setItem('stars500', JSON.stringify([...s]));
+  }
+}
+async function saveStarsToFirebase(){
+  if(!rkConfigured || !rkUser || starsLoggedIn===null) return;
+  try {
+    await rkDb.collection('stars').doc(rkUser).set({
+      nickname: rkUser,
+      list: [...starsLoggedIn],
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e){
+    console.warn('별표 동기화 실패:', e);
+  }
+}
+async function loadStarsFromFirebase(){
+  if(!rkConfigured || !rkUser) return new Set();
+  try {
+    const doc = await rkDb.collection('stars').doc(rkUser).get();
+    if(doc.exists && Array.isArray(doc.data().list)){
+      return new Set(doc.data().list);
+    }
+  } catch(e){
+    console.warn('별표 불러오기 실패:', e);
+  }
+  return new Set();
+}
+
+function isStarred(c){return getStars().has(c[0]+c[1]);}
+function toggleStar(){
+  if(!fPool.length)return;
+  const c=fPool[fo[fi]];
+  const key=c[0]+c[1];
+  const s=getStars();
+  if(s.has(key))s.delete(key);else s.add(key);
+  saveStars(s);
+  updateStarUI();
+}
+function updateStarUI(){
+  if(!fPool.length)return;
+  const c=fPool[fo[fi]];
+  const on=isStarred(c);
+  const b1=document.getElementById('starBtn');
+  const b2=document.getElementById('starBtn2');
+  b1.textContent=on?'★':'☆';b1.className='star-btn'+(on?' on':'');
+  b2.textContent=on?'★':'☆';b2.className='star-btn'+(on?' on':'');
+  b2.style.color=on?'#f59e0b':'#fff';
+  const stars=getStars();
+  const total=stars.size;
+  const inRange=fPool.filter(x=>x[0]&&stars.has(x[0]+x[1])).length;
+  const sc=document.getElementById('starCnt');
+  // 로그인 상태 표시
+  const modeTag = starsLoggedIn!==null ? ` <span style="font-size:10px;color:#10b981">[${rkUser} 계정 별표]</span>` : '';
+  if(!total){sc.innerHTML=modeTag?`별표 없음${modeTag}`:'';return;}
+  if(inRange===total){sc.innerHTML=`⭐ ${total}개 별표됨${modeTag}`;}
+  else{sc.innerHTML=`⭐ 이 범위 ${inRange}개 / 전체 ${total}개 별표됨${modeTag}`;}
+}
+function exportStars(){
+  const s=getStars();
+  document.getElementById('expTa').value=JSON.stringify([...s]);
+  navigator.clipboard.writeText(JSON.stringify([...s])).then(()=>alert('복사됨! 카톡이나 메모에 붙여넣기 하세요.')).catch(()=>alert('위 코드를 직접 복사하세요.'));
+}
+function importStars(){
+  const v=document.getElementById('expTa').value.trim();
+  if(!v){alert('코드를 붙여넣기 해주세요.');return;}
+  try{const arr=JSON.parse(v);const s=new Set(arr);saveStars(s);updateStarUI();alert(`${s.size}개 별표 불러오기 완료!`);}
+  catch(e){alert('코드 형식이 올바르지 않습니다.');}
+}
+function resetStars(){
+  const isLogin = starsLoggedIn !== null;
+  const target = isLogin ? `${rkUser} 계정의 별표` : '비로그인 별표(이 PC)';
+  if(!confirm(`${target}를 전부 지울까요?`))return;
+  saveStars(new Set());
+  updateStarUI();
+  if(typeof rL === 'function' && document.getElementById('lsg')) rL();
+  alert('초기화 완료');
+}
+
+
+// ── Flashcard ──
+let fPool=A.slice(),fi=0,fo=[];
+function fInit(){fo=[...Array(fPool.length).keys()];fi=0;}
+function fShow(){
+  if(!fPool.length)return;
+  const c=fPool[fo[fi]];
+  const isErr=c[0]==='⬜';
+  const isCompound=c[0].length>1&&c[2]&&c[2].includes('|');
+  const hu=document.getElementById('fhu');
+  const tp=document.getElementById('ftp');
+  const dt=document.getElementById('fdt');
+  
+  document.getElementById('fch').textContent=isErr?'⬜':c[0];
+  dt.className='fc-detail';dt.innerHTML='';
+  
+  if(isCompound){
+    const parts=c[2].split('|');
+    hu.textContent=c[1];hu.className='fc-hun compound';
+    const tagPart=parts[0].trim();
+    if(tagPart==='양'||tagPart==='음'){
+      tp.innerHTML=`<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:700;${tagPart==='양'?'background:#fff;color:#1c1917;border:1px solid #1c1917':'background:#1c1917;color:#fff'}">${tagPart}</span>`;
+    } else {
+      tp.textContent=tagPart;
+    }
+    dt.innerHTML='<div class="fc-tap-hint">👆 클릭하면 각 글자 훈음 보기</div>';
+    dt.classList.add('show');
+    let detailShown=false;
+    dt.onclick=function(e){e.stopPropagation();
+      if(!detailShown){dt.innerHTML=parts[1];dt.style.fontSize='15px';detailShown=true;}
+      else{dt.innerHTML='<div class="fc-tap-hint">👆 클릭하면 각 글자 훈음 보기</div>';dt.style.fontSize='';detailShown=false;}
+    };
+  } else {
+    hu.textContent=isErr?c[2]:c[1];hu.className='fc-hun';
+    const tip=(!isErr&&c[2])?c[2]:'';
+    if(tip==='양'||tip==='음'){
+      tp.innerHTML=`<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:700;${tip==='양'?'background:#fff;color:#1c1917;border:1px solid #1c1917':'background:#1c1917;color:#fff'}">${tip}</span>`;
+    } else {
+      tp.textContent=tip;
+    }
+    dt.onclick=null;
+  }
+  
+  document.getElementById('fct').textContent=`${fi+1} / ${fPool.length}`;
+  document.getElementById('fpb').style.width=((fi+1)/fPool.length*100)+'%';
+  if(isErr){document.getElementById('fch').style.fontSize='40px';}
+  else if(c[0].length>1){document.getElementById('fch').style.fontSize='48px';}
+  else{document.getElementById('fch').style.fontSize='';}
+  updateStarUI();
+}
+function flip(){
+  const card=document.getElementById('fcard');
+  const isFlipped=card.classList.contains('flip');
+  if(isFlipped){
+    // Going back to front - reset detail
+    document.getElementById('fdt').classList.remove('show');
+    document.getElementById('fdt').innerHTML='';
+  }
+  card.classList.toggle('flip');
+  // If just flipped to back, re-show detail for compounds
+  if(!isFlipped){
+    const c=fPool[fo[fi]];
+    const isCompound=c&&c[0].length>1&&c[2]&&c[2].includes('|');
+    if(isCompound){
+      const dt=document.getElementById('fdt');
+      const parts=c[2].split('|');
+      dt.innerHTML='<div class="fc-tap-hint">👆 클릭하면 각 글자 훈음 보기</div>';
+      dt.classList.add('show');
+      let detailShown=false;
+      dt.onclick=function(e){e.stopPropagation();
+        if(!detailShown){dt.innerHTML=parts[1];dt.style.fontSize='15px';detailShown=true;}
+        else{dt.innerHTML='<div class="fc-tap-hint">👆 클릭하면 각 글자 훈음 보기</div>';dt.style.fontSize='';detailShown=false;}
+      };
+    }
+  }
+}
+function fN(){fi=(fi+1)%fPool.length;fShow()}
+function fP(){fi=(fi-1+fPool.length)%fPool.length;fShow()}
+function fSh(){for(let i=fo.length-1;i>0;i--){const j=0|Math.random()*(i+1);[fo[i],fo[j]]=[fo[j],fo[i]];}fi=0;document.getElementById('fcard').classList.remove('flip');fShow();}
+
+let curFcRange='0-'+A.length,starFilterOn=false;
+buildRB('fcR',function(v){
+  curFcRange=v;starFilterOn=false;
+  const sf=document.getElementById('sfBtn');if(sf){sf.classList.remove('on');sf.textContent='☆ 별표만';}
+  fPool=getPool(v);fInit();document.getElementById('fcard').classList.remove('flip');fShow();
+});
+function toggleStarFilter(){
+  const btn=document.getElementById('sfBtn');
+  if(curFcRange==='star'){return;} // already global star
+  starFilterOn=!starFilterOn;
+  btn.classList.toggle('on',starFilterOn);
+  btn.textContent=starFilterOn?'★ 전체보기':'☆ 별표만';
+  if(starFilterOn){
+    const base=getPool(curFcRange);
+    const stars=getStars();
+    fPool=base.filter(c=>stars.has(c[0]+c[1]));
+    if(!fPool.length){fPool=base;starFilterOn=false;btn.classList.remove('on');btn.textContent='☆ 별표만';alert('이 범위에 별표된 한자가 없습니다.');}
+  } else {
+    fPool=getPool(curFcRange);
+  }
+  fInit();document.getElementById('fcard').classList.remove('flip');fShow();
+}
+
+// ── Quiz ──
+let qMode='obj';
+function buildQR(){
+  const s=document.getElementById('qrng');
+  ranges.forEach(r=>{const o=document.createElement('option');o.value=r[1];o.textContent=r[0];s.appendChild(o);});
+}
+function parseRangeText(text){
+  // "1-50, 100-150, 300" → {ranges:[{s,e},...]} or {error:"..."}
+  const parts=text.split(',').map(s=>s.trim()).filter(s=>s);
+  if(!parts.length)return {error:'범위를 입력하세요'};
+  const out=[];
+  for(const p of parts){
+    // 범위: 1-50 or 1~50
+    let m=p.match(/^(\d+)\s*[-~]\s*(\d+)$/);
+    let s,e;
+    if(m){s=parseInt(m[1]);e=parseInt(m[2]);}
+    else {
+      // 단일 숫자: 300
+      m=p.match(/^(\d+)$/);
+      if(!m)return {error:`형식 오류: '${p}' (예: 1-50 또는 300)`};
+      s=parseInt(m[1]);e=s;
+    }
+    if(s<1||e<1||s>A.length||e>A.length)return {error:`범위 초과: 1~${A.length} 사이여야 함`};
+    if(s>e)return {error:`시작이 끝보다 큼: ${s}-${e}`};
+    out.push({s,e});
+  }
+  // 교집합 검사
+  for(let i=0;i<out.length;i++){
+    for(let j=i+1;j<out.length;j++){
+      const a=out[i],b=out[j];
+      if(a.s<=b.e&&b.s<=a.e){
+        const aLabel=a.s===a.e?`${a.s}`:`${a.s}-${a.e}`;
+        const bLabel=b.s===b.e?`${b.s}`:`${b.s}-${b.e}`;
+        return {error:`겹치는 구간 오류: ${aLabel} ↔ ${bLabel}`};
+      }
+    }
+  }
+  return {ranges:out};
+}
+function applyCustomRange(){
+  const txt=document.getElementById('qcrText').value.trim();
+  const err=document.getElementById('qcrErr');
+  if(!txt){err.textContent='범위를 입력하세요 (예: 1-50, 100-150)';err.style.color='var(--r,#dc2626)';return;}
+  const result=parseRangeText(txt);
+  if(result.error){err.textContent=result.error;err.style.color='var(--r,#dc2626)';return;}
+  const ranges=result.ranges;
+  // value 형식: "0-50,99-150" (slice용 0-based 변환)
+  const value=ranges.map(r=>(r.s-1)+'-'+r.e).join(',');
+  const label=ranges.map(r=>r.s===r.e?`${r.s}`:`${r.s}~${r.e}`).join(', ')+' (직접입력)';
+  const sel=document.getElementById('qrng');
+  let found=false;
+  for(const opt of sel.options){if(opt.value===value){opt.selected=true;found=true;break;}}
+  if(!found){const o=document.createElement('option');o.value=value;o.textContent=label;sel.appendChild(o);o.selected=true;}
+  err.textContent=`✓ ${label.replace(' (직접입력)','')} 적용됨`;err.style.color='var(--g,#16a34a)';
+  setTimeout(()=>{err.textContent='';err.style.color='';},2500);
+}
+function applyFcRange(){
+  const txt=document.getElementById('fcRangeText').value.trim();
+  const err=document.getElementById('fcRangeErr');
+  if(!txt){err.textContent='범위를 입력하세요';err.style.color='#dc2626';return;}
+  const result=parseRangeText(txt);
+  if(result.error){err.textContent=result.error;err.style.color='#dc2626';return;}
+  const ranges=result.ranges;
+  const value=ranges.map(r=>(r.s-1)+'-'+r.e).join(',');
+  const label=ranges.map(r=>r.s===r.e?`${r.s}`:`${r.s}~${r.e}`).join(', ');
+  curFcRange=value;starFilterOn=false;
+  document.querySelectorAll('#fcR .rb-btn').forEach(x=>x.classList.remove('on'));
+  const sf=document.getElementById('sfBtn');if(sf){sf.classList.remove('on');sf.textContent='☆ 별표만';}
+  fPool=getPool(value);fInit();document.getElementById('fcard').classList.remove('flip');fShow();
+  err.textContent=`✓ ${label} 적용됨 (${fPool.length}자)`;err.style.color='#16a34a';
+  setTimeout(()=>{err.textContent='';err.style.color='';},2500);
+}
+function applyLsRange(){
+  const txt=document.getElementById('lsRangeText').value.trim();
+  const err=document.getElementById('lsRangeErr');
+  if(!txt){err.textContent='범위를 입력하세요';err.style.color='#dc2626';return;}
+  const result=parseRangeText(txt);
+  if(result.error){err.textContent=result.error;err.style.color='#dc2626';return;}
+  const ranges=result.ranges;
+  const value=ranges.map(r=>(r.s-1)+'-'+r.e).join(',');
+  const label=ranges.map(r=>r.s===r.e?`${r.s}`:`${r.s}~${r.e}`).join(', ');
+  document.querySelectorAll('#lsR .rb-btn').forEach(x=>x.classList.remove('on'));
+  // 다중 범위 시 각 카드에 원본 번호 부여
+  lPool=[];
+  ranges.forEach(r=>{
+    for(let idx=r.s-1;idx<r.e;idx++){
+      if(A[idx]){
+        // c 배열 끝에 원본 번호(1-based) 추가 — 안전한 메타: __num
+        const item=A[idx].slice();item.__origNum=idx+1;
+        lPool.push(item);
+      }
+    }
+  });
+  lOff=0;
+  document.getElementById('lss').value='';rL();
+  err.textContent=`✓ ${label} 적용됨 (${lPool.length}자)`;err.style.color='#16a34a';
+  setTimeout(()=>{err.textContent='';err.style.color='';},2500);
+}
+let qPool=[],qs=0,qt=0,qu=new Set(),qM=20;
+let qCurHuneums=[];
+let qHistory=[];
+let qViewIdx=-1;
+let qCurChar=null; // current quiz character for subjective
+
+// Subjective matching with 두음법칙 support
+function normalize(s){return s.replace(/[\s]/g,'');}
+function stripParen(s){return s.replace(/\([^)]*\)/g,'').replace(/[\s]/g,'');}
+
+function generateVariants(part){
+  // "두 양(량)" → ["두양","두량"]
+  // "걸릴 련(연)" → ["걸릴련","걸릴연"]
+  // "문득 변" → ["문득변"]
+  const variants=[];
+  const trimmed=part.trim();
+  // Extract parenthetical: e.g. "두 양(량)"
+  const m=trimmed.match(/^(.+?)\(([^)]+)\)\s*$/);
+  if(m){
+    // Has parenthetical - base without paren + variant with paren content
+    const base=stripParen(trimmed);
+    variants.push(base);
+    // Replace last char of base with paren content
+    const parenContent=m[2];
+    const baseNoSpace=normalize(trimmed.replace(/\([^)]*\)/,''));
+    // Get everything except last char cluster + paren content
+    const lastCharIdx=baseNoSpace.length-parenContent.length;
+    // Simpler: just replace the reading before paren with paren content
+    const beforeParen=normalize(m[1]);
+    const mainReading=beforeParen.slice(-1); // last char is the 음
+    const prefix=beforeParen.slice(0,-1);
+    variants.push(prefix+parenContent);
+    // Also accept full with parens
+    variants.push(normalize(trimmed));
+  } else {
+    variants.push(normalize(trimmed));
+  }
+  return variants;
+}
+
+function checkAnswer(input,huneum){
+  const ni=normalize(input);
+  if(!ni)return false;
+  
+  // 슬래시 쌍: "받을 수/줄 수" — 정답은 "받을수/줄수" (두 파트의 훈음 붙인 것 / 붙인 것)
+  if(huneum.includes('/')){
+    const parts=huneum.split('/').map(s=>s.trim());
+    // 각 파트를 정규화(훈+음 붙이기)
+    const normParts=parts.map(p=>normalize(p));
+    // 정답 변형: "받을수/줄수", "줄수/받을수" (순서 무관하게)
+    const allValid=new Set();
+    allValid.add(normParts.join('/'));
+    allValid.add([...normParts].reverse().join('/'));
+    // 공백 유지 형태도 허용: "받을 수/줄 수"
+    const spaceForm=parts.map(p=>p.trim()).join('/');
+    allValid.add(spaceForm.replace(/\s/g,''));
+    // 입력 정규화
+    const niStrip=input.replace(/[()]/g,'').replace(/\s/g,'');
+    if(allValid.has(niStrip))return true;
+    // 부/불 변형
+    for(const v of allValid){
+      if(v.includes('부')&&niStrip===v.replace(/부/g,'불'))return true;
+      if(v.includes('불')&&niStrip===v.replace(/불/g,'부'))return true;
+    }
+    return false;
+  }
+  
+  function buBulVars(s){
+    const r=[s];
+    if(s.includes('부'))r.push(s.replace(/부/g,'불'));
+    if(s.includes('불'))r.push(s.replace(/불/g,'부'));
+    return r;
+  }
+  
+  const allValid=new Set();
+  
+  // 원본 그대로 (괄호/공백 제거)
+  allValid.add(normalize(huneum));
+  allValid.add(huneum.replace(/[()]/g,'').replace(/\s/g,''));
+  
+  const commaParts=huneum.split(',').map(s=>s.trim()).filter(s=>s);
+  
+  if(commaParts.length>=2){
+    // 다의어 처리
+    // 마지막 부분의 마지막 단어(1글자) = 공통 음 (다른 음이면 각 부분이 자체 음 가짐)
+    const lastPart=commaParts[commaParts.length-1];
+    const lastWords=lastPart.split(/\s+/);
+    const lastEum=lastWords[lastWords.length-1];
+    
+    // 각 파트별로 훈/음 분리
+    // - 파트가 둘 이상 단어면 끝 단어 = 음 (예: "자주 삭" → 훈: "자주", 음: "삭")
+    // - 한 단어면 공통음 사용 (예: "엎드릴" → 훈: "엎드릴", 음: lastEum)
+    const parsed=commaParts.map(part=>{
+      const stripped=part.replace(/[()]/g,'').replace(/\s+/g,' ').trim();
+      const words=stripped.split(/\s+/);
+      if(words.length>=2){
+        return {hun:words.slice(0,-1).join(''),eum:words[words.length-1]};
+      } else {
+        return {hun:words[0]||'',eum:lastEum};
+      }
+    });
+    
+    // 각 파트를 훈+음 형태로 등록
+    parsed.forEach(({hun,eum})=>{
+      if(!hun||!eum)return;
+      allValid.add(hun+eum);          // "법칙칙"
+      allValid.add(hun+' '+eum);       // "법칙 칙"
+      allValid.add(normalize(hun+' '+eum));
+    });
+    
+    // 공통 음을 갖는 경우: 모든 훈 한꺼번에 + 공통음도 허용
+    const allSameEum=parsed.every(p=>p.eum===lastEum);
+    if(allSameEum){
+      const allHuns=parsed.map(p=>p.hun);
+      if(allHuns.length>=2){
+        allValid.add(allHuns.join('')+lastEum);
+        allValid.add(allHuns.join(' ')+' '+lastEum);
+        allValid.add(normalize(allHuns.join(' ')+' '+lastEum));
+      }
+    }
+  }
+  
+  // 단일 훈음 또는 두음법칙: generateVariants
+  // (단, 다의어인 경우 훈만 단독 부분은 제외)
+  if(commaParts.length>=2){
+    for(const a of commaParts){
+      const stripped=a.replace(/[()]/g,'').replace(/\s+/g,' ').trim();
+      const words=stripped.split(/\s+/);
+      // 2단어 이상이면 자체 훈+음 (예: "자주 삭", "법칙 칙")
+      if(words.length>=2){
+        const vars=generateVariants(a);
+        vars.forEach(v=>allValid.add(v));
+      }
+      // 1단어(훈만)은 추가 안함 — 위쪽 로직에서 공통음 붙인 버전이 이미 추가됨
+    }
+  } else {
+    for(const a of commaParts){
+      const vars=generateVariants(a);
+      vars.forEach(v=>allValid.add(v));
+    }
+  }
+  
+  // 입력값 정규화
+  const niStrip=input.replace(/[\s()]/g,'');
+  const inputs=[ni,niStrip];
+  const allInputs=[];
+  inputs.forEach(s=>buBulVars(s).forEach(x=>allInputs.push(x)));
+  
+  const finalValid=new Set();
+  allValid.forEach(v=>buBulVars(v).forEach(x=>finalValid.add(x)));
+  
+  for(const iv of allInputs){if(finalValid.has(iv))return true;}
+  return false;
+}
+
+function onQnumChange(){
+  const sel=document.getElementById('qnum');
+  const custom=document.getElementById('qnumCustom');
+  if(sel.value==='custom'){
+    custom.style.display='inline-block';
+    custom.focus();
+  } else {
+    custom.style.display='none';
+  }
+}
+
+function qSt(){
+  const v=document.getElementById('qrng').value;
+  qPool=getPool(v).filter(c=>c[0]!=='⬜');
+  const sel=document.getElementById('qnum').value;
+  if(sel==='custom'){
+    qM=+document.getElementById('qnumCustom').value;
+    if(!qM||qM<1){alert('문제 수를 1 이상으로 입력해주세요');return;}
+  } else {
+    qM=+sel;
+  }
+  if(!qM||qM>qPool.length)qM=qPool.length;
+  qs=0;qt=0;qu.clear();qHistory=[];qViewIdx=-1;qCurChar=null;
+  document.getElementById('qset').style.display='none';
+  document.getElementById('qa').style.display='block';
+  document.getElementById('qrs').style.display='none';
+  document.getElementById('qsc').innerHTML='';
+  // Show/hide modes
+  document.getElementById('qaObj').style.display=qMode==='obj'?'':'none';
+  document.getElementById('qaSub').style.display=qMode==='sub'?'':'none';
+  qNx();
+}
+function qRs(){document.getElementById('qset').style.display='block';document.getElementById('qa').style.display='none';}
+
+function hideAllQBtns(){
+  ['qnx','qrs','qrvBtn','qrvPrev','qrvNext'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('qrvHint').textContent='';
+}
+function qShowHistory(idx){
+  const h=qHistory[idx];if(!h)return;
+  hideAllQBtns();
+  document.getElementById('qpg').textContent=`📋 오답 복습 (${idx+1}/${qHistory.length})`;
+  document.getElementById('qqt').textContent=h.char;
+  document.getElementById('qsb').textContent='';
+  document.getElementById('qow').innerHTML='';
+  document.getElementById('qaObj').style.display='';document.getElementById('qaSub').style.display='none';
+  const el=document.getElementById('qow');
+  const d=document.createElement('div');d.className='qo ok';d.style.pointerEvents='none';d.style.gridColumn='1/-1';
+  d.innerHTML=`정답: <b>${h.correct_ans}</b>`;el.appendChild(d);
+  if(h.user_ans!==h.correct_ans){
+    const d2=document.createElement('div');d2.className='qo no';d2.style.pointerEvents='none';d2.style.gridColumn='1/-1';
+    d2.innerHTML=`내 답: ${h.user_ans}`;el.appendChild(d2);
+  }
+  // Show navigation
+  if(idx>0) document.getElementById('qrvPrev').style.display='inline-block';
+  if(idx<qHistory.length-1) document.getElementById('qrvNext').style.display='inline-block';
+  // Show exit review
+  if(qt<qM) document.getElementById('qnx').style.display='inline-block'; // back to quiz
+  else document.getElementById('qrs').style.display='inline-block';
+  document.getElementById('qrvHint').textContent='← → 키 또는 버튼으로 오답 탐색';
+}
+function qReviewStart(){
+  if(qHistory.length===0)return;
+  qViewIdx=qHistory.length-1; // start from most recent
+  qShowHistory(qViewIdx);
+}
+function qReviewPrev(){
+  if(qHistory.length===0)return;
+  if(qViewIdx===-1)qViewIdx=qHistory.length-1;
+  else if(qViewIdx>0)qViewIdx--;
+  qShowHistory(qViewIdx);
+}
+function qReviewNext(){
+  if(qViewIdx<qHistory.length-1){qViewIdx++;qShowHistory(qViewIdx);}
+}
+
+function qNx(){
+  qViewIdx=-1;
+  hideAllQBtns();
+  document.getElementById('qaObj').style.display=qMode==='obj'?'':'none';
+  document.getElementById('qaSub').style.display=qMode==='sub'?'':'none';
+  document.getElementById('sqAns').textContent='';document.getElementById('sqAns').className='sq-answer';
+  const inp=document.getElementById('sqInput');if(inp){inp.value='';inp.className='sq-input';inp.disabled=false;}
+
+  if(qt>=qM){
+    document.getElementById('qqt').textContent='완료!';
+    document.getElementById('qow').innerHTML='';document.getElementById('qaObj').style.display='none';document.getElementById('qaSub').style.display='none';
+    let summary=`<span class="ok">맞은 문제 ${qs}개</span><span class="no">틀린 문제 ${qt-qs}개</span>`;
+    document.getElementById('qsc').innerHTML=summary;
+    document.getElementById('qrs').style.display='inline-block';
+    if(qHistory.length>0){
+      document.getElementById('qrvBtn').style.display='inline-block';
+      document.getElementById('qrvHint').textContent=`틀린 문제 ${qHistory.length}개`;
+    }
+    document.getElementById('qsb').textContent='';document.getElementById('qpg').textContent='';return;
+  }
+  document.getElementById('qpg').textContent=`${qt+1} / ${qM}`;
+  // Show review button during quiz if there are wrongs
+  if(qHistory.length>0){
+    document.getElementById('qrvBtn').style.display='inline-block';
+  }
+  let i;do{i=0|Math.random()*qPool.length}while(qu.has(i)&&qu.size<qPool.length);qu.add(i);
+  const cor=qPool[i];
+  // 같은 한자의 다른 인덱스도 qu에 추가하여 중복 출제 방지 (한자 dedup)
+  for(let j=0;j<qPool.length;j++){
+    if(j!==i && qPool[j][0]===cor[0]) qu.add(j);
+  }
+  qCurChar=cor;
+  // 같은 한자의 모든 음훈 수집 (다중 음훈 인정용) — A 전체 기준
+  qCurHuneums=[...new Set(A.filter(c=>c[0]===cor[0]).map(c=>c[1]))];
+  document.getElementById('qqt').textContent=cor[0];
+
+  if(qMode==='obj'){
+    document.getElementById('qsb').textContent='한자를 보고 올바른 훈음을 고르세요';
+    // Only use main A array, dedupe by char
+    const seen=new Set();
+    const allSrc=[];
+    for(const c of A){
+      if(c[0]==='⬜'||c[0]==='__'||c[0]==='__sub')continue;
+      if(seen.has(c[0]))continue;
+      seen.add(c[0]);allSrc.push(c);
+    }
+    // 정답 보기: 한 한자가 여러 음훈을 가지면 모두 표시 (다중 음훈 명시)
+    const corDisplay=qCurHuneums.length>1?qCurHuneums.join(', '):cor[1];
+    let w=[];while(w.length<3){const r=0|Math.random()*allSrc.length;if(allSrc[r][0]!==cor[0]&&!qCurHuneums.includes(allSrc[r][1])&&!w.find(x=>x===allSrc[r][1]))w.push(allSrc[r][1]);}
+    const opts=[{t:corDisplay,c:1},...w.map(x=>({t:x,c:0}))];
+    for(let i=opts.length-1;i>0;i--){const j=0|Math.random()*(i+1);[opts[i],opts[j]]=[opts[j],opts[i]];}
+    const el=document.getElementById('qow');el.innerHTML='';
+    opts.forEach((o,oi)=>{const b=document.createElement('div');b.className='qo';b.innerHTML=`<span style="opacity:.4;font-size:11px;margin-right:4px">${oi+1}</span>${o.t}`;b.dataset.ans=o.t;b.onclick=function(){
+      document.querySelectorAll('.qo').forEach(x=>x.style.pointerEvents='none');
+      // 정답 판단: 누른 보기가 정답 표시(다중음훈 합본)이거나 같은 한자의 어느 음훈이든
+      const wasCorrect=!!o.c||qCurHuneums.includes(o.t);
+      if(wasCorrect){b.classList.add('ok');qs++;}else{b.classList.add('no');document.querySelectorAll('.qo').forEach(x=>{if(x.dataset.ans===corDisplay)x.classList.add('ok');});}
+      if(!wasCorrect){qHistory.push({char:cor[0],correct_ans:corDisplay,user_ans:o.t,was_correct:false});}
+      qt++;document.getElementById('qsc').innerHTML=`<span class="ok">맞음 ${qs}개</span><span class="no">틀림 ${qt-qs}개</span>`;
+      hideAllQBtns();document.getElementById('qnx').style.display='inline-block';
+      if(qHistory.length>0)document.getElementById('qrvBtn').style.display='inline-block';
+    };el.appendChild(b);});
+  } else {
+    document.getElementById('qsb').textContent='한자를 보고 훈음을 입력하세요';
+    const inp=document.getElementById('sqInput');
+    inp.value='';inp.className='sq-input';inp.disabled=false;inp.focus();
+  }
+}
+
+function sqCheck(){
+  if(!qCurChar)return;
+  const inp=document.getElementById('sqInput');
+  const ans=document.getElementById('sqAns');
+  const userVal=inp.value.trim();
+  if(!userVal)return;
+  inp.disabled=true;inp.blur();
+  // 같은 한자의 모든 음훈 중 어느 하나라도 매칭되면 정답
+  let correct=qCurHuneums.some(h=>checkAnswer(userVal,h));
+  // 추가: 다중 음훈을 합쳐서 입력한 경우도 인정 (예: "간여할 참, 석 삼")
+  if(!correct && qCurHuneums.length>1){
+    correct=checkAnswer(userVal,qCurHuneums.join(', '))
+         ||checkAnswer(userVal,[...qCurHuneums].reverse().join(', '));
+  }
+  const corDisplay=qCurHuneums.length>1?qCurHuneums.join(', '):qCurChar[1];
+  if(correct){
+    qs++;inp.className='sq-input ok';
+    ans.textContent='⭕ 정답!';ans.className='sq-answer ok';
+  } else {
+    inp.className='sq-input no';
+    ans.innerHTML=`❌ 정답: <b>${corDisplay}</b>`;ans.className='sq-answer no';
+    qHistory.push({char:qCurChar[0],correct_ans:corDisplay,user_ans:userVal,was_correct:false});
+  }
+  qt++;document.getElementById('qsc').innerHTML=`<span class="ok">맞음 ${qs}개</span><span class="no">틀림 ${qt-qs}개</span>`;
+  hideAllQBtns();document.getElementById('qnx').style.display='inline-block';
+  if(qHistory.length>0)document.getElementById('qrvBtn').style.display='inline-block';
+}
+buildQR();
+
+// ── List ──
+let lPool=A.slice(),lOff=0;
+function buildLR(){
+  const c=document.getElementById('lsR');
+  ranges.forEach(r=>{
+    const b=document.createElement('button');
+    b.className='rb-btn'+(r[1]==='star'?' star':'')+(r[0]==='전체 1000'?' on':'');
+    if(r[1]==='star')b.style.cssText='background:#fffbeb;color:#92400e;border-color:#fbbf24;';
+    b.textContent=r[0];b.dataset.v=r[1];
+    b.onclick=function(){c.querySelectorAll('.rb-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      if(r[1]==='star'){lPool=getPool('star');lOff=0;}
+      else{const p=r[1].split('-');lPool=A.slice(+p[0],+p[1]);lOff=+p[0];}
+      document.getElementById('lss').value='';rL();};
+    c.appendChild(b);
+  });
+}
+function rL(){
+  const g=document.getElementById('lsg');g.innerHTML='';
+  const stars=getStars();
+  let num=0;
+  lPool.forEach((c,i)=>{
+    // Section headers
+    if(c[0]==='__'){
+      const h=document.createElement('div');h.className='lg-sec';h.textContent=c[1];
+      h.dataset.s=c[1];g.appendChild(h);return;
+    }
+    if(c[0]==='__sub'){
+      const h=document.createElement('div');h.className='lg-sec sub';h.textContent=c[1];
+      h.dataset.s=c[1];g.appendChild(h);return;
+    }
+    num++;
+    const d=document.createElement('div');d.className='li';
+    const isCompound=c[0].length>1&&c[2]&&c[2].includes('|');
+    const isErr=c[0]==='⬜';
+    d.dataset.s=c[0]+c[1]+(c[2]||'');
+    d.dataset.key=c[0]+c[1];
+    const starred=stars.has(c[0]+c[1]);
+    const starEl=isErr?'':`<span class="${starred?'star-li':'star-empty'}" onclick="event.stopPropagation();toggleListStar(this,'${c[0]+c[1]}')">${starred?'★':'☆'}</span>`;
+    if(isCompound){
+      const parts=c[2].split('|');
+      const tagPart=parts[0].trim();
+      const detailPart=parts[1]||'';
+      const isYY=tagPart==='양'||tagPart==='음';
+      const tagHtml=isYY?`<span class="yytag ${tagPart==='양'?'ytag':'ntag'}">${tagPart}</span>`:`<div class="tp">${tagPart}</div>`;
+      const detailHtml=detailPart?`<div class="detail show">${detailPart}</div>`:'';
+      d.innerHTML=`<div class="n">${c.__origNum||(lOff?lOff+i+1:'')}</div>${starEl}<div class="c" style="font-size:${c[0].length>2?'16px':'20px'}">${c[0]}</div><div class="e" style="color:var(--r)">${c[1]}</div>${tagHtml}${detailHtml}`;
+    } else {
+      const p=c[1].split(' '),eu=p[p.length-1],hu=p.slice(0,-1).join(' ');
+      const tip=c[2]||'';
+      const isYY=tip==='양'||tip==='음';
+      const tipHtml=isYY?`<span class="yytag ${tip==='양'?'ytag':'ntag'}">${tip}</span>`:(!isErr&&tip?`<div class="tp">${tip}</div>`:'');
+      d.innerHTML=`<div class="n">${c.__origNum||(lOff+num)}</div>${starEl}<div class="c">${isErr?'⬜':c[0]}</div><div class="h">${hu}</div><div class="e">${eu}</div>${tipHtml}`;
+    }
+    g.appendChild(d);
+  });
+}
+function toggleListStar(el,key){
+  const s=getStars();
+  if(s.has(key)){s.delete(key);el.textContent='☆';el.className='star-empty';}
+  else{s.add(key);el.textContent='★';el.className='star-li';}
+  saveStars(s);
+  const cnt=getStars().size;
+  document.getElementById('starCnt').textContent=cnt?`⭐ ${cnt}개 별표됨`:'';
+}
+function fL(){
+  const q=document.getElementById('lss').value.trim().toLowerCase();
+  document.querySelectorAll('#lsg > *').forEach(el=>{
+    if(el.classList.contains('lg-sec'))return; // keep headers visible
+    el.style.display=(el.dataset.s||'').toLowerCase().includes(q)?'':'none';
+  });
+}
+buildLR();
+
+fInit();fShow();rL();
+
+// Font toggle
+function toggleFont(){
+  const btn=document.getElementById('fontBtn');
+  const ch=document.getElementById('fch');
+  const qq=document.getElementById('qqt');
+  const isGothic = !btn.classList.contains('on');
+  if(isGothic){
+    btn.classList.add('on');btn.textContent='명조체';
+    document.body.classList.add('gothic');
+    if(ch) ch.classList.add('gothic');
+    if(qq) qq.classList.add('gothic');
+  } else {
+    btn.classList.remove('on');btn.textContent='고딕체';
+    document.body.classList.remove('gothic');
+    if(ch) ch.classList.remove('gothic');
+    if(qq) qq.classList.remove('gothic');
+  }
+  localStorage.setItem('fontMode', isGothic ? 'gothic' : 'serif');
+}
+
+// 페이지 로드 시 폰트 설정 복원
+(function restoreFont(){
+  if(localStorage.getItem('fontMode') === 'gothic'){
+    document.body.classList.add('gothic');
+    const btn = document.getElementById('fontBtn');
+    if(btn){btn.classList.add('on');btn.textContent='명조체';}
+    const ch = document.getElementById('fch');
+    if(ch) ch.classList.add('gothic');
+    const qq = document.getElementById('qqt');
+    if(qq) qq.classList.add('gothic');
+  }
+})();
+
+// Keyboard controls
+document.addEventListener('keydown',function(e){
+  // Allow typing in active input, but handle disabled input
+  if(e.target.tagName==='INPUT'&&!e.target.disabled)return;
+  if(e.target.tagName==='SELECT')return;
+  // Flashcard tab
+  if(document.getElementById('fc').classList.contains('on')){
+    if(e.key==='ArrowRight'){e.preventDefault();fN();}
+    else if(e.key==='ArrowLeft'){e.preventDefault();fP();}
+    else if(e.key===' '){e.preventDefault();flip();}
+    else if(e.key==='s'||e.key==='S'){e.preventDefault();toggleStar();}
+  }
+  // Quiz tab
+  if(document.getElementById('qz').classList.contains('on')){
+    if(qMode==='obj'&&qViewIdx===-1){
+      const num=parseInt(e.key);
+      if(num>=1&&num<=4){
+        e.preventDefault();
+        const opts=document.querySelectorAll('.qo');
+        if(opts.length>=num&&opts[num-1].style.pointerEvents!=='none'){
+          opts[num-1].click();
+        }
+      }
+    }
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='Enter'){
+      if(e.key==='Enter'&&e.target.tagName==='INPUT')return;
+      // If reviewing, go to next wrong
+      if(qViewIdx>=0){
+        e.preventDefault();
+        if(qViewIdx<qHistory.length-1){qReviewNext();}
+        else{qViewIdx=-1;qNx();} // exit review
+        return;
+      }
+      const nx=document.getElementById('qnx');
+      if(nx.style.display!=='none'){e.preventDefault();qNx();}
+    }
+    if(e.key==='ArrowLeft'){
+      e.preventDefault();
+      if(qHistory.length===0)return;
+      if(qViewIdx===-1){qViewIdx=qHistory.length-1;qShowHistory(qViewIdx);}
+      else if(qViewIdx>0){qViewIdx--;qShowHistory(qViewIdx);}
+    }
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// ── 로그인 계정 / 별표 클라우드 동기화 (Firebase Firestore) ──
+// ════════════════════════════════════════════════════════════
+
+// ⚠️ Firebase 설정 — 본인 프로젝트의 config로 교체하세요
+const firebaseConfig = {
+  apiKey: "AIzaSyDLsc5t16mEM4-WlpCqcmgjmVF0FkMq0kE",
+  authDomain: "hmranking-79334.firebaseapp.com",
+  projectId: "hmranking-79334",
+  storageBucket: "hmranking-79334.firebasestorage.app",
+  messagingSenderId: "572781476001",
+  appId: "1:572781476001:web:f59befcca5381c72b8d8e0",
+  measurementId: "G-899TW069QW"
+};
+
+let rkDb = null;
+let rkConfigured = false;
+try {
+  if(firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('YOUR_')){
+    firebase.initializeApp(firebaseConfig);
+    rkDb = firebase.firestore();
+    rkConfigured = true;
+  } else {
+    console.warn('Firebase 설정이 필요합니다. 로그인/별표 동기화 기능이 비활성화됩니다.');
+  }
+} catch(e) {
+  console.error('Firebase init failed:', e);
+}
+
+// 현재 로그인 사용자
+let rkUser = localStorage.getItem('rkUser') || null;
+// 자동로그인 ON/OFF
+function rkGetAutoLogin(){ return localStorage.getItem('rkAutoLogin') !== 'false'; } // 기본 true
+function rkSetAutoLogin(v){ localStorage.setItem('rkAutoLogin', v ? 'true' : 'false'); }
+// 마지막 진입 선택 ('guest' / 'login' / null)
+function rkGetLastChoice(){ return localStorage.getItem('rkLastChoice'); }
+function rkSetLastChoice(v){ if(v) localStorage.setItem('rkLastChoice', v); else localStorage.removeItem('rkLastChoice'); }
+
+// PIN 해싱
+async function rkHashPin(nickname, pin){
+  const enc = new TextEncoder().encode(nickname + ':' + pin);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// 닉네임 검증
+function rkValidNick(n){
+  if(!n||n.length<2||n.length>10) return false;
+  return /^[\uAC00-\uD7A3a-zA-Z0-9_]+$/.test(n);
+}
+// PIN 검증
+function rkValidPin(p){return /^\d{4}$/.test(p);}
+
+function rkShowMsg(elId, type, text){
+  const el = document.getElementById(elId);
+  el.className = 'rk-msg '+type;
+  el.textContent = text;
+}
+function rkClearMsg(elId){
+  const el = document.getElementById(elId);
+  el.className = 'rk-msg';
+  el.textContent = '';
+}
+
+async function rkSignUpHandler(){
+  if(!rkConfigured){alert('Firebase 설정이 필요합니다');return;}
+  const nick = document.getElementById('rkNick').value.trim();
+  const pin = document.getElementById('rkPin').value.trim();
+  if(!rkValidNick(nick)){rkShowMsg('rkLoginMsg','no','닉네임은 2~10자 한글/영문/숫자/_');return;}
+  if(!rkValidPin(pin)){rkShowMsg('rkLoginMsg','no','PIN은 4자리 숫자');return;}
+  rkShowMsg('rkLoginMsg','ok','가입 처리 중...');
+  try {
+    const docRef = rkDb.collection('users').doc(nick);
+    const doc = await docRef.get();
+    if(doc.exists){rkShowMsg('rkLoginMsg','no','이미 사용 중인 닉네임입니다');return;}
+    const pinHash = await rkHashPin(nick, pin);
+    await docRef.set({
+      nickname: nick,
+      pinHash: pinHash,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    rkShowMsg('rkLoginMsg','ok','✅ 가입 완료! 자동 로그인됩니다.');
+    rkUser = nick;
+    localStorage.setItem('rkUser', nick);
+    // 자동로그인 체크박스 상태 저장
+    const autoChk = document.getElementById('rkAutoLoginChk');
+    rkSetAutoLogin(autoChk ? autoChk.checked : true);
+    rkSetLastChoice('login');
+    // 첫 가입: localStorage에 별표 있으면 계정으로 옮길지 묻기
+    await handleStarsOnLogin(true);
+    refreshAllStarUI();
+    setTimeout(rkRefreshUI, 800);
+  } catch(e){
+    console.error(e);
+    rkShowMsg('rkLoginMsg','no','오류: '+e.message);
+  }
+}
+
+async function rkLogInHandler(){
+  if(!rkConfigured){alert('Firebase 설정이 필요합니다');return;}
+  const nick = document.getElementById('rkNick').value.trim();
+  const pin = document.getElementById('rkPin').value.trim();
+  if(!rkValidNick(nick)){rkShowMsg('rkLoginMsg','no','닉네임 형식 오류');return;}
+  if(!rkValidPin(pin)){rkShowMsg('rkLoginMsg','no','PIN은 4자리 숫자');return;}
+  rkShowMsg('rkLoginMsg','ok','로그인 중...');
+  try {
+    const doc = await rkDb.collection('users').doc(nick).get();
+    if(!doc.exists){rkShowMsg('rkLoginMsg','no','존재하지 않는 닉네임입니다');return;}
+    const pinHash = await rkHashPin(nick, pin);
+    if(doc.data().pinHash !== pinHash){rkShowMsg('rkLoginMsg','no','PIN이 일치하지 않습니다');return;}
+    rkUser = nick;
+    localStorage.setItem('rkUser', nick);
+    // 자동로그인 체크박스 상태 저장
+    const autoChk = document.getElementById('rkAutoLoginChk');
+    rkSetAutoLogin(autoChk ? autoChk.checked : true);
+    rkSetLastChoice('login');
+    rkShowMsg('rkLoginMsg','ok','✅ 로그인 성공');
+    // 별표: 계정 별표 불러오기 (없으면 빈 세트 + 첫 로그인이면 옮길지 묻기)
+    await handleStarsOnLogin(false);
+    refreshAllStarUI();
+    setTimeout(rkRefreshUI, 500);
+  } catch(e){
+    console.error(e);
+    rkShowMsg('rkLoginMsg','no','오류: '+e.message);
+  }
+}
+
+// 로그인 시 별표 처리
+// isSignUp=true: 신규 가입이므로 별표 무조건 0개 시작 → localStorage에 있으면 옮길지 묻기
+// isSignUp=false: 기존 사용자 로그인 → Firebase 별표를 가져옴 + 별표가 0개면 첫 로그인일 가능성 → 옮길지 묻기
+async function handleStarsOnLogin(isSignUp){
+  let cloudStars = await loadStarsFromFirebase();
+  const localStars = (function(){
+    try{return new Set(JSON.parse(localStorage.getItem('stars500')||'[]'));}catch(e){return new Set();}
+  })();
+  
+  // 두 별표 집합이 동일한지 비교 (크기 + 모든 원소)
+  function setsEqual(a, b){
+    if(a.size !== b.size) return false;
+    for(const x of a){ if(!b.has(x)) return false; }
+    return true;
+  }
+  
+  // 다르면 묻기 (가입/로그인 모두 동일한 정책)
+  if(!setsEqual(cloudStars, localStars)){
+    const overwrite = confirm(
+      `📌 별표 차이 발견\n\n`+
+      `• 비로그인 별표 (이 PC): ${localStars.size}개\n`+
+      `• [${rkUser}] 계정 별표: ${cloudStars.size}개\n\n`+
+      `[확인]  비로그인 별표로 계정 별표를 덮어쓰기\n`+
+      `        → 계정 별표가 ${localStars.size}개로 변경됩니다\n\n`+
+      `[취소]  계정 별표 그대로 사용\n`+
+      `        → 변경 없음 (${cloudStars.size}개 유지)\n\n`+
+      `※ 어느 쪽이든 비로그인 별표 ${localStars.size}개는 그대로 보존됩니다.\n`+
+      `※ 로그아웃하면 비로그인 별표가 다시 보입니다.`
+    );
+    if(overwrite){
+      // 덮어쓰기: 계정 별표 = 비로그인 별표
+      cloudStars = new Set(localStars);
+      starsLoggedIn = cloudStars;
+      await saveStarsToFirebase();
+    }
+  }
+  // 로그인 모드 진입: 인메모리 별표 = 클라우드 별표 (덮어쓴 값 또는 원본)
+  starsLoggedIn = cloudStars;
+}
+
+// 별표 UI 전체 새로고침 (플래시카드, 전체목록, 카운트)
+function refreshAllStarUI(){
+  try {
+    if(typeof updateStarUI === 'function' && fPool && fPool.length) updateStarUI();
+    if(typeof rL === 'function' && document.getElementById('lsg')) rL();
+  } catch(e){ console.warn('별표 UI 새로고침 실패:', e); }
+}
+
+function rkLogOut(){
+  if(!confirm('로그아웃 하시겠습니까?\n\n비로그인 상태의 별표가 다시 보이게 됩니다.'))return;
+  rkUser = null;
+  // rkUser는 유지 (다음 로그인 시 닉네임 미리채움용으로 활용 가능하지만, 헷갈림 방지로 제거)
+  localStorage.removeItem('rkUser');
+  // 로그아웃 후엔 비로그인 메인으로 진입
+  rkSetLastChoice('guest');
+  // 별표 모드: 로그인 → 비로그인 (localStorage 별표가 다시 활성화)
+  starsLoggedIn = null;
+  rkRefreshUI();
+  // 별표 UI 새로고침 (현재 화면 카드 다시 그리기)
+  refreshAllStarUI();
+}
+
+function rkRefreshUI(){
+  document.getElementById('rkMenu').style.display = rkUser ? 'block' : 'none';
+  if(rkUser){
+    document.getElementById('rkUserName').textContent = rkUser;
+    // 자동로그인 토글 상태 반영
+    const tog = document.getElementById('rkAutoLoginToggle');
+    if(tog) tog.checked = rkGetAutoLogin();
+    // 로그인 성공 시 모달 닫기
+    closeLoginModal();
+  } else {
+    // 로그아웃 시 내 계정 섹션을 보고 있었다면 플래시카드로 복귀
+    const rkSec = document.getElementById('rk');
+    if(rkSec && rkSec.classList.contains('on')) showSection('fc');
+  }
+  // nav의 로그인/로그아웃 버튼 갱신
+  navAuthRefresh();
+  rkClearMsg('rkLoginMsg');
+}
+
+// 탭 버튼 없이 섹션만 전환 (내 계정 화면용)
+function showSection(id){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  const sec = document.getElementById(id);
+  if(sec) sec.classList.add('on');
+  // 대응하는 탭 버튼이 있으면 활성화
+  document.querySelectorAll('.tab').forEach(t=>{
+    if(t.getAttribute('onclick') && t.getAttribute('onclick').includes("'"+id+"'")) t.classList.add('on');
+  });
+}
+
+// nav 로그인/로그아웃 버튼
+function navAuthRefresh(){
+  const btn = document.getElementById('navAuthBtn');
+  if(!btn) return;
+  if(rkUser){
+    btn.textContent = '👤 ' + rkUser;
+    btn.title = `${rkUser} · 내 계정`;
+    btn.style.color = 'var(--r)';
+  } else {
+    btn.textContent = '🔑 로그인';
+    btn.title = '로그인 / 가입';
+    btn.style.color = '';
+  }
+}
+
+function navAuthClick(){
+  if(rkUser){
+    // 로그인 중 → 내 계정 화면으로 이동 (로그아웃/자동로그인 토글 접근)
+    showSection('rk');
+    rkRefreshUI();
+  } else {
+    // 비로그인 → 로그인 모달 열기
+    openLoginModal();
+  }
+}
+
+function openLoginModal(){
+  const modal = document.getElementById('loginModal');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  // 닉네임 미리 채우기
+  const lastUser = localStorage.getItem('rkUser');
+  const nickEl = document.getElementById('rkNick');
+  const pinEl = document.getElementById('rkPin');
+  if(lastUser){
+    if(nickEl) nickEl.value = lastUser;
+    setTimeout(()=>pinEl && pinEl.focus(), 100);
+  } else {
+    if(nickEl) nickEl.value = '';
+    setTimeout(()=>nickEl && nickEl.focus(), 100);
+  }
+  if(pinEl) pinEl.value = '';
+}
+
+function closeLoginModal(){
+  const modal = document.getElementById('loginModal');
+  if(modal) modal.style.display = 'none';
+}
+
+// ── 진입 모달 ──
+function rkShowEntryModal(){
+  const modal = document.getElementById('entryModal');
+  const greeting = document.getElementById('entryGreeting');
+  const buttons = document.getElementById('entryButtons');
+  const lastUser = localStorage.getItem('rkUser');
+  
+  buttons.innerHTML = '';
+  
+  if(lastUser){
+    // 이전에 로그인했지만 자동로그인 OFF인 경우
+    greeting.innerHTML = `<b>${lastUser}</b>님 다시 오셨네요 👋`;
+    buttons.innerHTML = `
+      <button class="rk-btn primary" onclick="rkEntryQuickLogin()">🔑 ${lastUser}로 로그인</button>
+      <button class="rk-btn" onclick="rkEntryGoLogin()">👤 다른 계정 / 가입</button>
+      <button class="rk-btn" onclick="rkEntryGuest()">🚪 비로그인으로 시작</button>
+    `;
+  } else {
+    // 처음 진입
+    greeting.textContent = '시작 방식을 선택하세요';
+    buttons.innerHTML = `
+      <button class="rk-btn primary" onclick="rkEntryGoLogin()">🔑 로그인 / 가입</button>
+      <button class="rk-btn" onclick="rkEntryGuest()">🚪 비로그인으로 시작</button>
+    `;
+  }
+  
+  modal.style.display = 'flex';
+}
+
+function rkHideEntryModal(){
+  document.getElementById('entryModal').style.display = 'none';
+}
+
+function rkEntryGuest(){
+  // 비로그인 선택 → 마지막 선택 기억
+  rkSetLastChoice('guest');
+  rkHideEntryModal();
+}
+
+function rkEntryGoLogin(){
+  // 로그인 모달로 이동
+  rkSetLastChoice('login'); // 마지막 선택 = 로그인 의도
+  rkHideEntryModal();
+  openLoginModal();
+}
+
+async function rkEntryQuickLogin(){
+  // 저장된 닉네임으로 빠른 로그인 화면 (PIN만 입력)
+  rkEntryGoLogin();
+}
+
+// 자동로그인 토글 (메뉴에서)
+function rkToggleAutoLogin(){
+  const chk = document.getElementById('rkAutoLoginToggle');
+  rkSetAutoLogin(chk.checked);
+  if(chk.checked){
+    // 자동로그인 ON: 다음에 자동 로그인되도록 (이미 로그인 상태이므로 별도 작업 X)
+  } else {
+    // 자동로그인 OFF: 다음 진입 시 진입 모달 뜨도록
+    // 하지만 현재 세션은 그대로 유지
+  }
+}
+
+// ── 진입 결정 로직 (페이지 로드 시) ──
+async function rkDecideEntry(){
+  const lastUser = localStorage.getItem('rkUser');
+  const autoLogin = rkGetAutoLogin();
+  const lastChoice = rkGetLastChoice();
+  
+  // Case 1: 로그인 정보 있고 자동로그인 ON → 자동 로그인
+  if(lastUser && autoLogin){
+    rkUser = lastUser;
+    if(rkConfigured){
+      try {
+        // 자동로그인 시에도 별표 차이 검사 (정책 일관성)
+        await handleStarsOnLogin(false);
+      } catch(e){ console.warn('초기 별표 로드 실패:', e); }
+    }
+    rkRefreshUI();
+    if(typeof updateStarUI === 'function' && fPool && fPool.length) updateStarUI();
+    if(typeof rL === 'function' && document.getElementById('lsg')) rL();
+    return;
+  }
+  
+  // Case 2: 마지막 선택이 'guest' → 비로그인 메인으로 바로 진입
+  if(lastChoice === 'guest'){
+    rkUser = null;
+    rkRefreshUI();
+    return;
+  }
+  
+  // Case 3: 그 외 → 진입 모달 표시
+  rkUser = null;
+  rkRefreshUI();
+  rkShowEntryModal();
+}
+
+// 페이지 로드 시 진입 결정
+rkDecideEntry();
+
+</script>
+</body>
+</html>

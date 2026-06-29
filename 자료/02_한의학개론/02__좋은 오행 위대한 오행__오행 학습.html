@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>좋은 오행, 위대한 오행</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Jua&family=Pretendard:wght@400;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard',sans-serif;background:#f5e6d3;color:#3e2214;min-height:100vh;min-height:100dvh;overflow:hidden;user-select:none}
+.gw{width:100%;max-width:480px;height:100vh;height:100dvh;margin:0 auto;position:relative;overflow:hidden}
+/* HUD */
+.hud{position:absolute;top:0;left:0;right:0;padding:10px 16px;z-index:10;display:none;justify-content:space-between;align-items:center;background:rgba(245,230,211,.85);backdrop-filter:blur(8px);border-bottom:1.5px solid rgba(62,34,20,.08)}
+.hud.on{display:flex}
+.h-sc{font-family:'Jua';font-size:24px;color:#3e2214}
+.h-home{font-size:20px;cursor:pointer;opacity:.4;transition:.15s}.h-home:hover{opacity:.7}
+.h-mid{display:flex;align-items:center;gap:6px}
+.h-combo{font-family:'Jua';font-size:12px;color:rgba(62,34,20,.3);padding:2px 8px;border-radius:100px;background:rgba(62,34,20,.05)}
+.h-combo.hot{color:#ca8a04;background:rgba(202,138,4,.1)}.h-combo.fire{color:#dc2626;background:rgba(220,38,38,.1)}
+.h-lv{font-size:16px;letter-spacing:1px}.h-lv .x{opacity:.15}
+.h-prog{position:absolute;bottom:-1px;left:0;height:3px;border-radius:2px;transition:width .3s}
+/* Timer */
+.timer-wrap{width:100%;margin-bottom:10px}
+.timer-bar{height:8px;border-radius:4px;background:rgba(62,34,20,.06);overflow:hidden;position:relative}
+.timer-fill{height:100%;border-radius:4px;transition:width .1s linear;background:#16a34a}
+.timer-fill.warn{background:#ca8a04}
+.timer-fill.danger{background:#dc2626}
+.timer-sec{text-align:center;font-family:'Jua';font-size:12px;color:rgba(62,34,20,.3);margin-top:3px}
+/* Main game area */
+.game{position:absolute;top:50px;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:16px 16px 24px}
+/* Top: category */
+.cat-area{text-align:center;flex-shrink:0}
+.cat-tag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid rgba(62,34,20,.08);border-radius:100px;padding:6px 16px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.cat-tag .ct-face{font-size:22px}
+.cat-tag .ct-name{font-family:'Jua';font-size:16px;color:#3e2214}
+/* Center: element + question */
+.q-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.q-elem-ico{font-size:64px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.08))}
+.q-elem-name{font-family:'Jua';font-size:36px;letter-spacing:4px}
+.q-elem-name .qe-hanja{display:inline-block;padding:0 4px}
+.qe-wood{color:#16a34a}.qe-fire{color:#dc2626}.qe-earth{color:#ca8a04}.qe-metal{color:#64748b}.qe-water{color:#2563eb}
+.q-msg{font-family:'Jua';font-size:18px;color:rgba(62,34,20,.45);margin-top:4px}
+/* Feedback */
+.fb{text-align:center;min-height:36px}
+.fb-msg{font-family:'Jua';font-size:18px;opacity:0;transition:.15s;transform:translateY(4px)}
+.fb-msg.show{opacity:1;transform:translateY(0)}
+.fb-msg.ok{color:#16a34a}.fb-msg.no{color:#dc2626}
+/* Bottom: emoji choices */
+.opts{flex-shrink:0;width:100%}
+.opts-label{text-align:center;font-family:'Jua';font-size:12px;color:rgba(62,34,20,.25);margin-bottom:8px;letter-spacing:1px}
+.opts-grid{display:flex;justify-content:center;gap:6px}
+.emo{flex:1;max-width:80px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;border-radius:14px;border:2px solid rgba(62,34,20,.08);background:#fff;cursor:pointer;transition:.12s;box-shadow:0 2px 6px rgba(0,0,0,.03)}
+.emo:hover{border-color:rgba(62,34,20,.2);transform:translateY(-3px);box-shadow:0 6px 14px rgba(0,0,0,.06)}
+.emo:active{transform:scale(.93)}
+.emo .e-ico{font-size:30px}
+.emo .e-ch{font-family:'Jua';font-size:16px;color:#3e2214}
+.emo .e-rd{font-family:'Jua';font-size:12px;color:rgba(62,34,20,.35)}
+.emo.ok{border-color:#16a34a;background:rgba(22,163,74,.06);transform:scale(1.06);box-shadow:0 4px 16px rgba(22,163,74,.15)}
+.emo.ok .e-ch{color:#16a34a}
+.emo.wrong{border-color:#dc2626;background:rgba(220,38,38,.05)}
+.emo.dim{opacity:.2;pointer-events:none}
+/* Screens */
+.scr{position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:#f5e6d3}.scr.on{display:flex}
+/* Logo */
+.logo{position:relative;text-align:center;margin-bottom:28px}
+.logo .taegeuk{position:absolute;top:50%;left:50%;transform:translate(-50%,-56%);width:140px;height:140px;opacity:.12}
+.logo .taegeuk svg{width:100%;height:100%}
+.logo-l1{font-family:'Jua';font-size:24px;color:#5c3a21;position:relative;z-index:1;
+  text-shadow:-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff,-3px 0 0 #fff,3px 0 0 #fff,0 -3px 0 #fff,0 3px 0 #fff,
+  -4px -1px 0 #d4b896,4px -1px 0 #d4b896,-4px 1px 0 #d4b896,4px 1px 0 #d4b896,-1px -4px 0 #d4b896,1px -4px 0 #d4b896,-1px 4px 0 #d4b896,1px 4px 0 #d4b896,0 5px 0 #c4a47a}
+.logo-l1 .comma{color:#c0392b}
+.logo-l2{font-family:'Jua';font-size:40px;color:#3e2214;letter-spacing:2px;position:relative;z-index:1;
+  text-shadow:-3px -3px 0 #fff,3px -3px 0 #fff,-3px 3px 0 #fff,3px 3px 0 #fff,-4px 0 0 #fff,4px 0 0 #fff,0 -4px 0 #fff,0 4px 0 #fff,
+  -5px -2px 0 #fff,5px -2px 0 #fff,-5px 2px 0 #fff,5px 2px 0 #fff,-2px -5px 0 #fff,2px -5px 0 #fff,-2px 5px 0 #fff,2px 5px 0 #fff,
+  -6px -1px 0 #d4b896,6px -1px 0 #d4b896,-6px 1px 0 #d4b896,6px 1px 0 #d4b896,-1px -6px 0 #d4b896,1px -6px 0 #d4b896,-1px 6px 0 #d4b896,1px 6px 0 #d4b896,
+  0 7px 0 #c4a47a,0 8px 4px rgba(0,0,0,.1)}
+.logo-l2 .accent{color:#c0392b}
+.logo-elems{display:flex;gap:6px;justify-content:center;margin-top:14px;position:relative;z-index:1}
+.logo-elems span{font-family:'Jua';font-size:18px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.12);border:2px solid rgba(255,255,255,.4)}
+.le-w{background:#16a34a}.le-f{background:#dc2626}.le-e{background:#ca8a04}.le-m{background:#64748b}.le-b{background:#2563eb}
+.srow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.srow label{font-family:'Jua';font-size:13px;color:rgba(62,34,20,.4);min-width:50px;text-align:right}
+.sel{padding:6px 12px;border:1.5px solid rgba(62,34,20,.1);background:#fff;color:#3e2214;border-radius:8px;font-size:12px;font-family:inherit}
+.sbtn{font-family:'Jua';padding:12px 32px;border:2px solid rgba(62,34,20,.1);background:#fff;border-radius:14px;color:#3e2214;font-size:16px;cursor:pointer;transition:.12s;margin-top:14px;box-shadow:0 2px 0 rgba(62,34,20,.06)}
+.sbtn:hover{background:#f0e0cc;transform:translateY(-1px)}
+.sbtn:active{transform:translateY(1px);box-shadow:none}
+/* Result */
+.r-face{font-size:48px;margin-bottom:6px}
+.r-sc{font-family:'Jua';font-size:52px;margin:4px 0;letter-spacing:-2px;color:#3e2214}
+.r-det{font-size:12px;color:rgba(62,34,20,.35);margin-bottom:4px}
+.r-combo{font-family:'Jua';font-size:13px;color:#ca8a04;margin-bottom:16px}
+.r-rank{font-family:'Jua';font-weight:800;padding:8px 24px;border-radius:100px;margin-bottom:18px;font-size:16px}
+.rk-s{background:linear-gradient(135deg,#16a34a,#2563eb);color:#fff;font-size:20px;padding:10px 28px;box-shadow:0 0 20px rgba(22,163,74,.25);animation:rkGlow 1.5s ease infinite}
+.rk-sss{background:linear-gradient(135deg,#8b5cf6,#ec4899,#f59e0b);color:#fff;font-size:24px;padding:12px 32px;animation:rkGlow2 1s ease infinite;box-shadow:0 0 30px rgba(139,92,246,.4);text-shadow:0 0 10px rgba(255,255,255,.4)}
+.rk-god{background:linear-gradient(135deg,#ffd700,#ff6b6b,#c084fc,#60a5fa,#ffd700);background-size:300% 300%;color:#fff;font-size:28px;padding:14px 36px;animation:rkRainbow 2s ease infinite,rkGlow3 .8s ease infinite;box-shadow:0 0 50px rgba(255,215,0,.5);text-shadow:0 0 16px rgba(255,255,255,.7);letter-spacing:4px}
+.rk-a{background:#ca8a04;color:#fff}.rk-b{background:rgba(62,34,20,.1);color:rgba(62,34,20,.5)}.rk-c{background:rgba(62,34,20,.05);color:rgba(62,34,20,.3)}
+@keyframes rkGlow{0%,100%{box-shadow:0 0 16px rgba(22,163,74,.2)}50%{box-shadow:0 0 30px rgba(37,99,235,.4)}}
+@keyframes rkGlow2{0%,100%{box-shadow:0 0 24px rgba(139,92,246,.3);transform:scale(1)}50%{box-shadow:0 0 40px rgba(236,72,153,.4);transform:scale(1.03)}}
+@keyframes rkRainbow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes rkGlow3{0%,100%{box-shadow:0 0 36px rgba(255,215,0,.4);transform:scale(1)}50%{box-shadow:0 0 60px rgba(255,107,107,.5);transform:scale(1.05)}}
+.r-tag{font-size:10px;color:rgba(62,34,20,.25);display:flex;gap:6px;margin-bottom:10px}.r-tag span{padding:2px 8px;border:1px solid rgba(62,34,20,.08);border-radius:100px}
+@media(max-width:380px){.q-elem-ico{font-size:48px}.q-elem-name{font-size:28px}.emo{padding:8px 2px}.emo .e-ico{font-size:24px}.emo .e-ch{font-size:14px}.logo-l2{font-size:32px}.logo-l1{font-size:20px}}
+@media(max-height:680px){.q-elem-ico{font-size:48px}.q-area{gap:4px}.cat-area{margin-top:-4px}}
+</style>
+</head>
+<body>
+<div class="gw" id="gw">
+  <!-- Start -->
+  <div class="scr on" id="sStart">
+    <div class="logo">
+      <div class="taegeuk"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="98" fill="#fff" stroke="#d4b896" stroke-width="3"/><path d="M100,2 A98,98,0,0,1,100,198 A49,49,0,0,1,100,100 A49,49,0,0,0,100,2" fill="#3e2214"/><circle cx="100" cy="51" r="14" fill="#3e2214"/><circle cx="100" cy="149" r="14" fill="#fff"/></svg></div>
+      <div class="logo-l1">좋은 오행<span class="comma">,</span></div>
+      <div class="logo-l2"><span class="accent">위대한</span> 오행</div>
+      <div class="logo-elems"><span class="le-w">木</span><span class="le-f">火</span><span class="le-e">土</span><span class="le-m">金</span><span class="le-b">水</span></div>
+    </div>
+    <div class="srow"><label>난이도</label><select class="sel" id="sDiff"><option value="easy">쉬움</option><option value="normal" selected>보통</option><option value="hard">어려움</option></select></div>
+    <div class="srow"><label>한글</label><select class="sel" id="sHan"><option value="1" selected>한자+한글</option><option value="0">한자만</option></select></div>
+    <button class="sbtn" onclick="startGame()">시작하기</button>
+  </div>
+  <!-- Result -->
+  <div class="scr" id="sResult">
+    <div class="r-tag" id="rTag"></div>
+    <div class="r-face" id="rFace"></div>
+    <div class="r-sc" id="rSc">0</div>
+    <div class="r-det" id="rDet"></div>
+    <div class="r-combo" id="rCo"></div>
+    <div class="r-rank" id="rRk"></div>
+    <button class="sbtn" onclick="document.getElementById('sResult').classList.remove('on');document.getElementById('sStart').classList.add('on')">다시 하기</button>
+  </div>
+  <!-- Game -->
+  <div class="hud" id="hud">
+    <div style="display:flex;align-items:center;gap:8px"><span class="h-home" onclick="goHome()">🏠</span><div class="h-sc" id="hSc">0</div></div>
+    <div class="h-mid"><div class="h-combo" id="hCo"></div></div>
+    <div class="h-lv" id="hLv"></div>
+    <div class="h-prog" id="hProg"></div>
+  </div>
+  <div class="game" id="gameArea" style="display:none">
+    <div class="cat-area"><div class="cat-tag"><span class="ct-face" id="ctFace"></span><span class="ct-name" id="ctName"></span></div></div>
+    <div class="q-area">
+      <div class="q-elem-ico" id="qIco"></div>
+      <div class="q-elem-name" id="qName"></div>
+      <div class="q-msg" id="qMsg"></div>
+    </div>
+    <div class="fb"><div class="fb-msg" id="fbMsg"></div></div>
+    <div class="opts">
+      <div class="timer-wrap" id="timerWrap">
+        <div class="timer-bar"><div class="timer-fill" id="tFill"></div></div>
+        <div class="timer-sec" id="tSec"></div>
+      </div>
+      <div class="opts-label">이모티콘을 골라 보내주세요</div>
+      <div class="opts-grid" id="oGrid"></div>
+    </div>
+  </div>
+</div>
+<script>
+const EL_N=['木','火','土','金','水'];
+const EL_K=['목','화','토','금','수'];
+const EL_ICO=['🌿','🔥','🏔️','🔗','💧'];
+const EL_CLS=['qe-wood','qe-fire','qe-earth','qe-metal','qe-water'];
+const EL_COL=['#16a34a','#dc2626','#ca8a04','#64748b','#2563eb'];
+const CATS=[
+{name:'五味',face:'😋',ask:'의 맛을 주세요!',items:[
+  {ch:'酸',rd:'신맛 산',ico:'🍋'},{ch:'苦',rd:'쓸 고',ico:'🍵'},{ch:'甘',rd:'달 감',ico:'🍯'},{ch:'辛',rd:'매울 신',ico:'🌶️'},{ch:'鹹',rd:'짤 함',ico:'🧂'}]},
+{name:'五色',face:'🎨',ask:'의 색을 주세요!',items:[
+  {ch:'靑',rd:'푸를 청',ico:'🟢'},{ch:'赤',rd:'붉을 적',ico:'🔴'},{ch:'黃',rd:'누를 황',ico:'🟡'},{ch:'白',rd:'흰 백',ico:'⚪'},{ch:'黑',rd:'검을 흑',ico:'⚫'}]},
+{name:'五氣',face:'🌤️',ask:'의 기후를 주세요!',items:[
+  {ch:'風',rd:'바람 풍',ico:'🌬️'},{ch:'暑',rd:'더울 서',ico:'☀️'},{ch:'濕',rd:'축축할 습',ico:'💦'},{ch:'燥',rd:'마를 조',ico:'🏜️'},{ch:'寒',rd:'찰 한',ico:'❄️'}]},
+{name:'五化',face:'🌱',ask:'의 변화를 주세요!',items:[
+  {ch:'生',rd:'날 생',ico:'🌱'},{ch:'長',rd:'길 장',ico:'📈'},{ch:'化',rd:'될 화',ico:'🔄'},{ch:'收',rd:'거둘 수',ico:'📥'},{ch:'藏',rd:'감출 장',ico:'🏦'}]},
+{name:'時令',face:'📅',ask:'의 계절을 주세요!',items:[
+  {ch:'春',rd:'봄 춘',ico:'🌸'},{ch:'夏',rd:'여름 하',ico:'🌻'},{ch:'長夏',rd:'장하',ico:'🌾'},{ch:'秋',rd:'가을 추',ico:'🍂'},{ch:'冬',rd:'겨울 동',ico:'⛄'}]},
+{name:'五臟',face:'🫀',ask:'의 장기를 주세요!',items:[
+  {ch:'肝',rd:'간 간',ico:'🟤'},{ch:'心',rd:'마음 심',ico:'❤️'},{ch:'脾',rd:'지라 비',ico:'🟠'},{ch:'肺',rd:'허파 폐',ico:'🫁'},{ch:'腎',rd:'콩팥 신',ico:'🟣'}]},
+{name:'六腑',face:'🩺',ask:'의 부를 주세요!',items:[
+  {ch:'膽',rd:'쓸개 담',ico:'💚'},{ch:'小腸',rd:'소장',ico:'🔸'},{ch:'胃',rd:'밥통 위',ico:'🟡'},{ch:'大腸',rd:'대장',ico:'🔹'},{ch:'膀胱',rd:'방광',ico:'💜'}]},
+{name:'五官',face:'👤',ask:'의 감각기관은?',items:[
+  {ch:'目',rd:'눈 목',ico:'👁️'},{ch:'舌',rd:'혀 설',ico:'👅'},{ch:'口',rd:'입 구',ico:'👄'},{ch:'鼻',rd:'코 비',ico:'👃'},{ch:'耳',rd:'귀 이',ico:'👂'}]},
+{name:'五體',face:'💪',ask:'의 신체조직은?',items:[
+  {ch:'筋',rd:'힘줄 근',ico:'🦵'},{ch:'脈',rd:'혈맥 맥',ico:'🩸'},{ch:'肉',rd:'고기 육',ico:'🥩'},{ch:'皮毛',rd:'피모',ico:'🧤'},{ch:'骨',rd:'뼈 골',ico:'🦴'}]},
+{name:'五志',face:'😶',ask:'의 감정을 주세요!',items:[
+  {ch:'怒',rd:'성낼 노',ico:'😡'},{ch:'喜',rd:'기쁠 희',ico:'😊'},{ch:'思',rd:'생각할 사',ico:'🤔'},{ch:'悲',rd:'슬플 비',ico:'😢'},{ch:'恐',rd:'두려울 공',ico:'😨'}]}
+];
+let Q=[],qi=0,score=0,combo=0,maxCo=0,lives=5,total=0,ok=0;
+let showH=true,baseTime=10000,playing=false,canIn=true,tmr=null,barI=null,startT=0;
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;}
+function buildQ(){const q=[];CATS.forEach((c,ci)=>{for(let e=0;e<5;e++)q.push({cat:ci,elem:e});});return shuf(q);}
+function startGame(){
+  const d=document.getElementById('sDiff').value;
+  showH=document.getElementById('sHan').value==='1';
+  baseTime=d==='easy'?15000:d==='hard'?6000:10000;
+  Q=buildQ();qi=0;score=0;combo=0;maxCo=0;lives=5;total=0;ok=0;
+  playing=true;canIn=true;
+  document.getElementById('sStart').classList.remove('on');
+  document.getElementById('sResult').classList.remove('on');
+  document.getElementById('hud').classList.add('on');
+  document.getElementById('gameArea').style.display='';
+  updHUD();showNext();
+}
+function updHUD(){
+  document.getElementById('hSc').textContent=score;
+  let lv='';for(let i=0;i<5;i++)lv+=i<lives?'♥':'<span class="x">♡</span>';
+  document.getElementById('hLv').innerHTML=lv;
+  const c=document.getElementById('hCo');
+  if(combo>=10){c.textContent=combo+' COMBO!';c.className='h-combo fire';}
+  else if(combo>=5){c.textContent=combo+' COMBO';c.className='h-combo hot';}
+  else if(combo>=2){c.textContent=combo+'x';c.className='h-combo';}
+  else{c.textContent='';c.className='h-combo';}
+  const p=document.getElementById('hProg');
+  p.style.width=(qi/Q.length*100)+'%';
+  p.style.background=EL_COL[Q[Math.min(qi,Q.length-1)]?.elem||0];
+}
+function showNext(){
+  clearTimeout(tmr);clearInterval(barI);
+  if(qi>=Q.length||lives<=0){endGame();return;}
+  canIn=true;startT=Date.now();
+  // Timer bar
+  const tFill=document.getElementById('tFill');
+  const tSec=document.getElementById('tSec');
+  tFill.style.width='100%';tFill.className='timer-fill';
+  tSec.textContent=Math.ceil(baseTime/1000)+'초';
+  barI=setInterval(()=>{
+    const el=(Date.now()-startT)/baseTime;
+    const remain=Math.max(0,baseTime-(Date.now()-startT));
+    tFill.style.width=((1-el)*100)+'%';
+    tSec.textContent=Math.ceil(remain/1000)+'초';
+    if(el>.7)tFill.className='timer-fill danger';
+    else if(el>.5)tFill.className='timer-fill warn';
+  },100);
+  const q=Q[qi],cat=CATS[q.cat],ei=q.elem;
+  // Category tag
+  document.getElementById('ctFace').textContent=cat.face;
+  document.getElementById('ctName').textContent=cat.name;
+  // Element display
+  document.getElementById('qIco').textContent=EL_ICO[ei];
+  document.getElementById('qName').innerHTML=`<span class="qe-hanja ${EL_CLS[ei]}">${EL_N[ei]}</span> ${EL_K[ei]}`;
+  document.getElementById('qMsg').textContent=EL_N[ei]+cat.ask;
+  // Feedback reset
+  const fm=document.getElementById('fbMsg');fm.className='fb-msg';fm.textContent='';
+  // Options
+  const grid=document.getElementById('oGrid');grid.innerHTML='';
+  const order=shuf([0,1,2,3,4]);
+  order.forEach(oi=>{
+    const item=cat.items[oi];
+    const d=document.createElement('div');d.className='emo';
+    d.innerHTML=`<div class="e-ico">${item.ico}</div><div class="e-ch">${item.ch}</div>${showH?`<div class="e-rd">${item.rd}</div>`:''}`;
+    d.onclick=()=>pick(oi,ei,q.cat);
+    grid.appendChild(d);
+  });
+  tmr=setTimeout(()=>{if(canIn)pick(-1,ei,q.cat);},baseTime);
+}
+function pick(chosen,ans,catIdx){
+  if(!canIn||!playing)return;
+  canIn=false;clearTimeout(tmr);clearInterval(barI);
+  const cat=CATS[catIdx];
+  const emos=document.querySelectorAll('.emo');
+  const fm=document.getElementById('fbMsg');
+  // Map grid positions to element indices
+  const order=[];emos.forEach(e=>{
+    const ch=e.querySelector('.e-ch').textContent;
+    order.push(cat.items.findIndex(it=>it.ch===ch));
+  });
+  // Highlight
+  emos.forEach((e,i)=>{if(order[i]===ans)e.classList.add('ok');else e.classList.add('dim');e.style.pointerEvents='none';});
+  if(chosen===ans){
+    ok++;combo++;total++;if(combo>maxCo)maxCo=combo;
+    const ms=Date.now()-startT;
+    let pts,lb;
+    if(ms<=1000){pts=130;lb='PERFECT!';}
+    else if(ms<=2000){pts=120;lb='GREAT!';}
+    else if(ms<=3000){pts=110;lb='GOOD';}
+    else{pts=100;lb='OK';}
+    const cb=Math.min(combo,20)*5;
+    score+=pts+cb;
+    fm.textContent=`${cat.items[ans].ico} ${lb} +${pts+cb}`;fm.className='fb-msg ok show';
+  } else if(chosen===-1){
+    lives--;combo=0;total++;
+    fm.textContent='⏰ 시간 초과!';fm.className='fb-msg no show';
+  } else {
+    lives--;combo=0;total++;
+    emos.forEach((e,i)=>{if(order[i]===chosen)e.classList.add('wrong');});
+    fm.textContent=`${cat.items[ans].ico} ${cat.items[ans].ch}이었어요!`;fm.className='fb-msg no show';
+  }
+  updHUD();qi++;
+  setTimeout(showNext,chosen===-1?700:850);
+}
+function endGame(){
+  playing=false;clearInterval(barI);
+  document.getElementById('hud').classList.remove('on');
+  document.getElementById('gameArea').style.display='none';
+  const pct=total?Math.round(ok/total*100):0;
+  const d=document.getElementById('sDiff').value;
+  const dn=d==='easy'?'쉬움':d==='hard'?'어려움':'보통';
+  let rk='C',rc='rk-c',face='😅';
+  if(pct===100&&lives===5){rk='과탑';rc='rk-god';face='👑';}
+  else if(pct>=96){rk='SSS';rc='rk-sss';face='🔥';}
+  else if(pct>=90){rk='S';rc='rk-s';face='🤩';}
+  else if(pct>=85){rk='A';rc='rk-a';face='😄';}
+  else if(pct>=70){rk='B';rc='rk-b';face='🙂';}
+  document.getElementById('rTag').innerHTML=`<span>${dn}</span><span>${showH?'한자+한글':'한자만'}</span>`;
+  document.getElementById('rFace').textContent=face;
+  document.getElementById('rSc').textContent=score;
+  document.getElementById('rDet').textContent=`${ok}/${total} 정답 (${pct}%)`;
+  document.getElementById('rCo').textContent=maxCo>=2?`최대 콤보: ${maxCo}`:'';
+  const r=document.getElementById('rRk');
+  if(rk==='과탑')r.innerHTML='👑 과탑 👑';
+  else if(rk==='SSS')r.innerHTML='✦ RANK SSS ✦';
+  else if(rk==='S')r.innerHTML='★ RANK S ★';
+  else r.textContent='RANK '+rk;
+  r.className='r-rank '+rc;
+  document.getElementById('sResult').classList.add('on');
+}
+function goHome(){
+  playing=false;clearTimeout(tmr);clearInterval(barI);
+  document.getElementById('hud').classList.remove('on');
+  document.getElementById('gameArea').style.display='none';
+  document.getElementById('sStart').classList.add('on');
+}
+document.addEventListener('keydown',e=>{
+  if(!playing)return;
+  const n=parseInt(e.key);
+  if(n>=1&&n<=5){e.preventDefault();const emos=document.querySelectorAll('.emo');if(emos[n-1])emos[n-1].click();}
+});
+</script>
+</body>
+</html>
